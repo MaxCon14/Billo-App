@@ -1,0 +1,98 @@
+import React, { useState } from "react";
+import { Pressable, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { CreditCard } from "lucide-react-native";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+export default function RegisterScreen() {
+  const router = useRouter();
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleRegister() {
+    if (password !== confirmPassword) {
+      setError("Passwords don't match");
+      return;
+    }
+    setError("");
+    setIsLoading(true);
+    // In production, use useAuth().signUpWithEmail(email, password, fullName)
+    setTimeout(() => {
+      setIsLoading(false);
+      router.replace("/(auth)/onboarding");
+    }, 1000);
+  }
+
+  return (
+    <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg">
+      <View className="flex-1 justify-center px-6">
+        <View className="mb-8 items-center">
+          <View className="mb-4 rounded-2xl bg-primary-600 p-4">
+            <CreditCard size={32} color="#fff" />
+          </View>
+          <Text className="text-2xl font-bold text-stone-900 dark:text-stone-100">
+            Create Account
+          </Text>
+          <Text className="mt-1 text-sm text-stone-500 dark:text-stone-400">
+            Start tracking your subscriptions today
+          </Text>
+        </View>
+
+        <View className="gap-4">
+          <Input
+            label="Full Name"
+            placeholder="John Doe"
+            value={fullName}
+            onChangeText={setFullName}
+          />
+          <Input
+            label="Email"
+            placeholder="you@example.com"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <Input
+            label="Password"
+            placeholder="Create a password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <Input
+            label="Confirm Password"
+            placeholder="Confirm your password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+            error={error}
+          />
+
+          <Button onPress={handleRegister} disabled={isLoading} className="mt-2">
+            <Text className="text-base font-semibold text-white">
+              {isLoading ? "Creating account..." : "Create Account"}
+            </Text>
+          </Button>
+
+          <View className="mt-4 flex-row items-center justify-center">
+            <Text className="text-sm text-stone-500 dark:text-stone-400">
+              Already have an account?{" "}
+            </Text>
+            <Pressable onPress={() => router.back()}>
+              <Text className="text-sm font-semibold text-primary-600 dark:text-primary-400">
+                Sign In
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
