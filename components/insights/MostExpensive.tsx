@@ -3,8 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { formatCurrency, getMonthlyAmount } from "@/lib/utils";
 import type { Subscription } from "@/types/subscription";
 import { Logo } from "@/components/shared/Logo";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { colors } from "@/lib/theme";
+import { colors, shadows, radius } from "@/lib/theme";
 
 interface MostExpensiveProps {
   subscriptions: Subscription[];
@@ -16,48 +15,117 @@ export function MostExpensive({ subscriptions }: MostExpensiveProps) {
   const top5 = subscriptions.slice(0, 5);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Most Expensive</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {top5.length === 0 ? (
-          <Text style={s.emptyText}>No subscriptions to rank</Text>
-        ) : (
-          <View style={s.list}>
-            {top5.map((sub, index) => {
-              const monthly = getMonthlyAmount(sub.amount, sub.billing_cycle);
-              return (
-                <View key={sub.id} style={s.row}>
-                  <View style={[s.rank, { backgroundColor: index < 3 ? MEDAL_COLORS[index] + "30" : colors.stone[100] }]}>
-                    <Text style={[s.rankText, { color: index < 3 ? MEDAL_COLORS[index] : colors.stone[500] }]}>
-                      {index + 1}
-                    </Text>
-                  </View>
-                  <Logo name={sub.name} logoUrl={sub.logo_url} size={36} />
-                  <View style={s.info}>
-                    <Text style={s.name}>{sub.name}</Text>
-                    <Text style={s.cycle}>{sub.billing_cycle}</Text>
-                  </View>
-                  <Text style={s.amount}>{formatCurrency(monthly, sub.currency)}/mo</Text>
+    <View style={styles.card}>
+      <Text style={styles.title}>Most Expensive</Text>
+
+      {top5.length === 0 ? (
+        <Text style={styles.emptyText}>No subscriptions to rank</Text>
+      ) : (
+        <View style={styles.list}>
+          {top5.map((sub, index) => {
+            const monthly = getMonthlyAmount(sub.amount, sub.billing_cycle);
+            const isMedal = index < 3;
+            return (
+              <View key={sub.id} style={styles.row}>
+                <View
+                  style={[
+                    styles.rank,
+                    {
+                      backgroundColor: isMedal
+                        ? MEDAL_COLORS[index] + "25"
+                        : colors.stone[100],
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.rankText,
+                      {
+                        color: isMedal
+                          ? MEDAL_COLORS[index]
+                          : colors.stone[500],
+                      },
+                    ]}
+                  >
+                    {index + 1}
+                  </Text>
                 </View>
-              );
-            })}
-          </View>
-        )}
-      </CardContent>
-    </Card>
+                <Logo name={sub.name} logoUrl={sub.logo_url} size={40} />
+                <View style={styles.info}>
+                  <Text style={styles.name} numberOfLines={1}>
+                    {sub.name}
+                  </Text>
+                  <Text style={styles.cycle}>{sub.billing_cycle}</Text>
+                </View>
+                <Text style={styles.amount}>
+                  {formatCurrency(monthly, sub.currency)}/mo
+                </Text>
+              </View>
+            );
+          })}
+        </View>
+      )}
+    </View>
   );
 }
 
-const s = StyleSheet.create({
-  emptyText: { paddingVertical: 16, textAlign: "center", fontSize: 14, color: colors.stone[500] },
-  list: { gap: 12 },
-  row: { flexDirection: "row", alignItems: "center" },
-  rank: { marginRight: 12, height: 28, width: 28, alignItems: "center", justifyContent: "center", borderRadius: 14 },
-  rankText: { fontSize: 12, fontWeight: "bold" },
-  info: { marginLeft: 12, flex: 1 },
-  name: { fontSize: 14, fontWeight: "500", color: colors.stone[900] },
-  cycle: { fontSize: 12, color: colors.stone[500] },
-  amount: { fontSize: 14, fontWeight: "bold", color: colors.stone[900] },
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: radius.xl,
+    backgroundColor: colors.white,
+    padding: 20,
+    ...shadows.md,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.stone[900],
+    marginBottom: 16,
+  },
+  emptyText: {
+    paddingVertical: 20,
+    textAlign: "center",
+    fontSize: 14,
+    color: colors.stone[400],
+  },
+  list: {
+    gap: 14,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  rank: {
+    marginRight: 12,
+    height: 32,
+    width: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+  },
+  rankText: {
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  info: {
+    marginLeft: 14,
+    flex: 1,
+  },
+  name: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.stone[900],
+    marginBottom: 2,
+  },
+  cycle: {
+    fontSize: 12,
+    fontWeight: "400",
+    color: colors.stone[400],
+  },
+  amount: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.stone[900],
+    letterSpacing: -0.2,
+  },
 });
