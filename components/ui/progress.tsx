@@ -28,8 +28,10 @@ export function Progress({ value, className, color }: ProgressProps) {
       )}
     >
       <Animated.View
-        className={cn("h-full rounded-full", color || "bg-primary-500")}
         style={{
+          height: "100%",
+          borderRadius: 9999,
+          backgroundColor: color || "#0D9488",
           width: width.interpolate({
             inputRange: [0, 100],
             outputRange: ["0%", "100%"],

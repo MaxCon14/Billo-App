@@ -1,12 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import { Pressable, Animated, type ViewProps } from "react-native";
-import { cn } from "@/lib/utils";
+import { Pressable, Animated } from "react-native";
 
-export interface SwitchProps extends Omit<ViewProps, "children"> {
+export interface SwitchProps {
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
   disabled?: boolean;
-  className?: string;
 }
 
 const TRACK_WIDTH = 52;
@@ -18,8 +16,6 @@ const Switch: React.FC<SwitchProps> = ({
   checked,
   onCheckedChange,
   disabled = false,
-  className,
-  ...props
 }) => {
   const translateX = useRef(new Animated.Value(checked ? TRAVEL : 0)).current;
 
@@ -35,25 +31,30 @@ const Switch: React.FC<SwitchProps> = ({
   return (
     <Pressable
       onPress={() => !disabled && onCheckedChange(!checked)}
-      className={cn(
-        "justify-center rounded-full",
-        checked
-          ? "bg-primary-600 dark:bg-primary-500"
-          : "bg-surface-300 dark:bg-dark-surface",
-        disabled && "opacity-50",
-        className
-      )}
-      style={{ width: TRACK_WIDTH, height: THUMB_SIZE + TRACK_PADDING * 2, padding: TRACK_PADDING }}
+      style={{
+        width: TRACK_WIDTH,
+        height: THUMB_SIZE + TRACK_PADDING * 2,
+        padding: TRACK_PADDING,
+        justifyContent: "center",
+        borderRadius: (THUMB_SIZE + TRACK_PADDING * 2) / 2,
+        backgroundColor: checked ? "#0D9488" : "#D6D3D1",
+        opacity: disabled ? 0.5 : 1,
+      }}
       accessibilityRole="switch"
       accessibilityState={{ checked, disabled }}
-      {...props}
     >
       <Animated.View
-        className="bg-white rounded-full shadow-sm"
         style={{
           width: THUMB_SIZE,
           height: THUMB_SIZE,
+          borderRadius: THUMB_SIZE / 2,
+          backgroundColor: "#FFFFFF",
           transform: [{ translateX }],
+          elevation: 2,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.2,
+          shadowRadius: 1.5,
         }}
       />
     </Pressable>

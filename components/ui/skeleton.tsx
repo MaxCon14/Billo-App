@@ -36,13 +36,14 @@ const Skeleton: React.FC<SkeletonProps> = ({
 
   return (
     <Animated.View
-      className={cn(
-        "bg-surface-200 dark:bg-dark-surface",
-        circle ? "rounded-full" : "rounded-xl",
-        className
-      )}
-      style={[{ opacity }, style]}
-      {...props}
+      style={[
+        {
+          backgroundColor: "#E7E5E4",
+          borderRadius: circle ? 9999 : 12,
+          opacity,
+        },
+        style,
+      ]}
     />
   );
 };
