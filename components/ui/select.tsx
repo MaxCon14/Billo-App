@@ -5,9 +5,11 @@ import {
   Pressable,
   Modal,
   FlatList,
+  StyleSheet,
   type ViewProps,
+  type ViewStyle,
 } from "react-native";
-import { cn } from "@/lib/utils";
+import { colors } from "@/lib/theme";
 
 export interface SelectOption {
   label: string;
@@ -21,7 +23,7 @@ export interface SelectProps extends Omit<ViewProps, "children"> {
   placeholder?: string;
   label?: string;
   disabled?: boolean;
-  className?: string;
+  style?: ViewStyle;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -31,7 +33,7 @@ const Select: React.FC<SelectProps> = ({
   placeholder = "Select...",
   label,
   disabled = false,
-  className,
+  style,
   ...props
 }) => {
   const [open, setOpen] = useState(false);
@@ -39,34 +41,25 @@ const Select: React.FC<SelectProps> = ({
   const selectedOption = options.find((o) => o.value === value);
 
   return (
-    <View className={cn("w-full", className)} {...props}>
-      {label && (
-        <Text className="text-sm font-medium text-surface-700 dark:text-dark-textSecondary mb-1.5">
-          {label}
-        </Text>
-      )}
+    <View style={[styles.container, style]} {...props}>
+      {label && <Text style={styles.label}>{label}</Text>}
 
       <Pressable
         onPress={() => !disabled && setOpen(true)}
-        className={cn(
-          "h-12 flex-row items-center justify-between rounded-xl border border-surface-300 dark:border-dark-border bg-white dark:bg-dark-card px-4",
-          disabled && "opacity-50"
-        )}
+        style={[styles.trigger, disabled && styles.disabled]}
       >
         <Text
-          className={cn(
-            "text-base flex-1",
+          style={[
+            styles.triggerText,
             selectedOption
-              ? "text-surface-900 dark:text-dark-text"
-              : "text-surface-400 dark:text-dark-textSecondary"
-          )}
+              ? styles.triggerTextSelected
+              : styles.triggerTextPlaceholder,
+          ]}
           numberOfLines={1}
         >
           {selectedOption ? selectedOption.label : placeholder}
         </Text>
-        <Text className="text-surface-400 dark:text-dark-textSecondary text-base ml-2">
-          {"\u25BE"}
-        </Text>
+        <Text style={styles.chevron}>{"\u25BE"}</Text>
       </Pressable>
 
       <Modal
@@ -76,16 +69,11 @@ const Select: React.FC<SelectProps> = ({
         onRequestClose={() => setOpen(false)}
         statusBarTranslucent
       >
-        <Pressable
-          className="flex-1 items-center justify-center bg-black/50"
-          onPress={() => setOpen(false)}
-        >
-          <View className="w-[85%] max-w-md max-h-[60%] bg-white dark:bg-dark-card rounded-2xl overflow-hidden border border-surface-200 dark:border-dark-border">
+        <Pressable style={styles.overlay} onPress={() => setOpen(false)}>
+          <View style={styles.dropdown}>
             {label && (
-              <View className="px-4 pt-4 pb-2 border-b border-surface-200 dark:border-dark-border">
-                <Text className="text-base font-bold text-surface-900 dark:text-dark-text">
-                  {label}
-                </Text>
+              <View style={styles.dropdownHeader}>
+                <Text style={styles.dropdownHeaderText}>{label}</Text>
               </View>
             )}
             <FlatList
@@ -99,32 +87,28 @@ const Select: React.FC<SelectProps> = ({
                       onValueChange(item.value);
                       setOpen(false);
                     }}
-                    className={cn(
-                      "px-4 py-3 flex-row items-center",
-                      isSelected && "bg-primary-50 dark:bg-primary-900/20"
-                    )}
+                    style={[
+                      styles.option,
+                      isSelected && styles.optionSelected,
+                    ]}
                   >
                     <Text
-                      className={cn(
-                        "text-base flex-1",
+                      style={[
+                        styles.optionText,
                         isSelected
-                          ? "text-primary-700 dark:text-primary-300 font-semibold"
-                          : "text-surface-900 dark:text-dark-text"
-                      )}
+                          ? styles.optionTextSelected
+                          : styles.optionTextDefault,
+                      ]}
                     >
                       {item.label}
                     </Text>
                     {isSelected && (
-                      <Text className="text-primary-600 dark:text-primary-400 text-base">
-                        {"\u2713"}
-                      </Text>
+                      <Text style={styles.checkmark}>{"\u2713"}</Text>
                     )}
                   </Pressable>
                 );
               }}
-              ItemSeparatorComponent={() => (
-                <View className="h-px bg-surface-100 dark:bg-dark-border mx-4" />
-              )}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
             />
           </View>
         </Pressable>
@@ -134,5 +118,102 @@ const Select: React.FC<SelectProps> = ({
 };
 
 Select.displayName = "Select";
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.stone[700],
+    marginBottom: 6,
+  },
+  trigger: {
+    height: 48,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.stone[300],
+    backgroundColor: colors.white,
+    paddingHorizontal: 16,
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  triggerText: {
+    fontSize: 16,
+    flex: 1,
+  },
+  triggerTextSelected: {
+    color: colors.stone[900],
+  },
+  triggerTextPlaceholder: {
+    color: colors.stone[400],
+  },
+  chevron: {
+    color: colors.stone[400],
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  overlay: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  dropdown: {
+    width: "85%",
+    maxHeight: "60%",
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: colors.stone[200],
+  },
+  dropdownHeader: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.stone[200],
+  },
+  dropdownHeaderText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: colors.stone[900],
+  },
+  option: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  optionSelected: {
+    backgroundColor: colors.primary[50],
+  },
+  optionText: {
+    fontSize: 16,
+    flex: 1,
+  },
+  optionTextDefault: {
+    color: colors.stone[900],
+  },
+  optionTextSelected: {
+    color: colors.primary[700],
+    fontWeight: "600",
+  },
+  checkmark: {
+    color: colors.primary[600],
+    fontSize: 16,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: colors.stone[100],
+    marginHorizontal: 16,
+  },
+});
 
 export { Select };

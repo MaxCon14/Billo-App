@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { FlatList, RefreshControl, View } from "react-native";
+import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
 import type { Subscription } from "@/types/subscription";
 import { SubscriptionCard } from "./SubscriptionCard";
 import { ListSkeleton } from "@/components/shared/LoadingSkeleton";
@@ -23,7 +23,7 @@ export function SubscriptionList({
 }: SubscriptionListProps) {
   const renderItem = useCallback(
     ({ item }: { item: Subscription }) => (
-      <View className="mb-3">
+      <View style={styles.itemWrapper}>
         <SubscriptionCard subscription={item} onPress={onSubscriptionPress} />
       </View>
     ),
@@ -49,7 +49,7 @@ export function SubscriptionList({
       data={subscriptions}
       keyExtractor={(item) => item.id}
       renderItem={renderItem}
-      contentContainerStyle={{ padding: 16 }}
+      contentContainerStyle={styles.listContent}
       showsVerticalScrollIndicator={false}
       refreshControl={
         onRefresh ? (
@@ -59,3 +59,12 @@ export function SubscriptionList({
     />
   );
 }
+
+const styles = StyleSheet.create({
+  itemWrapper: {
+    marginBottom: 12,
+  },
+  listContent: {
+    padding: 16,
+  },
+});

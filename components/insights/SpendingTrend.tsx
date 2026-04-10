@@ -1,7 +1,8 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { colors } from "@/lib/theme";
 
 interface TrendData {
   month: string;
@@ -23,27 +24,30 @@ export function SpendingTrend({ data }: SpendingTrendProps) {
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <Text className="py-4 text-center text-sm text-stone-500 dark:text-stone-400">
-            No trend data yet
-          </Text>
+          <Text style={styles.emptyText}>No trend data yet</Text>
         ) : (
           <View>
-            <View className="flex-row items-end justify-between" style={{ height: barMaxHeight + 30 }}>
+            <View style={[styles.barsRow, { height: barMaxHeight + 30 }]}>
               {data.map((item, index) => {
                 const barHeight = (item.amount / maxAmount) * barMaxHeight;
                 const isLast = index === data.length - 1;
                 return (
-                  <View key={item.month} className="flex-1 items-center">
-                    <Text className="mb-1 text-xs font-medium text-stone-500 dark:text-stone-400">
+                  <View key={item.month} style={styles.barColumn}>
+                    <Text style={styles.barLabel}>
                       {formatCurrency(item.amount, "USD")}
                     </Text>
                     <View
-                      className={`w-8 rounded-t-lg ${isLast ? "bg-primary-500" : "bg-primary-200 dark:bg-primary-800"}`}
-                      style={{ height: Math.max(barHeight, 4) }}
+                      style={[
+                        styles.bar,
+                        {
+                          height: Math.max(barHeight, 4),
+                          backgroundColor: isLast
+                            ? colors.primary[500]
+                            : colors.primary[200],
+                        },
+                      ]}
                     />
-                    <Text className="mt-2 text-xs text-stone-500 dark:text-stone-400">
-                      {item.month}
-                    </Text>
+                    <Text style={styles.monthLabel}>{item.month}</Text>
                   </View>
                 );
               })}
@@ -54,3 +58,37 @@ export function SpendingTrend({ data }: SpendingTrendProps) {
     </Card>
   );
 }
+
+const styles = StyleSheet.create({
+  emptyText: {
+    paddingVertical: 16,
+    textAlign: "center",
+    fontSize: 14,
+    color: colors.stone[500],
+  },
+  barsRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+  },
+  barColumn: {
+    flex: 1,
+    alignItems: "center",
+  },
+  barLabel: {
+    marginBottom: 4,
+    fontSize: 12,
+    fontWeight: "500",
+    color: colors.stone[500],
+  },
+  bar: {
+    width: 32,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  monthLabel: {
+    marginTop: 8,
+    fontSize: 12,
+    color: colors.stone[500],
+  },
+});

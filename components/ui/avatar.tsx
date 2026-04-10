@@ -1,47 +1,49 @@
 import React, { useState } from "react";
-import { View, Text, Image, type ViewProps } from "react-native";
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  type ViewProps,
+  type ViewStyle,
+} from "react-native";
+import { colors } from "@/lib/theme";
 
-const avatarVariants = cva(
-  "items-center justify-center rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30",
-  {
-    variants: {
-      size: {
-        sm: "h-8 w-8",
-        md: "h-12 w-12",
-        lg: "h-16 w-16",
-      },
-    },
-    defaultVariants: {
-      size: "md",
-    },
-  }
-);
+export type AvatarSize = "sm" | "md" | "lg";
 
-const avatarTextVariants = cva("font-bold text-primary-700 dark:text-primary-300", {
-  variants: {
-    size: {
-      sm: "text-xs",
-      md: "text-base",
-      lg: "text-xl",
-    },
-  },
-  defaultVariants: {
-    size: "md",
-  },
-});
-
-export interface AvatarProps
-  extends ViewProps,
-    VariantProps<typeof avatarVariants> {
+export interface AvatarProps extends ViewProps {
   src?: string;
   fallback: string;
-  className?: string;
+  size?: AvatarSize;
+  style?: ViewStyle;
+}
+
+function getSizeStyle(size: AvatarSize): ViewStyle {
+  switch (size) {
+    case "sm":
+      return { height: 32, width: 32 };
+    case "lg":
+      return { height: 64, width: 64 };
+    case "md":
+    default:
+      return { height: 48, width: 48 };
+  }
+}
+
+function getTextSize(size: AvatarSize): number {
+  switch (size) {
+    case "sm":
+      return 12;
+    case "lg":
+      return 20;
+    case "md":
+    default:
+      return 16;
+  }
 }
 
 const Avatar = React.forwardRef<React.ElementRef<typeof View>, AvatarProps>(
-  ({ src, fallback, size, className, ...props }, ref) => {
+  ({ src, fallback, size = "md", style, ...props }, ref) => {
     const [imageError, setImageError] = useState(false);
 
     const showImage = src && !imageError;
@@ -49,18 +51,20 @@ const Avatar = React.forwardRef<React.ElementRef<typeof View>, AvatarProps>(
     return (
       <View
         ref={ref}
-        className={cn(avatarVariants({ size }), className)}
+        style={[styles.avatar, getSizeStyle(size), style]}
         {...props}
       >
         {showImage ? (
           <Image
             source={{ uri: src }}
-            className="h-full w-full"
+            style={styles.image}
             resizeMode="cover"
             onError={() => setImageError(true)}
           />
         ) : (
-          <Text className={cn(avatarTextVariants({ size }))}>
+          <Text
+            style={[styles.fallbackText, { fontSize: getTextSize(size) }]}
+          >
             {fallback}
           </Text>
         )}
@@ -71,4 +75,22 @@ const Avatar = React.forwardRef<React.ElementRef<typeof View>, AvatarProps>(
 
 Avatar.displayName = "Avatar";
 
-export { Avatar, avatarVariants };
+const styles = StyleSheet.create({
+  avatar: {
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 9999,
+    overflow: "hidden",
+    backgroundColor: colors.primary[100],
+  },
+  image: {
+    height: "100%",
+    width: "100%",
+  },
+  fallbackText: {
+    fontWeight: "bold",
+    color: colors.primary[700],
+  },
+});
+
+export { Avatar };

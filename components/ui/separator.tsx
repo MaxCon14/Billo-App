@@ -1,21 +1,20 @@
 import React from "react";
-import { View, type ViewProps } from "react-native";
-import { cn } from "@/lib/utils";
+import { View, StyleSheet, type ViewProps, type ViewStyle } from "react-native";
+import { colors } from "@/lib/theme";
 
 export interface SeparatorProps extends ViewProps {
-  className?: string;
   orientation?: "horizontal" | "vertical";
+  style?: ViewStyle;
 }
 
 const Separator = React.forwardRef<React.ElementRef<typeof View>, SeparatorProps>(
-  ({ className, orientation = "horizontal", ...props }, ref) => (
+  ({ orientation = "horizontal", style, ...props }, ref) => (
     <View
       ref={ref}
-      className={cn(
-        "bg-surface-200 dark:bg-dark-border",
-        orientation === "horizontal" ? "h-px w-full" : "w-px h-full",
-        className
-      )}
+      style={[
+        orientation === "horizontal" ? styles.horizontal : styles.vertical,
+        style,
+      ]}
       {...props}
     />
   )
@@ -24,3 +23,16 @@ const Separator = React.forwardRef<React.ElementRef<typeof View>, SeparatorProps
 Separator.displayName = "Separator";
 
 export { Separator };
+
+const styles = StyleSheet.create({
+  horizontal: {
+    height: StyleSheet.hairlineWidth,
+    width: "100%",
+    backgroundColor: colors.stone[200],
+  },
+  vertical: {
+    width: StyleSheet.hairlineWidth,
+    height: "100%",
+    backgroundColor: colors.stone[200],
+  },
+});

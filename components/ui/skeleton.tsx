@@ -1,33 +1,20 @@
 import React, { useEffect, useRef } from "react";
-import { Animated, type ViewProps } from "react-native";
-import { cn } from "@/lib/utils";
+import { Animated, type ViewStyle } from "react-native";
+import { colors } from "@/lib/theme";
 
-export interface SkeletonProps extends ViewProps {
-  className?: string;
+export interface SkeletonProps {
+  style?: ViewStyle;
   circle?: boolean;
 }
 
-const Skeleton: React.FC<SkeletonProps> = ({
-  className,
-  circle = false,
-  style,
-  ...props
-}) => {
+const Skeleton: React.FC<SkeletonProps> = ({ style, circle = false }) => {
   const opacity = useRef(new Animated.Value(0.4)).current;
 
   useEffect(() => {
     const animation = Animated.loop(
       Animated.sequence([
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity, {
-          toValue: 0.4,
-          duration: 800,
-          useNativeDriver: true,
-        }),
+        Animated.timing(opacity, { toValue: 1, duration: 800, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0.4, duration: 800, useNativeDriver: true }),
       ])
     );
     animation.start();
@@ -38,7 +25,7 @@ const Skeleton: React.FC<SkeletonProps> = ({
     <Animated.View
       style={[
         {
-          backgroundColor: "#E7E5E4",
+          backgroundColor: colors.stone[200],
           borderRadius: circle ? 9999 : 12,
           opacity,
         },

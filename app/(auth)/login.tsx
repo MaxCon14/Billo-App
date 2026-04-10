@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { CreditCard, Mail } from "lucide-react-native";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/toast";
+import { colors } from "@/lib/theme";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -36,21 +37,19 @@ export default function LoginScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg">
-      <View className="flex-1 justify-center px-6">
-        <View className="mb-10 items-center">
-          <View className="mb-4 rounded-2xl bg-primary-600 p-4">
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.iconWrapper}>
             <CreditCard size={32} color="#fff" />
           </View>
-          <Text className="text-3xl font-bold text-stone-900 dark:text-stone-100">
-            SubTracker
-          </Text>
-          <Text className="mt-2 text-center text-sm text-stone-500 dark:text-stone-400">
+          <Text style={styles.title}>SubTracker</Text>
+          <Text style={styles.subtitle}>
             Track and manage all your subscriptions in one place
           </Text>
         </View>
 
-        <View className="gap-4">
+        <View style={styles.form}>
           <Input
             label="Email"
             placeholder="you@example.com"
@@ -67,35 +66,29 @@ export default function LoginScreen() {
             secureTextEntry
           />
 
-          <Button onPress={handleLogin} disabled={isLoading} className="mt-2">
-            <Text className="text-base font-semibold text-white">
+          <Button onPress={handleLogin} disabled={isLoading} style={{ marginTop: 8 }}>
+            <Text style={styles.buttonText}>
               {isLoading ? "Signing in..." : "Sign In"}
             </Text>
           </Button>
 
-          <View className="my-4 flex-row items-center">
-            <View className="h-px flex-1 bg-surface-300 dark:bg-dark-border" />
-            <Text className="mx-4 text-xs text-stone-500 dark:text-stone-400">OR</Text>
-            <View className="h-px flex-1 bg-surface-300 dark:bg-dark-border" />
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>OR</Text>
+            <View style={styles.dividerLine} />
           </View>
 
           <Button variant="outline" onPress={handleGoogleLogin} disabled={isLoading}>
-            <View className="flex-row items-center">
+            <View style={styles.googleRow}>
               <Mail size={18} color="#78716C" />
-              <Text className="ml-2 text-sm font-medium text-stone-700 dark:text-stone-300">
-                Continue with Google
-              </Text>
+              <Text style={styles.googleText}>Continue with Google</Text>
             </View>
           </Button>
 
-          <View className="mt-4 flex-row items-center justify-center">
-            <Text className="text-sm text-stone-500 dark:text-stone-400">
-              Don't have an account?{" "}
-            </Text>
+          <View style={styles.footerRow}>
+            <Text style={styles.footerText}>Don't have an account? </Text>
             <Pressable onPress={() => router.push("/(auth)/register")}>
-              <Text className="text-sm font-semibold text-primary-600 dark:text-primary-400">
-                Sign Up
-              </Text>
+              <Text style={styles.footerLink}>Sign Up</Text>
             </Pressable>
           </View>
         </View>
@@ -103,3 +96,84 @@ export default function LoginScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.stone[50],
+  },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  header: {
+    marginBottom: 40,
+    alignItems: "center",
+  },
+  iconWrapper: {
+    marginBottom: 16,
+    borderRadius: 16,
+    backgroundColor: colors.primary[600],
+    padding: 16,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: "700",
+    color: colors.stone[900],
+  },
+  subtitle: {
+    marginTop: 8,
+    textAlign: "center",
+    fontSize: 14,
+    color: colors.stone[500],
+  },
+  form: {
+    gap: 16,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.white,
+  },
+  dividerRow: {
+    marginVertical: 16,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  dividerLine: {
+    height: 1,
+    flex: 1,
+    backgroundColor: colors.stone[300],
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 12,
+    color: colors.stone[500],
+  },
+  googleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  googleText: {
+    marginLeft: 8,
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.stone[700],
+  },
+  footerRow: {
+    marginTop: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  footerText: {
+    fontSize: 14,
+    color: colors.stone[500],
+  },
+  footerLink: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.primary[600],
+  },
+});

@@ -1,6 +1,7 @@
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Plus, Building2 } from "lucide-react-native";
+import { colors } from "@/lib/theme";
 
 interface QuickActionsProps {
   onAddSubscription: () => void;
@@ -9,28 +10,62 @@ interface QuickActionsProps {
 
 export function QuickActions({ onAddSubscription, onConnectBank }: QuickActionsProps) {
   return (
-    <View className="flex-row gap-3">
-      <Pressable onPress={onAddSubscription} className="flex-1 active:opacity-80">
-        <View className="items-center rounded-2xl border border-surface-200 bg-white p-4 dark:border-dark-border dark:bg-dark-card">
-          <View className="mb-2 rounded-full bg-primary-100 p-3 dark:bg-primary-900">
-            <Plus size={22} color="#0D9488" />
+    <View style={styles.container}>
+      <Pressable
+        onPress={onAddSubscription}
+        style={({ pressed }) => [styles.pressable, pressed && styles.pressed]}
+      >
+        <View style={styles.card}>
+          <View style={styles.iconCircle}>
+            <Plus size={22} color={colors.primary[600]} />
           </View>
-          <Text className="text-sm font-medium text-stone-900 dark:text-stone-100">
-            Add Subscription
-          </Text>
+          <Text style={styles.label}>Add Subscription</Text>
         </View>
       </Pressable>
 
-      <Pressable onPress={onConnectBank} className="flex-1 active:opacity-80">
-        <View className="items-center rounded-2xl border border-surface-200 bg-white p-4 dark:border-dark-border dark:bg-dark-card">
-          <View className="mb-2 rounded-full bg-primary-100 p-3 dark:bg-primary-900">
-            <Building2 size={22} color="#0D9488" />
+      <Pressable
+        onPress={onConnectBank}
+        style={({ pressed }) => [styles.pressable, pressed && styles.pressed]}
+      >
+        <View style={styles.card}>
+          <View style={styles.iconCircle}>
+            <Building2 size={22} color={colors.primary[600]} />
           </View>
-          <Text className="text-sm font-medium text-stone-900 dark:text-stone-100">
-            Connect Bank
-          </Text>
+          <Text style={styles.label}>Connect Bank</Text>
         </View>
       </Pressable>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  pressable: {
+    flex: 1,
+  },
+  pressed: {
+    opacity: 0.8,
+  },
+  card: {
+    alignItems: "center",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.stone[200],
+    backgroundColor: colors.white,
+    padding: 16,
+  },
+  iconCircle: {
+    marginBottom: 8,
+    borderRadius: 9999,
+    backgroundColor: colors.primary[100],
+    padding: 12,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.stone[900],
+  },
+});

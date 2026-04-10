@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SubscriptionForm } from "@/components/subscription/SubscriptionForm";
@@ -10,6 +10,7 @@ import {
 } from "@/hooks/useSubscriptions";
 import { useToast } from "@/components/ui/toast";
 import type { SubscriptionFormData } from "@/types/subscription";
+import { colors } from "@/lib/theme";
 
 export default function EditSubscriptionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -37,7 +38,7 @@ export default function EditSubscriptionScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-surface-50 dark:bg-dark-bg">
+      <SafeAreaView style={styles.centered}>
         <ActivityIndicator size="large" color="#0D9488" />
       </SafeAreaView>
     );
@@ -45,7 +46,7 @@ export default function EditSubscriptionScreen() {
 
   if (!subscription) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-surface-50 dark:bg-dark-bg">
+      <SafeAreaView style={styles.centered}>
         <ActivityIndicator size="large" color="#0D9488" />
       </SafeAreaView>
     );
@@ -67,7 +68,7 @@ export default function EditSubscriptionScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg" edges={["bottom"]}>
+    <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
       <SubscriptionForm
         initialData={initialData}
         onSubmit={handleSubmit}
@@ -77,3 +78,16 @@ export default function EditSubscriptionScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.stone[50],
+  },
+  centered: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.stone[50],
+  },
+});

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { colors } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BillingCycleSelector } from "./BillingCycleSelector";
@@ -63,8 +64,8 @@ export function SubscriptionForm({
   }
 
   return (
-    <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
-      <View className="gap-4">
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+      <View style={styles.formGroup}>
         <Input
           label="Subscription Name"
           placeholder="e.g., Netflix, Spotify"
@@ -85,10 +86,10 @@ export function SubscriptionForm({
         <BillingCycleSelector value={billingCycle} onChange={setBillingCycle} />
 
         <View>
-          <Text className="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">
+          <Text style={styles.sectionLabel}>
             Category
           </Text>
-          <View className="flex-row flex-wrap gap-2">
+          <View style={styles.categoryWrap}>
             {categories.map((cat) => (
               <CategoryBadge
                 key={cat.id}
@@ -128,8 +129,8 @@ export function SubscriptionForm({
           numberOfLines={3}
         />
 
-        <Button onPress={handleSubmit} disabled={isLoading} className="mt-4">
-          <Text className="text-base font-semibold text-white">
+        <Button onPress={handleSubmit} disabled={isLoading} style={styles.submitButton}>
+          <Text style={styles.submitText}>
             {isLoading ? "Saving..." : initialData ? "Update Subscription" : "Add Subscription"}
           </Text>
         </Button>
@@ -137,3 +138,34 @@ export function SubscriptionForm({
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 16,
+  },
+  formGroup: {
+    gap: 16,
+  },
+  sectionLabel: {
+    marginBottom: 8,
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.stone[700],
+  },
+  categoryWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  submitButton: {
+    marginTop: 16,
+  },
+  submitText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.white,
+  },
+});

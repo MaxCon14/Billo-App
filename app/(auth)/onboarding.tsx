@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { CreditCard, Plus, Building2, Bell, ArrowRight } from "lucide-react-native";
 import { Button } from "@/components/ui/button";
+import { colors } from "@/lib/theme";
 
 const STEPS = [
   {
@@ -47,35 +48,32 @@ export default function OnboardingScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg">
-      <View className="flex-1 items-center justify-center px-8">
-        <View className="mb-8 rounded-3xl bg-primary-100 p-6 dark:bg-primary-900">
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.content}>
+        <View style={styles.iconCircle}>
           <Icon size={48} color="#0D9488" />
         </View>
 
-        <Text className="mb-3 text-center text-2xl font-bold text-stone-900 dark:text-stone-100">
-          {currentStep.title}
-        </Text>
-        <Text className="mb-8 text-center text-base text-stone-500 dark:text-stone-400">
-          {currentStep.description}
-        </Text>
+        <Text style={styles.title}>{currentStep.title}</Text>
+        <Text style={styles.description}>{currentStep.description}</Text>
 
-        <View className="mb-8 flex-row gap-2">
+        <View style={styles.dotsRow}>
           {STEPS.map((_, i) => (
             <View
               key={i}
-              className={`h-2 rounded-full ${
-                i === step ? "w-8 bg-primary-600" : "w-2 bg-surface-300 dark:bg-dark-border"
-              }`}
+              style={[
+                styles.dot,
+                i === step ? styles.dotActive : styles.dotInactive,
+              ]}
             />
           ))}
         </View>
       </View>
 
-      <View className="px-6 pb-8">
+      <View style={styles.footer}>
         <Button onPress={handleNext}>
-          <View className="flex-row items-center">
-            <Text className="mr-2 text-base font-semibold text-white">
+          <View style={styles.buttonRow}>
+            <Text style={styles.buttonText}>
               {step === STEPS.length - 1 ? "Get Started" : "Next"}
             </Text>
             <ArrowRight size={18} color="#fff" />
@@ -85,14 +83,83 @@ export default function OnboardingScreen() {
         {step < STEPS.length - 1 && (
           <Pressable
             onPress={() => router.replace("/(tabs)")}
-            className="mt-4 items-center"
+            style={styles.skipButton}
           >
-            <Text className="text-sm text-stone-500 dark:text-stone-400">
-              Skip
-            </Text>
+            <Text style={styles.skipText}>Skip</Text>
           </Pressable>
         )}
       </View>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.stone[50],
+  },
+  content: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 32,
+  },
+  iconCircle: {
+    marginBottom: 32,
+    borderRadius: 24,
+    backgroundColor: colors.primary[100],
+    padding: 24,
+  },
+  title: {
+    marginBottom: 12,
+    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "700",
+    color: colors.stone[900],
+  },
+  description: {
+    marginBottom: 32,
+    textAlign: "center",
+    fontSize: 16,
+    color: colors.stone[500],
+  },
+  dotsRow: {
+    marginBottom: 32,
+    flexDirection: "row",
+    gap: 8,
+  },
+  dot: {
+    height: 8,
+    borderRadius: 4,
+  },
+  dotActive: {
+    width: 32,
+    backgroundColor: colors.primary[600],
+  },
+  dotInactive: {
+    width: 8,
+    backgroundColor: colors.stone[300],
+  },
+  footer: {
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  buttonText: {
+    marginRight: 8,
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.white,
+  },
+  skipButton: {
+    marginTop: 16,
+    alignItems: "center",
+  },
+  skipText: {
+    fontSize: 14,
+    color: colors.stone[500],
+  },
+});

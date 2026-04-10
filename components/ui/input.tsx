@@ -3,39 +3,41 @@ import {
   View,
   Text,
   TextInput,
+  StyleSheet,
   type TextInputProps,
+  type ViewStyle,
 } from "react-native";
-import { cn } from "@/lib/utils";
+import { colors } from "@/lib/theme";
 
 export interface InputProps extends TextInputProps {
-  className?: string;
   label?: string;
   error?: string;
-  containerClassName?: string;
+  containerStyle?: ViewStyle;
 }
 
 const Input = React.forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
-  ({ className, label, error, containerClassName, ...props }, ref) => {
+  ({ label, error, containerStyle, editable, style, ...props }, ref) => {
     return (
-      <View className={cn("w-full", containerClassName)}>
+      <View style={[styles.container, containerStyle]}>
         {label && (
-          <Text className="text-sm font-medium text-surface-700 dark:text-dark-textSecondary mb-1.5">
+          <Text style={styles.label}>
             {label}
           </Text>
         )}
         <TextInput
           ref={ref}
-          className={cn(
-            "h-12 rounded-xl border border-surface-300 dark:border-dark-border bg-white dark:bg-dark-card px-4 text-base text-surface-900 dark:text-dark-text",
-            error && "border-red-500 dark:border-red-500",
-            props.editable === false && "opacity-50",
-            className
-          )}
+          style={[
+            styles.input,
+            error ? styles.inputError : undefined,
+            editable === false ? styles.disabled : undefined,
+            style,
+          ]}
           placeholderTextColor="#9CA3AF"
+          editable={editable}
           {...props}
         />
         {error && (
-          <Text className="text-sm text-red-500 mt-1">{error}</Text>
+          <Text style={styles.errorText}>{error}</Text>
         )}
       </View>
     );
@@ -45,3 +47,36 @@ const Input = React.forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
 Input.displayName = "Input";
 
 export { Input };
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.stone[700],
+    marginBottom: 6,
+  },
+  input: {
+    height: 48,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.stone[300],
+    backgroundColor: colors.white,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: colors.stone[900],
+  },
+  inputError: {
+    borderColor: colors.red[500],
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  errorText: {
+    fontSize: 14,
+    color: colors.red[500],
+    marginTop: 4,
+  },
+});

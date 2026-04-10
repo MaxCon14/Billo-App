@@ -1,6 +1,6 @@
 import React from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
-import { cn } from "@/lib/utils";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { colors } from "@/lib/theme";
 import { BILLING_CYCLES } from "@/lib/constants";
 import type { BillingCycle } from "@/types/subscription";
 
@@ -12,40 +12,79 @@ interface BillingCycleSelectorProps {
 export function BillingCycleSelector({ value, onChange }: BillingCycleSelectorProps) {
   return (
     <View>
-      <Text className="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">
+      <Text style={styles.label}>
         Billing Cycle
       </Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View className="flex-row gap-2">
-          {BILLING_CYCLES.map((cycle) => (
-            <Pressable
-              key={cycle.value}
-              onPress={() => onChange(cycle.value)}
-              className="active:opacity-80"
-            >
-              <View
-                className={cn(
-                  "rounded-xl px-4 py-2.5 border",
-                  value === cycle.value
-                    ? "bg-primary-600 border-primary-600"
-                    : "border-surface-300 bg-white dark:border-dark-border dark:bg-dark-card"
-                )}
+        <View style={styles.row}>
+          {BILLING_CYCLES.map((cycle) => {
+            const isSelected = value === cycle.value;
+            return (
+              <Pressable
+                key={cycle.value}
+                onPress={() => onChange(cycle.value)}
+                style={({ pressed }) => pressed ? styles.pressed : undefined}
               >
-                <Text
-                  className={cn(
-                    "text-sm font-medium",
-                    value === cycle.value
-                      ? "text-white"
-                      : "text-stone-700 dark:text-stone-300"
-                  )}
+                <View
+                  style={[
+                    styles.chip,
+                    isSelected ? styles.chipSelected : styles.chipUnselected,
+                  ]}
                 >
-                  {cycle.label}
-                </Text>
-              </View>
-            </Pressable>
-          ))}
+                  <Text
+                    style={[
+                      styles.chipText,
+                      isSelected ? styles.chipTextSelected : styles.chipTextUnselected,
+                    ]}
+                  >
+                    {cycle.label}
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          })}
         </View>
       </ScrollView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  pressed: {
+    opacity: 0.8,
+  },
+  label: {
+    marginBottom: 8,
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.stone[700],
+  },
+  row: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  chip: {
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderWidth: 1,
+  },
+  chipSelected: {
+    backgroundColor: colors.primary[600],
+    borderColor: colors.primary[600],
+  },
+  chipUnselected: {
+    borderColor: colors.stone[300],
+    backgroundColor: colors.white,
+  },
+  chipText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  chipTextSelected: {
+    color: colors.white,
+  },
+  chipTextUnselected: {
+    color: colors.stone[700],
+  },
+});

@@ -1,12 +1,11 @@
 import React from "react";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import {
   User,
   Bell,
   Building2,
-  Palette,
   CircleDollarSign,
   LogOut,
   ChevronRight,
@@ -17,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/toast";
+import { colors } from "@/lib/theme";
 
 interface SettingsItemProps {
   icon: React.ReactNode;
@@ -28,20 +28,12 @@ interface SettingsItemProps {
 
 function SettingsItem({ icon, title, subtitle, onPress, trailing }: SettingsItemProps) {
   return (
-    <Pressable onPress={onPress} className="active:opacity-80">
-      <View className="flex-row items-center py-3">
-        <View className="mr-3 rounded-xl bg-surface-100 p-2.5 dark:bg-dark-border">
-          {icon}
-        </View>
-        <View className="flex-1">
-          <Text className="text-sm font-medium text-stone-900 dark:text-stone-100">
-            {title}
-          </Text>
-          {subtitle && (
-            <Text className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
-              {subtitle}
-            </Text>
-          )}
+    <Pressable onPress={onPress}>
+      <View style={s.itemRow}>
+        <View style={s.iconBox}>{icon}</View>
+        <View style={s.itemContent}>
+          <Text style={s.itemTitle}>{title}</Text>
+          {subtitle && <Text style={s.itemSubtitle}>{subtitle}</Text>}
         </View>
         {trailing || <ChevronRight size={18} color="#A8A29E" />}
       </View>
@@ -99,27 +91,17 @@ export default function SettingsScreen() {
       .slice(0, 2) ?? "?";
 
   return (
-    <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg" edges={["top"]}>
-      <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 16 }}>
-        <Text className="text-2xl font-bold text-stone-900 dark:text-stone-100">
-          Settings
-        </Text>
+    <SafeAreaView style={s.screen} edges={["top"]}>
+      <ScrollView style={s.flex1} contentContainerStyle={s.scrollContent}>
+        <Text style={s.title}>Settings</Text>
 
         <Card>
           <CardContent>
-            <View className="flex-row items-center py-2">
-              <Avatar
-                fallback={initials}
-                src={profile?.avatar_url ?? undefined}
-                size="lg"
-              />
-              <View className="ml-4 flex-1">
-                <Text className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                  {profile?.full_name ?? "User"}
-                </Text>
-                <Text className="text-sm text-stone-500 dark:text-stone-400">
-                  {user?.email ?? ""}
-                </Text>
+            <View style={s.profileRow}>
+              <Avatar fallback={initials} src={profile?.avatar_url ?? undefined} size="lg" />
+              <View style={s.profileInfo}>
+                <Text style={s.profileName}>{profile?.full_name ?? "User"}</Text>
+                <Text style={s.profileEmail}>{user?.email ?? ""}</Text>
               </View>
             </View>
           </CardContent>
@@ -127,69 +109,74 @@ export default function SettingsScreen() {
 
         <Card>
           <CardContent>
-            <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-              Account
-            </Text>
-            <SettingsItem
-              icon={<User size={18} color="#0D9488" />}
-              title="Edit Profile"
-              subtitle="Name, email, avatar"
-            />
-            <SettingsItem
-              icon={<CircleDollarSign size={18} color="#0D9488" />}
-              title="Currency"
-              subtitle={profile?.currency ?? "USD"}
-            />
-            <SettingsItem
-              icon={<Building2 size={18} color="#0D9488" />}
-              title="Connected Banks"
-              subtitle="Manage linked accounts"
-              onPress={() => router.push("/plaid/link")}
-            />
+            <Text style={s.sectionLabel}>Account</Text>
+            <SettingsItem icon={<User size={18} color="#0D9488" />} title="Edit Profile" subtitle="Name, email, avatar" />
+            <SettingsItem icon={<CircleDollarSign size={18} color="#0D9488" />} title="Currency" subtitle={profile?.currency ?? "USD"} />
+            <SettingsItem icon={<Building2 size={18} color="#0D9488" />} title="Connected Banks" subtitle="Manage linked accounts" onPress={() => router.push("/plaid/link")} />
           </CardContent>
         </Card>
 
         <Card>
           <CardContent>
-            <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-              Notifications
-            </Text>
+            <Text style={s.sectionLabel}>Notifications</Text>
             <SettingsItem
               icon={<Bell size={18} color="#0D9488" />}
               title="Push Notifications"
               subtitle="Renewal reminders on your device"
-              trailing={
-                <Switch checked={pushEnabled} onCheckedChange={handleTogglePush} />
-              }
+              trailing={<Switch checked={pushEnabled} onCheckedChange={handleTogglePush} />}
             />
             <SettingsItem
               icon={<Bell size={18} color="#0D9488" />}
               title="Email Notifications"
               subtitle="Renewal reminders via email"
-              trailing={
-                <Switch checked={emailEnabled} onCheckedChange={handleToggleEmail} />
-              }
+              trailing={<Switch checked={emailEnabled} onCheckedChange={handleToggleEmail} />}
             />
           </CardContent>
         </Card>
 
         <Card>
           <CardContent>
-            <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-              About
-            </Text>
+            <Text style={s.sectionLabel}>About</Text>
             <SettingsItem icon={<Shield size={18} color="#0D9488" />} title="Privacy Policy" />
             <SettingsItem icon={<Shield size={18} color="#0D9488" />} title="Terms of Service" />
           </CardContent>
         </Card>
 
-        <Pressable onPress={handleSignOut} className="active:opacity-80">
-          <View className="flex-row items-center justify-center rounded-2xl border border-red-200 bg-red-50 py-3.5 dark:border-red-900 dark:bg-red-950">
+        <Pressable onPress={handleSignOut}>
+          <View style={s.signOutBtn}>
             <LogOut size={18} color="#EF4444" />
-            <Text className="ml-2 text-sm font-semibold text-red-500">Sign Out</Text>
+            <Text style={s.signOutText}>Sign Out</Text>
           </View>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const s = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.stone[50] },
+  flex1: { flex: 1 },
+  scrollContent: { padding: 16, gap: 16 },
+  title: { fontSize: 24, fontWeight: "bold", color: colors.stone[900] },
+  profileRow: { flexDirection: "row", alignItems: "center", paddingVertical: 8 },
+  profileInfo: { marginLeft: 16, flex: 1 },
+  profileName: { fontSize: 18, fontWeight: "600", color: colors.stone[900] },
+  profileEmail: { fontSize: 14, color: colors.stone[500] },
+  sectionLabel: {
+    marginBottom: 8, fontSize: 12, fontWeight: "600",
+    textTransform: "uppercase", letterSpacing: 1, color: colors.stone[500],
+  },
+  itemRow: { flexDirection: "row", alignItems: "center", paddingVertical: 12 },
+  iconBox: {
+    marginRight: 12, borderRadius: 12, backgroundColor: colors.stone[100], padding: 10,
+  },
+  itemContent: { flex: 1 },
+  itemTitle: { fontSize: 14, fontWeight: "500", color: colors.stone[900] },
+  itemSubtitle: { marginTop: 2, fontSize: 12, color: colors.stone[500] },
+  signOutBtn: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center",
+    borderRadius: 16, borderWidth: 1, borderColor: colors.red[200],
+    backgroundColor: colors.red[50], paddingVertical: 14,
+  },
+  signOutText: { marginLeft: 8, fontSize: 14, fontWeight: "600", color: colors.red[500] },
+});

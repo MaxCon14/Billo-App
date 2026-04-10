@@ -1,7 +1,7 @@
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
-import { cn } from "@/lib/utils";
+import { colors } from "@/lib/theme";
 import type { Subscription } from "@/types/subscription";
 
 interface BillingCalendarProps {
@@ -68,33 +68,29 @@ export function BillingCalendar({
   }
 
   return (
-    <View className="rounded-2xl border border-surface-200 bg-white p-4 dark:border-dark-border dark:bg-dark-card">
-      <View className="mb-4 flex-row items-center justify-between">
-        <Pressable onPress={prevMonth} className="p-2">
+    <View style={styles.card}>
+      <View style={styles.headerRow}>
+        <Pressable onPress={prevMonth} style={styles.navButton}>
           <ChevronLeft size={20} color="#78716C" />
         </Pressable>
-        <Text className="text-base font-semibold text-stone-900 dark:text-stone-100">
-          {monthLabel}
-        </Text>
-        <Pressable onPress={nextMonth} className="p-2">
+        <Text style={styles.monthLabel}>{monthLabel}</Text>
+        <Pressable onPress={nextMonth} style={styles.navButton}>
           <ChevronRight size={20} color="#78716C" />
         </Pressable>
       </View>
 
-      <View className="flex-row">
+      <View style={styles.weekdayRow}>
         {WEEKDAYS.map((day) => (
-          <View key={day} className="flex-1 items-center pb-2">
-            <Text className="text-xs font-medium text-stone-500 dark:text-stone-400">
-              {day}
-            </Text>
+          <View key={day} style={styles.weekdayCell}>
+            <Text style={styles.weekdayText}>{day}</Text>
           </View>
         ))}
       </View>
 
-      <View className="flex-row flex-wrap">
+      <View style={styles.daysGrid}>
         {days.map((day, index) => {
           if (day === null) {
-            return <View key={`empty-${index}`} className="h-12 w-[14.28%]" />;
+            return <View key={`empty-${index}`} style={styles.dayCell} />;
           }
 
           const date = new Date(year, month, day);
@@ -106,35 +102,31 @@ export function BillingCalendar({
             <Pressable
               key={day}
               onPress={() => onSelectDate(date)}
-              className="h-12 w-[14.28%] items-center justify-center"
+              style={styles.dayCell}
             >
               <View
-                className={cn(
-                  "h-8 w-8 items-center justify-center rounded-full",
-                  isSelected && "bg-primary-600",
-                  isToday && !isSelected && "border border-primary-500"
-                )}
+                style={[
+                  styles.dayCircle,
+                  isSelected && styles.dayCircleSelected,
+                  isToday && !isSelected && styles.dayCircleToday,
+                ]}
               >
                 <Text
-                  className={cn(
-                    "text-sm",
-                    isSelected
-                      ? "font-bold text-white"
-                      : isToday
-                        ? "font-semibold text-primary-600 dark:text-primary-400"
-                        : "text-stone-900 dark:text-stone-100"
-                  )}
+                  style={[
+                    styles.dayText,
+                    isSelected && styles.dayTextSelected,
+                    isToday && !isSelected && styles.dayTextToday,
+                  ]}
                 >
                   {day}
                 </Text>
               </View>
               {dots.length > 0 && (
-                <View className="mt-0.5 flex-row gap-0.5">
+                <View style={styles.dotsRow}>
                   {dots.slice(0, 3).map((color, i) => (
                     <View
                       key={i}
-                      className="h-1 w-1 rounded-full"
-                      style={{ backgroundColor: color }}
+                      style={[styles.dot, { backgroundColor: color }]}
                     />
                   ))}
                 </View>
@@ -146,3 +138,86 @@ export function BillingCalendar({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.stone[200],
+    backgroundColor: colors.white,
+    padding: 16,
+  },
+  headerRow: {
+    marginBottom: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  navButton: {
+    padding: 8,
+  },
+  monthLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.stone[900],
+  },
+  weekdayRow: {
+    flexDirection: "row",
+  },
+  weekdayCell: {
+    flex: 1,
+    alignItems: "center",
+    paddingBottom: 8,
+  },
+  weekdayText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: colors.stone[500],
+  },
+  daysGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  dayCell: {
+    height: 48,
+    width: "14.28%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  dayCircle: {
+    height: 32,
+    width: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+  },
+  dayCircleSelected: {
+    backgroundColor: colors.primary[600],
+  },
+  dayCircleToday: {
+    borderWidth: 1,
+    borderColor: colors.primary[500],
+  },
+  dayText: {
+    fontSize: 14,
+    color: colors.stone[900],
+  },
+  dayTextSelected: {
+    fontWeight: "700",
+    color: colors.white,
+  },
+  dayTextToday: {
+    fontWeight: "600",
+    color: colors.primary[600],
+  },
+  dotsRow: {
+    marginTop: 2,
+    flexDirection: "row",
+    gap: 2,
+  },
+  dot: {
+    height: 4,
+    width: 4,
+    borderRadius: 2,
+  },
+});

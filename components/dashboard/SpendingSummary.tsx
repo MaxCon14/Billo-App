@@ -1,7 +1,8 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { formatCurrency } from "@/lib/utils";
 import { TrendingUp } from "lucide-react-native";
+import { colors } from "@/lib/theme";
 
 interface SpendingSummaryProps {
   totalMonthly: number;
@@ -17,30 +18,78 @@ export function SpendingSummary({
   subscriptionCount,
 }: SpendingSummaryProps) {
   return (
-    <View className="overflow-hidden rounded-2xl bg-primary-600 p-5">
-      <View className="flex-row items-center justify-between">
-        <Text className="text-sm font-medium text-primary-100">Monthly Spending</Text>
-        <View className="rounded-full bg-white/20 p-2">
+    <View style={styles.container}>
+      <View style={styles.headerRow}>
+        <Text style={styles.headerLabel}>Monthly Spending</Text>
+        <View style={styles.iconCircle}>
           <TrendingUp size={18} color="#fff" />
         </View>
       </View>
 
-      <Text className="mt-2 text-3xl font-bold text-white">
+      <Text style={styles.totalAmount}>
         {formatCurrency(totalMonthly, currency)}
       </Text>
 
-      <View className="mt-4 flex-row items-center justify-between">
+      <View style={styles.footerRow}>
         <View>
-          <Text className="text-xs text-primary-200">Yearly</Text>
-          <Text className="text-sm font-semibold text-white">
+          <Text style={styles.footerLabel}>Yearly</Text>
+          <Text style={styles.footerValue}>
             {formatCurrency(totalYearly, currency)}
           </Text>
         </View>
-        <View className="items-end">
-          <Text className="text-xs text-primary-200">Active Subscriptions</Text>
-          <Text className="text-sm font-semibold text-white">{subscriptionCount}</Text>
+        <View style={styles.footerRight}>
+          <Text style={styles.footerLabel}>Active Subscriptions</Text>
+          <Text style={styles.footerValue}>{subscriptionCount}</Text>
         </View>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    overflow: "hidden",
+    borderRadius: 16,
+    backgroundColor: colors.primary[600],
+    padding: 20,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  headerLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.primary[100],
+  },
+  iconCircle: {
+    borderRadius: 9999,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    padding: 8,
+  },
+  totalAmount: {
+    marginTop: 8,
+    fontSize: 30,
+    fontWeight: "700",
+    color: colors.white,
+  },
+  footerRow: {
+    marginTop: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  footerLabel: {
+    fontSize: 12,
+    color: colors.primary[200],
+  },
+  footerValue: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.white,
+  },
+  footerRight: {
+    alignItems: "flex-end",
+  },
+});

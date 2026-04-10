@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { SpendingSummary } from "@/components/dashboard/SpendingSummary";
@@ -10,6 +10,7 @@ import { DashboardSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useInsights } from "@/hooks/useInsights";
 import { useAuth } from "@/hooks/useAuth";
+import { colors } from "@/lib/theme";
 import type { Subscription } from "@/types/subscription";
 
 export default function DashboardScreen() {
@@ -32,21 +33,19 @@ export default function DashboardScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg" edges={["top"]}>
+      <SafeAreaView style={s.screen} edges={["top"]}>
         <DashboardSkeleton />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg" edges={["top"]}>
-      <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 16 }}>
-        <View className="flex-row items-center justify-between">
+    <SafeAreaView style={s.screen} edges={["top"]}>
+      <ScrollView style={s.flex1} contentContainerStyle={s.scrollContent}>
+        <View style={s.headerRow}>
           <View>
-            <Text className="text-2xl font-bold text-stone-900 dark:text-stone-100">
-              SubTracker
-            </Text>
-            <Text className="text-sm text-stone-500 dark:text-stone-400">
+            <Text style={s.title}>SubTracker</Text>
+            <Text style={s.subtitle}>
               {profile?.full_name ? `Welcome, ${profile.full_name}` : "Manage your subscriptions"}
             </Text>
           </View>
@@ -75,3 +74,12 @@ export default function DashboardScreen() {
     </SafeAreaView>
   );
 }
+
+const s = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.stone[50] },
+  flex1: { flex: 1 },
+  scrollContent: { padding: 16, gap: 16 },
+  headerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  title: { fontSize: 24, fontWeight: "bold", color: colors.stone[900] },
+  subtitle: { fontSize: 14, color: colors.stone[500] },
+});

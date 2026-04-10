@@ -1,7 +1,8 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { colors } from "@/lib/theme";
 
 interface ChartData {
   category: string;
@@ -23,28 +24,26 @@ export function SpendingChart({ data }: SpendingChartProps) {
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <Text className="py-4 text-center text-sm text-stone-500 dark:text-stone-400">
-            No spending data yet
-          </Text>
+          <Text style={styles.emptyText}>No spending data yet</Text>
         ) : (
-          <View className="gap-3">
+          <View style={styles.list}>
             {data.map((item) => (
               <View key={item.category}>
-                <View className="mb-1 flex-row items-center justify-between">
-                  <Text className="text-xs font-medium text-stone-700 dark:text-stone-300">
-                    {item.category}
-                  </Text>
-                  <Text className="text-xs font-semibold text-stone-900 dark:text-stone-100">
+                <View style={styles.labelRow}>
+                  <Text style={styles.categoryLabel}>{item.category}</Text>
+                  <Text style={styles.amountLabel}>
                     {formatCurrency(item.amount, "USD")}
                   </Text>
                 </View>
-                <View className="h-2.5 overflow-hidden rounded-full bg-surface-200 dark:bg-dark-border">
+                <View style={styles.barTrack}>
                   <View
-                    className="h-full rounded-full"
-                    style={{
-                      backgroundColor: item.color,
-                      width: `${(item.amount / maxAmount) * 100}%`,
-                    }}
+                    style={[
+                      styles.barFill,
+                      {
+                        backgroundColor: item.color,
+                        width: `${(item.amount / maxAmount) * 100}%`,
+                      },
+                    ]}
                   />
                 </View>
               </View>
@@ -55,3 +54,41 @@ export function SpendingChart({ data }: SpendingChartProps) {
     </Card>
   );
 }
+
+const styles = StyleSheet.create({
+  emptyText: {
+    paddingVertical: 16,
+    textAlign: "center",
+    fontSize: 14,
+    color: colors.stone[500],
+  },
+  list: {
+    gap: 12,
+  },
+  labelRow: {
+    marginBottom: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  categoryLabel: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: colors.stone[700],
+  },
+  amountLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: colors.stone[900],
+  },
+  barTrack: {
+    height: 10,
+    overflow: "hidden",
+    borderRadius: 9999,
+    backgroundColor: colors.stone[200],
+  },
+  barFill: {
+    height: "100%",
+    borderRadius: 9999,
+  },
+});

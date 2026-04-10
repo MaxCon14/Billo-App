@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import { Image, Text, View } from "react-native";
-import { cn } from "@/lib/utils";
+import { Image, type ImageStyle, StyleSheet, Text, View, type ViewStyle } from "react-native";
+import { colors } from "@/lib/theme";
 
 interface LogoProps {
   name: string;
   logoUrl?: string | null;
   size?: number;
-  className?: string;
+  style?: ViewStyle;
 }
 
 function hashToColor(str: string): string {
-  const colors = [
+  const palette = [
     "#E24B4A", "#7F77DD", "#639922", "#378ADD", "#1D9E75",
     "#D85A30", "#D4537E", "#BA7517", "#0D9488", "#6366F1",
   ];
@@ -18,10 +18,10 @@ function hashToColor(str: string): string {
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return colors[Math.abs(hash) % colors.length];
+  return palette[Math.abs(hash) % palette.length];
 }
 
-export function Logo({ name, logoUrl, size = 40, className }: LogoProps) {
+export function Logo({ name, logoUrl, size = 40, style: styleProp }: LogoProps) {
   const [imgError, setImgError] = useState(false);
   const bgColor = hashToColor(name);
   const initial = name.charAt(0).toUpperCase();
@@ -31,8 +31,15 @@ export function Logo({ name, logoUrl, size = 40, className }: LogoProps) {
     return (
       <Image
         source={{ uri: logoUrl }}
-        style={{ width: size, height: size, borderRadius: size / 2 }}
-        className={cn("bg-surface-100", className)}
+        style={[
+          {
+            width: size,
+            height: size,
+            borderRadius: size / 2,
+            backgroundColor: colors.stone[100],
+          } as ImageStyle,
+          styleProp as ImageStyle,
+        ]}
         onError={() => setImgError(true)}
       />
     );
@@ -40,17 +47,29 @@ export function Logo({ name, logoUrl, size = 40, className }: LogoProps) {
 
   return (
     <View
-      style={{
-        width: size,
-        height: size,
-        borderRadius: size / 2,
-        backgroundColor: bgColor,
-      }}
-      className={cn("items-center justify-center", className)}
+      style={[
+        styles.fallback,
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          backgroundColor: bgColor,
+        },
+        styleProp,
+      ]}
     >
-      <Text style={{ fontSize }} className="font-bold text-white">
-        {initial}
-      </Text>
+      <Text style={[styles.initial, { fontSize }]}>{initial}</Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  fallback: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  initial: {
+    fontWeight: "700",
+    color: colors.white,
+  },
+});

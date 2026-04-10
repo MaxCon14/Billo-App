@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { CreditCard } from "lucide-react-native";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/toast";
+import { colors } from "@/lib/theme";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -40,21 +41,19 @@ export default function RegisterScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg">
-      <View className="flex-1 justify-center px-6">
-        <View className="mb-8 items-center">
-          <View className="mb-4 rounded-2xl bg-primary-600 p-4">
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.iconWrapper}>
             <CreditCard size={32} color="#fff" />
           </View>
-          <Text className="text-2xl font-bold text-stone-900 dark:text-stone-100">
-            Create Account
-          </Text>
-          <Text className="mt-1 text-sm text-stone-500 dark:text-stone-400">
+          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.subtitle}>
             Start tracking your subscriptions today
           </Text>
         </View>
 
-        <View className="gap-4">
+        <View style={styles.form}>
           <Input
             label="Full Name"
             placeholder="John Doe"
@@ -84,20 +83,16 @@ export default function RegisterScreen() {
             secureTextEntry
           />
 
-          <Button onPress={handleRegister} disabled={isLoading} className="mt-2">
-            <Text className="text-base font-semibold text-white">
+          <Button onPress={handleRegister} disabled={isLoading} style={{ marginTop: 8 }}>
+            <Text style={styles.buttonText}>
               {isLoading ? "Creating account..." : "Create Account"}
             </Text>
           </Button>
 
-          <View className="mt-4 flex-row items-center justify-center">
-            <Text className="text-sm text-stone-500 dark:text-stone-400">
-              Already have an account?{" "}
-            </Text>
+          <View style={styles.footerRow}>
+            <Text style={styles.footerText}>Already have an account? </Text>
             <Pressable onPress={() => router.back()}>
-              <Text className="text-sm font-semibold text-primary-600 dark:text-primary-400">
-                Sign In
-              </Text>
+              <Text style={styles.footerLink}>Sign In</Text>
             </Pressable>
           </View>
         </View>
@@ -105,3 +100,58 @@ export default function RegisterScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.stone[50],
+  },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  header: {
+    marginBottom: 32,
+    alignItems: "center",
+  },
+  iconWrapper: {
+    marginBottom: 16,
+    borderRadius: 16,
+    backgroundColor: colors.primary[600],
+    padding: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: colors.stone[900],
+  },
+  subtitle: {
+    marginTop: 4,
+    fontSize: 14,
+    color: colors.stone[500],
+  },
+  form: {
+    gap: 16,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.white,
+  },
+  footerRow: {
+    marginTop: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  footerText: {
+    fontSize: 14,
+    color: colors.stone[500],
+  },
+  footerLink: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.primary[600],
+  },
+});

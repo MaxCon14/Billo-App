@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
@@ -28,6 +28,7 @@ import {
   getMonthlyAmount,
   getYearlyAmount,
 } from "@/lib/utils";
+import { colors } from "@/lib/theme";
 
 export default function SubscriptionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -39,7 +40,7 @@ export default function SubscriptionDetailScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-surface-50 dark:bg-dark-bg">
+      <SafeAreaView style={s.centered}>
         <ActivityIndicator size="large" color="#0D9488" />
       </SafeAreaView>
     );
@@ -47,8 +48,8 @@ export default function SubscriptionDetailScreen() {
 
   if (!subscription) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-surface-50 dark:bg-dark-bg">
-        <Text className="text-stone-500">Subscription not found</Text>
+      <SafeAreaView style={s.centered}>
+        <Text style={{ color: colors.stone[500] }}>Subscription not found</Text>
       </SafeAreaView>
     );
   }
@@ -62,10 +63,7 @@ export default function SubscriptionDetailScreen() {
       { id: subscription!.id, is_active: !subscription!.is_active },
       {
         onSuccess: () => {
-          toast(
-            subscription!.is_active ? "Subscription paused" : "Subscription resumed",
-            "success"
-          );
+          toast(subscription!.is_active ? "Subscription paused" : "Subscription resumed", "success");
         },
         onError: () => toast("Failed to update subscription", "error"),
       }
@@ -96,90 +94,63 @@ export default function SubscriptionDetailScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg" edges={["bottom"]}>
-      <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 16 }}>
-        {/* Header */}
-        <View className="items-center py-4">
+    <SafeAreaView style={s.screen} edges={["bottom"]}>
+      <ScrollView style={s.flex1} contentContainerStyle={s.scrollContent}>
+        <View style={s.headerCenter}>
           <Logo name={subscription.name} logoUrl={subscription.logo_url} size={72} />
-          <Text className="mt-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
-            {subscription.name}
-          </Text>
-          {subscription.description && (
-            <Text className="mt-1 text-sm text-stone-500 dark:text-stone-400">
-              {subscription.description}
-            </Text>
-          )}
-          <View className="mt-2 flex-row gap-2">
+          <Text style={s.name}>{subscription.name}</Text>
+          {subscription.description && <Text style={s.desc}>{subscription.description}</Text>}
+          <View style={s.badgeRow}>
             {subscription.category && (
               <Badge style={{ backgroundColor: subscription.category.color + "20" }}>
-                <Text style={{ color: subscription.category.color }} className="text-xs font-medium">
+                <Text style={{ color: subscription.category.color, fontSize: 12, fontWeight: "500" }}>
                   {subscription.category.name}
                 </Text>
               </Badge>
             )}
             <Badge variant={subscription.is_active ? "default" : "secondary"}>
-              <Text
-                className={`text-xs font-medium ${
-                  subscription.is_active ? "text-primary-800" : "text-stone-500"
-                }`}
-              >
+              <Text style={{ fontSize: 12, fontWeight: "500", color: subscription.is_active ? colors.primary[800] : colors.stone[500] }}>
                 {subscription.is_active ? "Active" : "Paused"}
               </Text>
             </Badge>
           </View>
         </View>
 
-        {/* Price cards */}
-        <View className="flex-row gap-3">
-          <Card className="flex-1">
-            <CardContent className="items-center py-4">
+        <View style={s.priceRow}>
+          <Card style={s.flex1}>
+            <CardContent style={s.priceCard}>
               <DollarSign size={18} color="#0D9488" />
-              <Text className="mt-1 text-xs text-stone-500 dark:text-stone-400">Per cycle</Text>
-              <Text className="text-lg font-bold text-stone-900 dark:text-stone-100">
-                {formatCurrency(subscription.amount, subscription.currency)}
-              </Text>
-              <Text className="text-xs text-stone-400">{subscription.billing_cycle}</Text>
+              <Text style={s.priceLabel}>Per cycle</Text>
+              <Text style={s.priceValue}>{formatCurrency(subscription.amount, subscription.currency)}</Text>
+              <Text style={s.priceSub}>{subscription.billing_cycle}</Text>
             </CardContent>
           </Card>
-          <Card className="flex-1">
-            <CardContent className="items-center py-4">
+          <Card style={s.flex1}>
+            <CardContent style={s.priceCard}>
               <Calendar size={18} color="#0D9488" />
-              <Text className="mt-1 text-xs text-stone-500 dark:text-stone-400">Next billing</Text>
-              <Text className="text-lg font-bold text-stone-900 dark:text-stone-100">
-                {daysUntil === 0 ? "Today" : `${daysUntil}d`}
-              </Text>
-              <Text className="text-xs text-stone-400">
-                {formatDate(subscription.next_billing_date)}
-              </Text>
+              <Text style={s.priceLabel}>Next billing</Text>
+              <Text style={s.priceValue}>{daysUntil === 0 ? "Today" : `${daysUntil}d`}</Text>
+              <Text style={s.priceSub}>{formatDate(subscription.next_billing_date)}</Text>
             </CardContent>
           </Card>
         </View>
 
-        {/* Spending summary */}
         <Card>
           <CardContent>
-            <Text className="mb-3 text-sm font-semibold text-stone-900 dark:text-stone-100">
-              Spending Summary
-            </Text>
-            <View className="gap-2">
-              <View className="flex-row justify-between">
-                <Text className="text-sm text-stone-500 dark:text-stone-400">Monthly cost</Text>
-                <Text className="text-sm font-medium text-stone-900 dark:text-stone-100">
-                  {formatCurrency(monthly, subscription.currency)}
-                </Text>
+            <Text style={s.sectionTitle}>Spending Summary</Text>
+            <View style={s.summaryGap}>
+              <View style={s.summaryRow}>
+                <Text style={s.summaryLabel}>Monthly cost</Text>
+                <Text style={s.summaryValue}>{formatCurrency(monthly, subscription.currency)}</Text>
               </View>
-              <View className="flex-row justify-between">
-                <Text className="text-sm text-stone-500 dark:text-stone-400">Yearly cost</Text>
-                <Text className="text-sm font-medium text-stone-900 dark:text-stone-100">
-                  {formatCurrency(yearly, subscription.currency)}
-                </Text>
+              <View style={s.summaryRow}>
+                <Text style={s.summaryLabel}>Yearly cost</Text>
+                <Text style={s.summaryValue}>{formatCurrency(yearly, subscription.currency)}</Text>
               </View>
               {subscription.start_date && (
-                <View className="flex-row justify-between">
-                  <Text className="text-sm text-stone-500 dark:text-stone-400">Member since</Text>
-                  <Text className="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {formatDate(subscription.start_date)}
-                  </Text>
+                <View style={s.summaryRow}>
+                  <Text style={s.summaryLabel}>Member since</Text>
+                  <Text style={s.summaryValue}>{formatDate(subscription.start_date)}</Text>
                 </View>
               )}
             </View>
@@ -189,71 +160,46 @@ export default function SubscriptionDetailScreen() {
         {subscription.notes && (
           <Card>
             <CardContent>
-              <Text className="mb-1 text-sm font-semibold text-stone-900 dark:text-stone-100">
-                Notes
-              </Text>
-              <Text className="text-sm text-stone-500 dark:text-stone-400">
-                {subscription.notes}
-              </Text>
+              <Text style={s.sectionTitle}>Notes</Text>
+              <Text style={s.notesText}>{subscription.notes}</Text>
             </CardContent>
           </Card>
         )}
 
-        {/* Actions */}
-        <View className="gap-3">
-          <Button
-            variant="outline"
-            onPress={() => router.push(`/subscription/edit?id=${subscription.id}`)}
-          >
-            <View className="flex-row items-center">
+        <View style={s.actionsGap}>
+          <Button variant="outline" onPress={() => router.push(`/subscription/edit?id=${subscription.id}`)}>
+            <View style={s.btnInner}>
               <Edit3 size={16} color="#0D9488" />
-              <Text className="ml-2 font-medium text-primary-600">Edit Subscription</Text>
+              <Text style={[s.btnText, { color: colors.primary[600] }]}>Edit Subscription</Text>
             </View>
           </Button>
-
-          <Button
-            variant="outline"
-            onPress={handleToggle}
-            disabled={toggleMutation.isPending}
-          >
-            <View className="flex-row items-center">
+          <Button variant="outline" onPress={handleToggle} disabled={toggleMutation.isPending}>
+            <View style={s.btnInner}>
               {subscription.is_active ? (
                 <>
                   <Pause size={16} color="#78716C" />
-                  <Text className="ml-2 font-medium text-stone-600 dark:text-stone-400">
-                    Pause Subscription
-                  </Text>
+                  <Text style={[s.btnText, { color: colors.stone[600] }]}>Pause Subscription</Text>
                 </>
               ) : (
                 <>
                   <Play size={16} color="#0D9488" />
-                  <Text className="ml-2 font-medium text-primary-600">
-                    Resume Subscription
-                  </Text>
+                  <Text style={[s.btnText, { color: colors.primary[600] }]}>Resume Subscription</Text>
                 </>
               )}
             </View>
           </Button>
-
           {subscription.website_url && (
             <Button variant="outline" onPress={() => {}}>
-              <View className="flex-row items-center">
+              <View style={s.btnInner}>
                 <ExternalLink size={16} color="#78716C" />
-                <Text className="ml-2 font-medium text-stone-600 dark:text-stone-400">
-                  Visit Website
-                </Text>
+                <Text style={[s.btnText, { color: colors.stone[600] }]}>Visit Website</Text>
               </View>
             </Button>
           )}
-
-          <Button
-            variant="destructive"
-            onPress={handleDelete}
-            disabled={deleteMutation.isPending}
-          >
-            <View className="flex-row items-center">
+          <Button variant="destructive" onPress={handleDelete} disabled={deleteMutation.isPending}>
+            <View style={s.btnInner}>
               <Trash2 size={16} color="#fff" />
-              <Text className="ml-2 font-semibold text-white">Delete</Text>
+              <Text style={[s.btnText, { color: colors.white, fontWeight: "600" }]}>Delete</Text>
             </View>
           </Button>
         </View>
@@ -261,3 +207,28 @@ export default function SubscriptionDetailScreen() {
     </SafeAreaView>
   );
 }
+
+const s = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.stone[50] },
+  centered: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.stone[50] },
+  flex1: { flex: 1 },
+  scrollContent: { padding: 16, gap: 16 },
+  headerCenter: { alignItems: "center", paddingVertical: 16 },
+  name: { marginTop: 12, fontSize: 24, fontWeight: "bold", color: colors.stone[900] },
+  desc: { marginTop: 4, fontSize: 14, color: colors.stone[500] },
+  badgeRow: { marginTop: 8, flexDirection: "row", gap: 8 },
+  priceRow: { flexDirection: "row", gap: 12 },
+  priceCard: { alignItems: "center", paddingVertical: 16 },
+  priceLabel: { marginTop: 4, fontSize: 12, color: colors.stone[500] },
+  priceValue: { fontSize: 18, fontWeight: "bold", color: colors.stone[900] },
+  priceSub: { fontSize: 12, color: colors.stone[400] },
+  sectionTitle: { marginBottom: 12, fontSize: 14, fontWeight: "600", color: colors.stone[900] },
+  summaryGap: { gap: 8 },
+  summaryRow: { flexDirection: "row", justifyContent: "space-between" },
+  summaryLabel: { fontSize: 14, color: colors.stone[500] },
+  summaryValue: { fontSize: 14, fontWeight: "500", color: colors.stone[900] },
+  notesText: { fontSize: 14, color: colors.stone[500] },
+  actionsGap: { gap: 12 },
+  btnInner: { flexDirection: "row", alignItems: "center" },
+  btnText: { marginLeft: 8, fontWeight: "500" },
+});

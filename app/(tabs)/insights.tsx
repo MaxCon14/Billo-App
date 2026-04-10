@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SpendingByCategory } from "@/components/insights/SpendingByCategory";
 import { SpendingTrend } from "@/components/insights/SpendingTrend";
@@ -9,6 +9,7 @@ import { DashboardSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useInsights } from "@/hooks/useInsights";
 import { useAuth } from "@/hooks/useAuth";
+import { colors } from "@/lib/theme";
 
 export default function InsightsScreen() {
   const { profile } = useAuth();
@@ -23,18 +24,16 @@ export default function InsightsScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg" edges={["top"]}>
+      <SafeAreaView style={s.screen} edges={["top"]}>
         <DashboardSkeleton />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg" edges={["top"]}>
-      <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 16 }}>
-        <Text className="text-2xl font-bold text-stone-900 dark:text-stone-100">
-          Insights
-        </Text>
+    <SafeAreaView style={s.screen} edges={["top"]}>
+      <ScrollView style={s.flex1} contentContainerStyle={s.scrollContent}>
+        <Text style={s.title}>Insights</Text>
 
         <SpendingSummary
           totalMonthly={insights.totalMonthly}
@@ -50,3 +49,10 @@ export default function InsightsScreen() {
     </SafeAreaView>
   );
 }
+
+const s = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.stone[50] },
+  flex1: { flex: 1 },
+  scrollContent: { padding: 16, gap: 16 },
+  title: { fontSize: 24, fontWeight: "bold", color: colors.stone[900] },
+});

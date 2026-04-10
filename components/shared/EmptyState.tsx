@@ -1,8 +1,8 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View, type ViewStyle } from "react-native";
 import { Inbox } from "lucide-react-native";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { colors } from "@/lib/theme";
 
 interface EmptyStateProps {
   title: string;
@@ -10,7 +10,7 @@ interface EmptyStateProps {
   icon?: React.ReactNode;
   actionLabel?: string;
   onAction?: () => void;
-  className?: string;
+  style?: ViewStyle;
 }
 
 export function EmptyState({
@@ -19,24 +19,53 @@ export function EmptyState({
   icon,
   actionLabel,
   onAction,
-  className,
+  style: styleProp,
 }: EmptyStateProps) {
   return (
-    <View className={cn("flex-1 items-center justify-center px-8 py-12", className)}>
-      <View className="mb-4 rounded-full bg-surface-100 p-4 dark:bg-dark-card">
-        {icon || <Inbox size={32} color="#A8A29E" />}
+    <View style={[styles.container, styleProp]}>
+      <View style={styles.iconWrapper}>
+        {icon || <Inbox size={32} color={colors.stone[400]} />}
       </View>
-      <Text className="mb-2 text-center text-lg font-semibold text-stone-900 dark:text-stone-100">
-        {title}
-      </Text>
-      <Text className="mb-6 text-center text-sm text-stone-500 dark:text-stone-400">
-        {description}
-      </Text>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.description}>{description}</Text>
       {actionLabel && onAction && (
         <Button onPress={onAction}>
-          <Text className="font-semibold text-white">{actionLabel}</Text>
+          <Text style={styles.actionText}>{actionLabel}</Text>
         </Button>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 32,
+    paddingVertical: 48,
+  },
+  iconWrapper: {
+    marginBottom: 16,
+    borderRadius: 9999,
+    backgroundColor: colors.stone[100],
+    padding: 16,
+  },
+  title: {
+    marginBottom: 8,
+    textAlign: "center",
+    fontSize: 18,
+    fontWeight: "600",
+    color: colors.stone[900],
+  },
+  description: {
+    marginBottom: 24,
+    textAlign: "center",
+    fontSize: 14,
+    color: colors.stone[500],
+  },
+  actionText: {
+    fontWeight: "600",
+    color: colors.white,
+  },
+});

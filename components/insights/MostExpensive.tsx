@@ -1,10 +1,10 @@
 import React from "react";
-import { Text, View } from "react-native";
-import { formatCurrency } from "@/lib/utils";
-import { getMonthlyAmount } from "@/lib/utils";
+import { StyleSheet, Text, View } from "react-native";
+import { formatCurrency, getMonthlyAmount } from "@/lib/utils";
 import type { Subscription } from "@/types/subscription";
 import { Logo } from "@/components/shared/Logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { colors } from "@/lib/theme";
 
 interface MostExpensiveProps {
   subscriptions: Subscription[];
@@ -22,41 +22,24 @@ export function MostExpensive({ subscriptions }: MostExpensiveProps) {
       </CardHeader>
       <CardContent>
         {top5.length === 0 ? (
-          <Text className="py-4 text-center text-sm text-stone-500 dark:text-stone-400">
-            No subscriptions to rank
-          </Text>
+          <Text style={s.emptyText}>No subscriptions to rank</Text>
         ) : (
-          <View className="gap-3">
+          <View style={s.list}>
             {top5.map((sub, index) => {
               const monthly = getMonthlyAmount(sub.amount, sub.billing_cycle);
               return (
-                <View key={sub.id} className="flex-row items-center">
-                  <View className="mr-3 h-7 w-7 items-center justify-center rounded-full"
-                    style={{
-                      backgroundColor: index < 3 ? MEDAL_COLORS[index] + "30" : "#F5F5F4",
-                    }}
-                  >
-                    <Text
-                      className="text-xs font-bold"
-                      style={{
-                        color: index < 3 ? MEDAL_COLORS[index] : "#78716C",
-                      }}
-                    >
+                <View key={sub.id} style={s.row}>
+                  <View style={[s.rank, { backgroundColor: index < 3 ? MEDAL_COLORS[index] + "30" : colors.stone[100] }]}>
+                    <Text style={[s.rankText, { color: index < 3 ? MEDAL_COLORS[index] : colors.stone[500] }]}>
                       {index + 1}
                     </Text>
                   </View>
                   <Logo name={sub.name} logoUrl={sub.logo_url} size={36} />
-                  <View className="ml-3 flex-1">
-                    <Text className="text-sm font-medium text-stone-900 dark:text-stone-100">
-                      {sub.name}
-                    </Text>
-                    <Text className="text-xs text-stone-500 dark:text-stone-400">
-                      {sub.billing_cycle}
-                    </Text>
+                  <View style={s.info}>
+                    <Text style={s.name}>{sub.name}</Text>
+                    <Text style={s.cycle}>{sub.billing_cycle}</Text>
                   </View>
-                  <Text className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                    {formatCurrency(monthly, sub.currency)}/mo
-                  </Text>
+                  <Text style={s.amount}>{formatCurrency(monthly, sub.currency)}/mo</Text>
                 </View>
               );
             })}
@@ -66,3 +49,15 @@ export function MostExpensive({ subscriptions }: MostExpensiveProps) {
     </Card>
   );
 }
+
+const s = StyleSheet.create({
+  emptyText: { paddingVertical: 16, textAlign: "center", fontSize: 14, color: colors.stone[500] },
+  list: { gap: 12 },
+  row: { flexDirection: "row", alignItems: "center" },
+  rank: { marginRight: 12, height: 28, width: 28, alignItems: "center", justifyContent: "center", borderRadius: 14 },
+  rankText: { fontSize: 12, fontWeight: "bold" },
+  info: { marginLeft: 12, flex: 1 },
+  name: { fontSize: 14, fontWeight: "500", color: colors.stone[900] },
+  cycle: { fontSize: 12, color: colors.stone[500] },
+  amount: { fontSize: 14, fontWeight: "bold", color: colors.stone[900] },
+});

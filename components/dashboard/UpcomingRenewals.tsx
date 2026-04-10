@@ -1,10 +1,11 @@
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import { formatCurrency, getDaysUntil } from "@/lib/utils";
 import type { Subscription } from "@/types/subscription";
 import { Logo } from "@/components/shared/Logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { colors } from "@/lib/theme";
 
 interface UpcomingRenewalsProps {
   subscriptions: Subscription[];
@@ -22,42 +23,38 @@ export function UpcomingRenewals({
   return (
     <Card>
       <CardHeader>
-        <View className="flex-row items-center justify-between">
+        <View style={styles.headerRow}>
           <CardTitle>Upcoming Renewals</CardTitle>
           {onViewAll && (
-            <Pressable onPress={onViewAll} className="flex-row items-center">
-              <Text className="mr-1 text-sm text-primary-600 dark:text-primary-400">View all</Text>
-              <ChevronRight size={14} color="#0D9488" />
+            <Pressable onPress={onViewAll} style={styles.viewAllBtn}>
+              <Text style={styles.viewAllText}>View all</Text>
+              <ChevronRight size={14} color={colors.primary[600]} />
             </Pressable>
           )}
         </View>
       </CardHeader>
       <CardContent>
         {upcoming.length === 0 ? (
-          <Text className="py-4 text-center text-sm text-stone-500 dark:text-stone-400">
-            No upcoming renewals
-          </Text>
+          <Text style={styles.emptyText}>No upcoming renewals</Text>
         ) : (
-          <View className="gap-3">
+          <View style={styles.list}>
             {upcoming.map((sub) => {
               const days = getDaysUntil(sub.next_billing_date);
               return (
                 <Pressable
                   key={sub.id}
                   onPress={() => onSubscriptionPress(sub)}
-                  className="active:opacity-80"
+                  style={({ pressed }) => pressed && styles.pressed}
                 >
-                  <View className="flex-row items-center">
+                  <View style={styles.row}>
                     <Logo name={sub.name} logoUrl={sub.logo_url} size={36} />
-                    <View className="ml-3 flex-1">
-                      <Text className="text-sm font-medium text-stone-900 dark:text-stone-100">
-                        {sub.name}
-                      </Text>
-                      <Text className="text-xs text-stone-500 dark:text-stone-400">
+                    <View style={styles.nameCol}>
+                      <Text style={styles.name}>{sub.name}</Text>
+                      <Text style={styles.daysText}>
                         {days === 0 ? "Due today" : days === 1 ? "Due tomorrow" : `in ${days} days`}
                       </Text>
                     </View>
-                    <Text className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+                    <Text style={styles.amount}>
                       {formatCurrency(sub.amount, sub.currency)}
                     </Text>
                   </View>
@@ -70,3 +67,54 @@ export function UpcomingRenewals({
     </Card>
   );
 }
+
+const styles = StyleSheet.create({
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  viewAllBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  viewAllText: {
+    marginRight: 4,
+    fontSize: 14,
+    color: colors.primary[600],
+  },
+  emptyText: {
+    paddingVertical: 16,
+    textAlign: "center",
+    fontSize: 14,
+    color: colors.stone[500],
+  },
+  list: {
+    gap: 12,
+  },
+  pressed: {
+    opacity: 0.8,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  nameCol: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  name: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.stone[900],
+  },
+  daysText: {
+    fontSize: 12,
+    color: colors.stone[500],
+  },
+  amount: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.stone[900],
+  },
+});

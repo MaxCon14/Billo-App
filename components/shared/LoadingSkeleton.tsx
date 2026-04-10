@@ -1,18 +1,19 @@
 import React from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Skeleton } from "@/components/ui/skeleton";
+import { colors } from "@/lib/theme";
 
 export function SubscriptionCardSkeleton() {
   return (
-    <View className="flex-row items-center rounded-2xl border border-surface-200 bg-white p-4 dark:border-dark-border dark:bg-dark-card">
-      <Skeleton className="h-10 w-10" circle />
-      <View className="ml-3 flex-1">
-        <Skeleton className="mb-2 h-4 w-32" />
-        <Skeleton className="h-3 w-20" />
+    <View style={styles.card}>
+      <Skeleton style={{ height: 40, width: 40 }} circle />
+      <View style={styles.cardMiddle}>
+        <Skeleton style={{ marginBottom: 8, height: 16, width: 128 }} />
+        <Skeleton style={{ height: 12, width: 80 }} />
       </View>
-      <View className="items-end">
-        <Skeleton className="mb-2 h-4 w-16" />
-        <Skeleton className="h-3 w-12" />
+      <View style={styles.cardRight}>
+        <Skeleton style={{ marginBottom: 8, height: 16, width: 64 }} />
+        <Skeleton style={{ height: 12, width: 48 }} />
       </View>
     </View>
   );
@@ -20,13 +21,13 @@ export function SubscriptionCardSkeleton() {
 
 export function DashboardSkeleton() {
   return (
-    <View className="gap-4 p-4">
-      <Skeleton className="h-40 w-full rounded-2xl" />
-      <View className="flex-row gap-3">
-        <Skeleton className="h-24 flex-1 rounded-2xl" />
-        <Skeleton className="h-24 flex-1 rounded-2xl" />
+    <View style={styles.dashboardContainer}>
+      <Skeleton style={{ height: 160, width: "100%", borderRadius: 16 }} />
+      <View style={styles.doubleRow}>
+        <Skeleton style={{ height: 96, flex: 1, borderRadius: 16 }} />
+        <Skeleton style={{ height: 96, flex: 1, borderRadius: 16 }} />
       </View>
-      <Skeleton className="mb-2 h-5 w-40" />
+      <Skeleton style={{ marginBottom: 8, height: 20, width: 160 }} />
       {Array.from({ length: 3 }).map((_, i) => (
         <SubscriptionCardSkeleton key={i} />
       ))}
@@ -36,10 +37,41 @@ export function DashboardSkeleton() {
 
 export function ListSkeleton() {
   return (
-    <View className="gap-3 p-4">
+    <View style={styles.listContainer}>
       {Array.from({ length: 5 }).map((_, i) => (
         <SubscriptionCardSkeleton key={i} />
       ))}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.stone[200],
+    backgroundColor: colors.white,
+    padding: 16,
+  },
+  cardMiddle: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  cardRight: {
+    alignItems: "flex-end",
+  },
+  dashboardContainer: {
+    gap: 16,
+    padding: 16,
+  },
+  doubleRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  listContainer: {
+    gap: 12,
+    padding: 16,
+  },
+});

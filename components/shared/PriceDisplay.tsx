@@ -1,7 +1,7 @@
 import React from "react";
-import { Text, View } from "react-native";
-import { cn } from "@/lib/utils";
+import { StyleSheet, Text, View, type ViewStyle } from "react-native";
 import { formatCurrency } from "@/lib/utils";
+import { colors } from "@/lib/theme";
 import type { BillingCycle } from "@/types/subscription";
 
 interface PriceDisplayProps {
@@ -9,7 +9,7 @@ interface PriceDisplayProps {
   currency?: string;
   cycle?: BillingCycle;
   size?: "sm" | "md" | "lg";
-  className?: string;
+  style?: ViewStyle;
 }
 
 const CYCLE_LABELS: Record<BillingCycle, string> = {
@@ -20,10 +20,10 @@ const CYCLE_LABELS: Record<BillingCycle, string> = {
   yearly: "/yr",
 };
 
-const SIZE_CLASSES = {
-  sm: "text-sm",
-  md: "text-lg",
-  lg: "text-2xl",
+const SIZE_FONT: Record<string, number> = {
+  sm: 14,
+  md: 18,
+  lg: 24,
 };
 
 export function PriceDisplay({
@@ -31,23 +31,32 @@ export function PriceDisplay({
   currency = "USD",
   cycle,
   size = "md",
-  className,
+  style: styleProp,
 }: PriceDisplayProps) {
   return (
-    <View className={cn("flex-row items-baseline", className)}>
-      <Text
-        className={cn(
-          "font-bold text-stone-900 dark:text-stone-100",
-          SIZE_CLASSES[size]
-        )}
-      >
+    <View style={[styles.container, styleProp]}>
+      <Text style={[styles.amount, { fontSize: SIZE_FONT[size] }]}>
         {formatCurrency(amount, currency)}
       </Text>
       {cycle && (
-        <Text className="ml-0.5 text-xs text-stone-500 dark:text-stone-400">
-          {CYCLE_LABELS[cycle]}
-        </Text>
+        <Text style={styles.cycle}>{CYCLE_LABELS[cycle]}</Text>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+  amount: {
+    fontWeight: "700",
+    color: colors.stone[900],
+  },
+  cycle: {
+    marginLeft: 2,
+    fontSize: 12,
+    color: colors.stone[500],
+  },
+});

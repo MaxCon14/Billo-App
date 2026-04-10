@@ -4,11 +4,14 @@ import {
   Text,
   Modal,
   Pressable,
+  StyleSheet,
   type ViewProps,
   type TextProps,
   type ModalProps,
+  type ViewStyle,
+  type TextStyle,
 } from "react-native";
-import { cn } from "@/lib/utils";
+import { colors } from "@/lib/theme";
 
 // Dialog (root wrapper)
 export interface DialogProps extends Omit<ModalProps, "children"> {
@@ -33,12 +36,10 @@ const Dialog: React.FC<DialogProps> = ({
       {...props}
     >
       <Pressable
-        className="flex-1 items-center justify-center bg-black/50"
+        style={styles.overlay}
         onPress={() => onOpenChange(false)}
       >
-        <Pressable onPress={() => {}}>
-          {children}
-        </Pressable>
+        <Pressable onPress={() => {}}>{children}</Pressable>
       </Pressable>
     </Modal>
   );
@@ -47,97 +48,109 @@ Dialog.displayName = "Dialog";
 
 // DialogContent
 export interface DialogContentProps extends ViewProps {
-  className?: string;
+  style?: ViewStyle;
 }
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof View>,
   DialogContentProps
->(({ className, ...props }, ref) => (
-  <View
-    ref={ref}
-    className={cn(
-      "w-[85%] max-w-md bg-white dark:bg-dark-card rounded-2xl p-6 shadow-lg border border-surface-200 dark:border-dark-border",
-      className
-    )}
-    {...props}
-  />
+>(({ style, ...props }, ref) => (
+  <View ref={ref} style={[styles.dialogContent, style]} {...props} />
 ));
 DialogContent.displayName = "DialogContent";
 
 // DialogHeader
 export interface DialogHeaderProps extends ViewProps {
-  className?: string;
+  style?: ViewStyle;
 }
 
 const DialogHeader = React.forwardRef<
   React.ElementRef<typeof View>,
   DialogHeaderProps
->(({ className, ...props }, ref) => (
-  <View
-    ref={ref}
-    className={cn("mb-4", className)}
-    {...props}
-  />
+>(({ style, ...props }, ref) => (
+  <View ref={ref} style={[styles.dialogHeader, style]} {...props} />
 ));
 DialogHeader.displayName = "DialogHeader";
 
 // DialogTitle
 export interface DialogTitleProps extends TextProps {
-  className?: string;
+  style?: TextStyle;
 }
 
 const DialogTitle = React.forwardRef<
   React.ElementRef<typeof Text>,
   DialogTitleProps
->(({ className, ...props }, ref) => (
-  <Text
-    ref={ref}
-    className={cn(
-      "text-lg font-bold text-surface-900 dark:text-dark-text",
-      className
-    )}
-    {...props}
-  />
+>(({ style, ...props }, ref) => (
+  <Text ref={ref} style={[styles.dialogTitle, style]} {...props} />
 ));
 DialogTitle.displayName = "DialogTitle";
 
 // DialogDescription
 export interface DialogDescriptionProps extends TextProps {
-  className?: string;
+  style?: TextStyle;
 }
 
 const DialogDescription = React.forwardRef<
   React.ElementRef<typeof Text>,
   DialogDescriptionProps
->(({ className, ...props }, ref) => (
-  <Text
-    ref={ref}
-    className={cn(
-      "text-sm text-surface-500 dark:text-dark-textSecondary mt-1",
-      className
-    )}
-    {...props}
-  />
+>(({ style, ...props }, ref) => (
+  <Text ref={ref} style={[styles.dialogDescription, style]} {...props} />
 ));
 DialogDescription.displayName = "DialogDescription";
 
 // DialogFooter
 export interface DialogFooterProps extends ViewProps {
-  className?: string;
+  style?: ViewStyle;
 }
 
 const DialogFooter = React.forwardRef<
   React.ElementRef<typeof View>,
   DialogFooterProps
->(({ className, ...props }, ref) => (
-  <View
-    ref={ref}
-    className={cn("flex-row justify-end gap-3 mt-6", className)}
-    {...props}
-  />
+>(({ style, ...props }, ref) => (
+  <View ref={ref} style={[styles.dialogFooter, style]} {...props} />
 ));
 DialogFooter.displayName = "DialogFooter";
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  dialogContent: {
+    width: "85%",
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: colors.stone[200],
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+  },
+  dialogHeader: {
+    marginBottom: 16,
+  },
+  dialogTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: colors.stone[900],
+  },
+  dialogDescription: {
+    fontSize: 14,
+    color: colors.stone[500],
+    marginTop: 4,
+  },
+  dialogFooter: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 12,
+    marginTop: 24,
+  },
+});
 
 export {
   Dialog,

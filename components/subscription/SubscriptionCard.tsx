@@ -1,7 +1,7 @@
 import React from "react";
-import { Pressable, Text, View } from "react-native";
-import { cn } from "@/lib/utils";
-import { formatCurrency, getDaysUntil, formatDate } from "@/lib/utils";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { formatCurrency, getDaysUntil } from "@/lib/utils";
+import { colors } from "@/lib/theme";
 import type { Subscription } from "@/types/subscription";
 import { Logo } from "@/components/shared/Logo";
 import { Badge } from "@/components/ui/badge";
@@ -12,9 +12,9 @@ interface SubscriptionCardProps {
 }
 
 function getDaysColor(days: number): string {
-  if (days < 3) return "text-red-500";
-  if (days < 7) return "text-yellow-600 dark:text-yellow-400";
-  return "text-stone-500 dark:text-stone-400";
+  if (days < 3) return colors.red[500];
+  if (days < 7) return "#CA8A04"; // yellow-600
+  return colors.stone[500];
 }
 
 export function SubscriptionCard({ subscription, onPress }: SubscriptionCardProps) {
@@ -25,41 +25,41 @@ export function SubscriptionCard({ subscription, onPress }: SubscriptionCardProp
   return (
     <Pressable
       onPress={() => onPress(subscription)}
-      className="active:opacity-80"
+      style={({ pressed }) => pressed ? styles.pressed : undefined}
     >
-      <View className="flex-row items-center rounded-2xl border border-surface-200 bg-white p-4 dark:border-dark-border dark:bg-dark-card">
+      <View style={styles.card}>
         <Logo
           name={subscription.name}
           logoUrl={subscription.logo_url}
           size={44}
         />
-        <View className="ml-3 flex-1">
-          <Text className="text-base font-semibold text-stone-900 dark:text-stone-100">
+        <View style={styles.info}>
+          <Text style={styles.name}>
             {subscription.name}
           </Text>
-          <View className="mt-1 flex-row items-center gap-2">
+          <View style={styles.badgeRow}>
             {subscription.category && (
               <Badge
                 variant="default"
                 style={{ backgroundColor: subscription.category.color + "20" }}
               >
-                <Text style={{ color: subscription.category.color }} className="text-xs font-medium">
+                <Text style={[styles.categoryText, { color: subscription.category.color }]}>
                   {subscription.category.name}
                 </Text>
               </Badge>
             )}
             {!subscription.is_active && (
               <Badge variant="secondary">
-                <Text className="text-xs text-stone-500">Paused</Text>
+                <Text style={styles.pausedText}>Paused</Text>
               </Badge>
             )}
           </View>
         </View>
-        <View className="items-end">
-          <Text className="text-base font-bold text-stone-900 dark:text-stone-100">
+        <View style={styles.amountContainer}>
+          <Text style={styles.amount}>
             {formatCurrency(subscription.amount, subscription.currency)}
           </Text>
-          <Text className={cn("mt-1 text-xs", getDaysColor(daysUntil))}>
+          <Text style={[styles.daysLabel, { color: getDaysColor(daysUntil) }]}>
             {daysLabel}
           </Text>
         </View>
@@ -67,3 +67,53 @@ export function SubscriptionCard({ subscription, onPress }: SubscriptionCardProp
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  pressed: {
+    opacity: 0.8,
+  },
+  card: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.stone[200],
+    backgroundColor: colors.white,
+    padding: 16,
+  },
+  info: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.stone[900],
+  },
+  badgeRow: {
+    marginTop: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  categoryText: {
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  pausedText: {
+    fontSize: 12,
+    color: colors.stone[500],
+  },
+  amountContainer: {
+    alignItems: "flex-end",
+  },
+  amount: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.stone[900],
+  },
+  daysLabel: {
+    marginTop: 4,
+    fontSize: 12,
+  },
+});

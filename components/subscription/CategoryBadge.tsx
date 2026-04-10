@@ -1,6 +1,6 @@
 import React from "react";
-import { Pressable, Text, View } from "react-native";
-import { cn } from "@/lib/utils";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { colors } from "@/lib/theme";
 import type { Category } from "@/types/subscription";
 
 interface CategoryBadgeProps {
@@ -11,29 +11,57 @@ interface CategoryBadgeProps {
 
 export function CategoryBadge({ category, selected, onPress }: CategoryBadgeProps) {
   return (
-    <Pressable onPress={() => onPress(category)} className="active:opacity-80">
+    <Pressable
+      onPress={() => onPress(category)}
+      style={({ pressed }) => pressed ? styles.pressed : undefined}
+    >
       <View
-        className={cn(
-          "flex-row items-center rounded-full px-3 py-2 border",
+        style={[
+          styles.badge,
           selected
-            ? "border-transparent"
-            : "border-surface-200 bg-white dark:border-dark-border dark:bg-dark-card"
-        )}
-        style={selected ? { backgroundColor: category.color + "20", borderColor: category.color } : undefined}
+            ? { backgroundColor: category.color + "20", borderColor: category.color }
+            : styles.badgeUnselected,
+        ]}
       >
-        <View
-          style={{ backgroundColor: category.color }}
-          className="mr-2 h-3 w-3 rounded-full"
-        />
-        <Text
-          className={cn(
-            "text-xs font-medium",
-            selected ? "text-stone-900 dark:text-stone-100" : "text-stone-600 dark:text-stone-400"
-          )}
-        >
+        <View style={[styles.dot, { backgroundColor: category.color }]} />
+        <Text style={[styles.label, selected ? styles.labelSelected : styles.labelUnselected]}>
           {category.name}
         </Text>
       </View>
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  pressed: {
+    opacity: 0.8,
+  },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 9999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+  },
+  badgeUnselected: {
+    borderColor: colors.stone[200],
+    backgroundColor: colors.white,
+  },
+  dot: {
+    marginRight: 8,
+    height: 12,
+    width: 12,
+    borderRadius: 6,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  labelSelected: {
+    color: colors.stone[900],
+  },
+  labelUnselected: {
+    color: colors.stone[600],
+  },
+});

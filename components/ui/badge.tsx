@@ -1,60 +1,65 @@
 import React from "react";
-import { View, Text, type ViewProps } from "react-native";
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import {
+  View,
+  Text,
+  StyleSheet,
+  type ViewProps,
+  type ViewStyle,
+  type TextStyle,
+} from "react-native";
+import { colors } from "@/lib/theme";
 
-const badgeVariants = cva(
-  "flex-row items-center rounded-full px-3 py-1",
-  {
-    variants: {
-      variant: {
-        default:
-          "bg-primary-100 dark:bg-primary-900/30",
-        secondary:
-          "bg-surface-200 dark:bg-dark-surface",
-        destructive:
-          "bg-red-100 dark:bg-red-900/30",
-        outline:
-          "border border-surface-300 dark:border-dark-border bg-transparent",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-);
+export type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
-const badgeTextVariants = cva("text-xs font-semibold", {
-  variants: {
-    variant: {
-      default: "text-primary-800 dark:text-primary-300",
-      secondary: "text-surface-700 dark:text-dark-textSecondary",
-      destructive: "text-red-800 dark:text-red-300",
-      outline: "text-surface-700 dark:text-dark-textSecondary",
-    },
-  },
-  defaultVariants: {
-    variant: "default",
-  },
-});
-
-export interface BadgeProps
-  extends ViewProps,
-    VariantProps<typeof badgeVariants> {
-  className?: string;
-  textClassName?: string;
+export interface BadgeProps extends ViewProps {
+  variant?: BadgeVariant;
+  style?: ViewStyle;
+  textStyle?: TextStyle;
   children: React.ReactNode;
 }
 
+function getVariantStyle(variant: BadgeVariant): ViewStyle {
+  switch (variant) {
+    case "secondary":
+      return { backgroundColor: colors.stone[200] };
+    case "destructive":
+      return { backgroundColor: colors.red[100] };
+    case "outline":
+      return {
+        borderWidth: 1,
+        borderColor: colors.stone[300],
+        backgroundColor: colors.transparent,
+      };
+    case "default":
+    default:
+      return { backgroundColor: colors.primary[100] };
+  }
+}
+
+function getTextVariantStyle(variant: BadgeVariant): TextStyle {
+  switch (variant) {
+    case "secondary":
+    case "outline":
+      return { color: colors.stone[700] };
+    case "destructive":
+      return { color: colors.red[800] };
+    case "default":
+    default:
+      return { color: colors.primary[800] };
+  }
+}
+
 const Badge = React.forwardRef<React.ElementRef<typeof View>, BadgeProps>(
-  ({ className, textClassName, variant, children, ...props }, ref) => (
+  ({ variant = "default", style, textStyle, children, ...props }, ref) => (
     <View
       ref={ref}
-      className={cn(badgeVariants({ variant }), className)}
+      style={[styles.badge, getVariantStyle(variant), style]}
       {...props}
     >
       {typeof children === "string" ? (
-        <Text className={cn(badgeTextVariants({ variant }), textClassName)}>
+        <Text
+          style={[styles.badgeText, getTextVariantStyle(variant), textStyle]}
+        >
           {children}
         </Text>
       ) : (
@@ -66,4 +71,18 @@ const Badge = React.forwardRef<React.ElementRef<typeof View>, BadgeProps>(
 
 Badge.displayName = "Badge";
 
-export { Badge, badgeVariants, badgeTextVariants };
+const styles = StyleSheet.create({
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 9999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+});
+
+export { Badge };

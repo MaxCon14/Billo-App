@@ -1,8 +1,9 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { formatCurrency } from "@/lib/utils";
 import type { Category } from "@/types/subscription";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { colors } from "@/lib/theme";
 
 interface CategoryData {
   category: Category;
@@ -22,39 +23,41 @@ export function SpendingByCategory({ data }: SpendingByCategoryProps) {
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <Text className="py-4 text-center text-sm text-stone-500 dark:text-stone-400">
-            No category data yet
-          </Text>
+          <Text style={styles.emptyText}>No category data yet</Text>
         ) : (
-          <View className="gap-4">
+          <View style={styles.list}>
             {data.map((item) => (
               <View key={item.category.id}>
-                <View className="mb-1.5 flex-row items-center justify-between">
-                  <View className="flex-row items-center">
+                <View style={styles.labelRow}>
+                  <View style={styles.categoryLabel}>
                     <View
-                      className="mr-2 h-3 w-3 rounded-full"
-                      style={{ backgroundColor: item.category.color }}
+                      style={[
+                        styles.colorDot,
+                        { backgroundColor: item.category.color },
+                      ]}
                     />
-                    <Text className="text-sm font-medium text-stone-700 dark:text-stone-300">
+                    <Text style={styles.categoryName}>
                       {item.category.name}
                     </Text>
                   </View>
-                  <View className="flex-row items-center">
-                    <Text className="mr-2 text-xs text-stone-500 dark:text-stone-400">
+                  <View style={styles.valueRow}>
+                    <Text style={styles.percentage}>
                       {item.percentage.toFixed(0)}%
                     </Text>
-                    <Text className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+                    <Text style={styles.amount}>
                       {formatCurrency(item.total, "USD")}
                     </Text>
                   </View>
                 </View>
-                <View className="h-2 overflow-hidden rounded-full bg-surface-200 dark:bg-dark-border">
+                <View style={styles.barTrack}>
                   <View
-                    className="h-full rounded-full"
-                    style={{
-                      backgroundColor: item.category.color,
-                      width: `${item.percentage}%`,
-                    }}
+                    style={[
+                      styles.barFill,
+                      {
+                        backgroundColor: item.category.color,
+                        width: `${item.percentage}%`,
+                      },
+                    ]}
                   />
                 </View>
               </View>
@@ -65,3 +68,60 @@ export function SpendingByCategory({ data }: SpendingByCategoryProps) {
     </Card>
   );
 }
+
+const styles = StyleSheet.create({
+  emptyText: {
+    paddingVertical: 16,
+    textAlign: "center",
+    fontSize: 14,
+    color: colors.stone[500],
+  },
+  list: {
+    gap: 16,
+  },
+  labelRow: {
+    marginBottom: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  categoryLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  colorDot: {
+    marginRight: 8,
+    height: 12,
+    width: 12,
+    borderRadius: 6,
+  },
+  categoryName: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.stone[700],
+  },
+  valueRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  percentage: {
+    marginRight: 8,
+    fontSize: 12,
+    color: colors.stone[500],
+  },
+  amount: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.stone[900],
+  },
+  barTrack: {
+    height: 8,
+    overflow: "hidden",
+    borderRadius: 4,
+    backgroundColor: colors.stone[200],
+  },
+  barFill: {
+    height: "100%",
+    borderRadius: 4,
+  },
+});

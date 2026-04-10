@@ -2,10 +2,11 @@ import React, { createContext, useCallback, useContext, useRef, useState } from 
 import {
   Animated,
   Pressable,
+  StyleSheet,
   Text,
   View,
 } from "react-native";
-import { cn } from "@/lib/utils";
+import { colors } from "@/lib/theme";
 
 type ToastType = "success" | "error" | "info";
 
@@ -21,10 +22,16 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
-const TOAST_COLORS: Record<ToastType, { bg: string; text: string }> = {
-  success: { bg: "bg-primary-600", text: "text-white" },
-  error: { bg: "bg-red-500", text: "text-white" },
-  info: { bg: "bg-surface-200 dark:bg-dark-card", text: "text-stone-900 dark:text-stone-100" },
+const TOAST_BG: Record<ToastType, string> = {
+  success: colors.primary[600],
+  error: colors.red[500],
+  info: colors.stone[200],
+};
+
+const TOAST_TEXT: Record<ToastType, string> = {
+  success: colors.white,
+  error: colors.white,
+  info: colors.stone[900],
 };
 
 function ToastItem({ toast: t, onDismiss }: { toast: Toast; onDismiss: () => void }) {
@@ -47,13 +54,11 @@ function ToastItem({ toast: t, onDismiss }: { toast: Toast; onDismiss: () => voi
     return () => clearTimeout(timer);
   }, []);
 
-  const colors = TOAST_COLORS[t.type];
-
   return (
     <Animated.View style={{ transform: [{ translateY }], opacity }}>
       <Pressable onPress={onDismiss}>
-        <View className={cn("mx-4 mb-2 rounded-xl px-4 py-3 shadow-lg", colors.bg)}>
-          <Text className={cn("text-sm font-medium", colors.text)}>{t.message}</Text>
+        <View style={[s.toastBox, { backgroundColor: TOAST_BG[t.type] }]}>
+          <Text style={[s.toastText, { color: TOAST_TEXT[t.type] }]}>{t.message}</Text>
         </View>
       </Pressable>
     </Animated.View>
@@ -75,7 +80,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <View className="absolute left-0 right-0 top-14 z-50">
+      <View style={s.toastContainer}>
         {toasts.map((t) => (
           <ToastItem key={t.id} toast={t} onDismiss={() => dismiss(t.id)} />
         ))}
@@ -91,3 +96,29 @@ export function useToast() {
   }
   return context;
 }
+
+const s = StyleSheet.create({
+  toastContainer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 56,
+    zIndex: 50,
+  },
+  toastBox: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
+  toastText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+});
