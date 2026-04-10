@@ -39,7 +39,7 @@ export default function EditSubscriptionScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.centered}>
-        <ActivityIndicator size="large" color="#0D9488" />
+        <ActivityIndicator size="large" color={colors.primary[600]} />
       </SafeAreaView>
     );
   }
@@ -47,7 +47,7 @@ export default function EditSubscriptionScreen() {
   if (!subscription) {
     return (
       <SafeAreaView style={styles.centered}>
-        <ActivityIndicator size="large" color="#0D9488" />
+        <ActivityIndicator size="large" color={colors.primary[600]} />
       </SafeAreaView>
     );
   }
