@@ -16,7 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/toast";
-import { colors } from "@/lib/theme";
+import { colors, shadows, radius } from "@/lib/theme";
 
 interface SettingsItemProps {
   icon: React.ReactNode;
@@ -35,7 +35,7 @@ function SettingsItem({ icon, title, subtitle, onPress, trailing }: SettingsItem
           <Text style={s.itemTitle}>{title}</Text>
           {subtitle && <Text style={s.itemSubtitle}>{subtitle}</Text>}
         </View>
-        {trailing || <ChevronRight size={18} color="#A8A29E" />}
+        {trailing || <ChevronRight size={18} color={colors.stone[300]} />}
       </View>
     </Pressable>
   );
@@ -95,56 +95,53 @@ export default function SettingsScreen() {
       <ScrollView style={s.flex1} contentContainerStyle={s.scrollContent}>
         <Text style={s.title}>Settings</Text>
 
-        <Card>
-          <CardContent>
-            <View style={s.profileRow}>
-              <Avatar fallback={initials} src={profile?.avatar_url ?? undefined} size="lg" />
-              <View style={s.profileInfo}>
-                <Text style={s.profileName}>{profile?.full_name ?? "User"}</Text>
-                <Text style={s.profileEmail}>{user?.email ?? ""}</Text>
-              </View>
+        <View style={s.card}>
+          <View style={s.profileRow}>
+            <Avatar fallback={initials} src={profile?.avatar_url ?? undefined} size="lg" />
+            <View style={s.profileInfo}>
+              <Text style={s.profileName}>{profile?.full_name ?? "User"}</Text>
+              <Text style={s.profileEmail}>{user?.email ?? ""}</Text>
             </View>
-          </CardContent>
-        </Card>
+            <ChevronRight size={18} color={colors.stone[300]} />
+          </View>
+        </View>
 
-        <Card>
-          <CardContent>
-            <Text style={s.sectionLabel}>Account</Text>
-            <SettingsItem icon={<User size={18} color="#0D9488" />} title="Edit Profile" subtitle="Name, email, avatar" />
-            <SettingsItem icon={<CircleDollarSign size={18} color="#0D9488" />} title="Currency" subtitle={profile?.currency ?? "USD"} />
-            <SettingsItem icon={<Building2 size={18} color="#0D9488" />} title="Connected Banks" subtitle="Manage linked accounts" onPress={() => router.push("/plaid/link")} />
-          </CardContent>
-        </Card>
+        <View style={s.card}>
+          <Text style={s.sectionLabel}>ACCOUNT</Text>
+          <SettingsItem icon={<User size={18} color={colors.primary[500]} />} title="Edit Profile" subtitle="Name, email, avatar" />
+          <View style={s.divider} />
+          <SettingsItem icon={<CircleDollarSign size={18} color={colors.primary[500]} />} title="Currency" subtitle={profile?.currency ?? "USD"} />
+          <View style={s.divider} />
+          <SettingsItem icon={<Building2 size={18} color={colors.primary[500]} />} title="Connected Banks" subtitle="Manage linked accounts" onPress={() => router.push("/plaid/link")} />
+        </View>
 
-        <Card>
-          <CardContent>
-            <Text style={s.sectionLabel}>Notifications</Text>
-            <SettingsItem
-              icon={<Bell size={18} color="#0D9488" />}
-              title="Push Notifications"
-              subtitle="Renewal reminders on your device"
-              trailing={<Switch checked={pushEnabled} onCheckedChange={handleTogglePush} />}
-            />
-            <SettingsItem
-              icon={<Bell size={18} color="#0D9488" />}
-              title="Email Notifications"
-              subtitle="Renewal reminders via email"
-              trailing={<Switch checked={emailEnabled} onCheckedChange={handleToggleEmail} />}
-            />
-          </CardContent>
-        </Card>
+        <View style={s.card}>
+          <Text style={s.sectionLabel}>NOTIFICATIONS</Text>
+          <SettingsItem
+            icon={<Bell size={18} color={colors.primary[500]} />}
+            title="Push Notifications"
+            subtitle="Renewal reminders on your device"
+            trailing={<Switch checked={pushEnabled} onCheckedChange={handleTogglePush} />}
+          />
+          <View style={s.divider} />
+          <SettingsItem
+            icon={<Bell size={18} color={colors.primary[500]} />}
+            title="Email Notifications"
+            subtitle="Renewal reminders via email"
+            trailing={<Switch checked={emailEnabled} onCheckedChange={handleToggleEmail} />}
+          />
+        </View>
 
-        <Card>
-          <CardContent>
-            <Text style={s.sectionLabel}>About</Text>
-            <SettingsItem icon={<Shield size={18} color="#0D9488" />} title="Privacy Policy" />
-            <SettingsItem icon={<Shield size={18} color="#0D9488" />} title="Terms of Service" />
-          </CardContent>
-        </Card>
+        <View style={s.card}>
+          <Text style={s.sectionLabel}>ABOUT</Text>
+          <SettingsItem icon={<Shield size={18} color={colors.primary[500]} />} title="Privacy Policy" />
+          <View style={s.divider} />
+          <SettingsItem icon={<Shield size={18} color={colors.primary[500]} />} title="Terms of Service" />
+        </View>
 
         <Pressable onPress={handleSignOut}>
           <View style={s.signOutBtn}>
-            <LogOut size={18} color="#EF4444" />
+            <LogOut size={18} color={colors.red[500]} />
             <Text style={s.signOutText}>Sign Out</Text>
           </View>
         </Pressable>
@@ -156,27 +153,87 @@ export default function SettingsScreen() {
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.stone[50] },
   flex1: { flex: 1 },
-  scrollContent: { padding: 16, gap: 16 },
-  title: { fontSize: 24, fontWeight: "bold", color: colors.stone[900] },
-  profileRow: { flexDirection: "row", alignItems: "center", paddingVertical: 8 },
-  profileInfo: { marginLeft: 16, flex: 1 },
-  profileName: { fontSize: 18, fontWeight: "600", color: colors.stone[900] },
-  profileEmail: { fontSize: 14, color: colors.stone[500] },
-  sectionLabel: {
-    marginBottom: 8, fontSize: 12, fontWeight: "600",
-    textTransform: "uppercase", letterSpacing: 1, color: colors.stone[500],
+  scrollContent: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32, gap: 20 },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: colors.stone[900],
+    paddingTop: 8,
   },
-  itemRow: { flexDirection: "row", alignItems: "center", paddingVertical: 12 },
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: radius.xl,
+    padding: 16,
+    ...shadows.md,
+  },
+  profileRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 4,
+  },
+  profileInfo: { marginLeft: 16, flex: 1 },
+  profileName: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.stone[900],
+  },
+  profileEmail: {
+    fontSize: 14,
+    color: colors.stone[400],
+    marginTop: 2,
+  },
+  sectionLabel: {
+    marginBottom: 12,
+    fontSize: 13,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    color: colors.stone[400],
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.stone[100],
+    marginLeft: 52,
+  },
+  itemRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 14,
+  },
   iconBox: {
-    marginRight: 12, borderRadius: 12, backgroundColor: colors.stone[100], padding: 10,
+    marginRight: 14,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: colors.primary[50],
+    alignItems: "center",
+    justifyContent: "center",
   },
   itemContent: { flex: 1 },
-  itemTitle: { fontSize: 14, fontWeight: "500", color: colors.stone[900] },
-  itemSubtitle: { marginTop: 2, fontSize: 12, color: colors.stone[500] },
-  signOutBtn: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center",
-    borderRadius: 16, borderWidth: 1, borderColor: colors.red[200],
-    backgroundColor: colors.red[50], paddingVertical: 14,
+  itemTitle: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: colors.stone[900],
   },
-  signOutText: { marginLeft: 8, fontSize: 14, fontWeight: "600", color: colors.red[500] },
+  itemSubtitle: {
+    marginTop: 2,
+    fontSize: 13,
+    color: colors.stone[400],
+  },
+  signOutBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.red[200],
+    backgroundColor: colors.red[50],
+    paddingVertical: 16,
+  },
+  signOutText: {
+    marginLeft: 10,
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.red[500],
+  },
 });
