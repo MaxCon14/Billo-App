@@ -33,8 +33,8 @@ export default function RegisterScreen() {
     }
     try {
       await signUp(email.trim(), password, fullName.trim());
-      toast("Account created!", "success");
-      // AuthGuard will automatically redirect to /(tabs)
+      toast("Account created! You can now sign in.", "success");
+      router.replace("/(auth)/login");
     } catch (err: any) {
       toast(err.message || "Failed to create account", "error");
     }

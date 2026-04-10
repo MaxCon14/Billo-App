@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { supabase, IS_DEMO_MODE } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { getNextBillingDate } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/authStore";
@@ -14,7 +14,6 @@ interface OverdueSub {
 /**
  * Advances next_billing_date for any subscription whose billing date has
  * already passed. Runs once on mount when the user is authenticated.
- * This ensures billing dates always point to future dates.
  */
 export function useBillingAdvancement() {
   const user = useAuthStore((s) => s.user);
@@ -22,7 +21,6 @@ export function useBillingAdvancement() {
   const hasRun = useRef(false);
 
   useEffect(() => {
-    if (IS_DEMO_MODE) return;
     if (!user?.id || hasRun.current) return;
     hasRun.current = true;
 

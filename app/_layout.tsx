@@ -5,14 +5,13 @@ import { ActivityIndicator, View, useColorScheme } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastProvider } from "@/components/ui/toast";
 import { useAuth } from "@/hooks/useAuth";
-import { IS_DEMO_MODE } from "@/lib/supabase";
 import { colors, darkColors } from "@/lib/theme";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5,
-      retry: IS_DEMO_MODE ? 0 : 2,
+      retry: 2,
     },
   },
 });
