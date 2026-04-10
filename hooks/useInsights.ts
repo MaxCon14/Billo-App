@@ -64,14 +64,14 @@ export function useInsights(subscriptions: Subscription[] | undefined): Insights
   // Total monthly spend across all active subscriptions
   const totalMonthly = useMemo(
     () =>
-      activeSubs.reduce((sum, sub) => sum + getMonthlyAmount(sub), 0),
+      activeSubs.reduce((sum, sub) => sum + getMonthlyAmount(sub.amount, sub.billing_cycle), 0),
     [activeSubs],
   );
 
   // Total yearly spend across all active subscriptions
   const totalYearly = useMemo(
     () =>
-      activeSubs.reduce((sum, sub) => sum + getYearlyAmount(sub), 0),
+      activeSubs.reduce((sum, sub) => sum + getYearlyAmount(sub.amount, sub.billing_cycle), 0),
     [activeSubs],
   );
 
@@ -87,7 +87,7 @@ export function useInsights(subscriptions: Subscription[] | undefined): Insights
       const existing = map.get(catId);
 
       if (existing) {
-        existing.total += getMonthlyAmount(sub);
+        existing.total += getMonthlyAmount(sub.amount, sub.billing_cycle);
         existing.count += 1;
       } else {
         const category: Category = sub.category ?? {
@@ -95,10 +95,13 @@ export function useInsights(subscriptions: Subscription[] | undefined): Insights
           name: 'Uncategorized',
           icon: 'help-circle',
           color: '#999999',
+          is_default: false,
+          user_id: null,
+          created_at: '',
         };
         map.set(catId, {
           category,
-          total: getMonthlyAmount(sub),
+          total: getMonthlyAmount(sub.amount, sub.billing_cycle),
           count: 1,
         });
       }
@@ -119,7 +122,7 @@ export function useInsights(subscriptions: Subscription[] | undefined): Insights
   const mostExpensive = useMemo(
     () =>
       [...activeSubs]
-        .sort((a, b) => getMonthlyAmount(b) - getMonthlyAmount(a))
+        .sort((a, b) => getMonthlyAmount(b.amount, b.billing_cycle) - getMonthlyAmount(a.amount, a.billing_cycle))
         .slice(0, 5),
     [activeSubs],
   );

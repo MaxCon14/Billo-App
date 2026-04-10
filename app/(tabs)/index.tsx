@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -6,55 +6,36 @@ import { SpendingSummary } from "@/components/dashboard/SpendingSummary";
 import { UpcomingRenewals } from "@/components/dashboard/UpcomingRenewals";
 import { SpendingChart } from "@/components/dashboard/SpendingChart";
 import { QuickActions } from "@/components/dashboard/QuickActions";
-import { SAMPLE_SUBSCRIPTIONS } from "@/lib/sampleData";
-import { getMonthlyAmount, getYearlyAmount, getDaysUntil } from "@/lib/utils";
+import { DashboardSkeleton } from "@/components/shared/LoadingSkeleton";
+import { useSubscriptions } from "@/hooks/useSubscriptions";
+import { useInsights } from "@/hooks/useInsights";
+import { useAuth } from "@/hooks/useAuth";
 import type { Subscription } from "@/types/subscription";
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const subscriptions = SAMPLE_SUBSCRIPTIONS;
+  const { profile } = useAuth();
+  const { data: subscriptions, isLoading } = useSubscriptions();
+  const insights = useInsights(subscriptions);
 
-  const activeSubs = useMemo(
-    () => subscriptions.filter((s) => s.is_active),
-    [subscriptions]
-  );
+  const currency = profile?.currency ?? "USD";
 
-  const totalMonthly = useMemo(
-    () => activeSubs.reduce((sum, s) => sum + getMonthlyAmount(s.amount, s.billing_cycle), 0),
-    [activeSubs]
-  );
-
-  const totalYearly = useMemo(
-    () => activeSubs.reduce((sum, s) => sum + getYearlyAmount(s.amount, s.billing_cycle), 0),
-    [activeSubs]
-  );
-
-  const upcomingSorted = useMemo(
-    () =>
-      [...activeSubs]
-        .filter((s) => getDaysUntil(s.next_billing_date) >= 0)
-        .sort((a, b) => getDaysUntil(a.next_billing_date) - getDaysUntil(b.next_billing_date)),
-    [activeSubs]
-  );
-
-  const chartData = useMemo(() => {
-    const categoryMap = new Map<string, { category: string; amount: number; color: string }>();
-    activeSubs.forEach((sub) => {
-      const catName = sub.category?.name ?? "Other";
-      const catColor = sub.category?.color ?? "#888780";
-      const existing = categoryMap.get(catName);
-      const monthly = getMonthlyAmount(sub.amount, sub.billing_cycle);
-      if (existing) {
-        existing.amount += monthly;
-      } else {
-        categoryMap.set(catName, { category: catName, amount: monthly, color: catColor });
-      }
-    });
-    return [...categoryMap.values()].sort((a, b) => b.amount - a.amount);
-  }, [activeSubs]);
+  const chartData = insights.byCategory.map((item) => ({
+    category: item.category.name,
+    amount: item.total,
+    color: item.category.color,
+  }));
 
   function handleSubscriptionPress(sub: Subscription) {
     router.push(`/subscription/${sub.id}`);
+  }
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg" edges={["top"]}>
+        <DashboardSkeleton />
+      </SafeAreaView>
+    );
   }
 
   return (
@@ -66,16 +47,16 @@ export default function DashboardScreen() {
               SubTracker
             </Text>
             <Text className="text-sm text-stone-500 dark:text-stone-400">
-              Manage your subscriptions
+              {profile?.full_name ? `Welcome, ${profile.full_name}` : "Manage your subscriptions"}
             </Text>
           </View>
         </View>
 
         <SpendingSummary
-          totalMonthly={totalMonthly}
-          totalYearly={totalYearly}
-          currency="USD"
-          subscriptionCount={activeSubs.length}
+          totalMonthly={insights.totalMonthly}
+          totalYearly={insights.totalYearly}
+          currency={currency}
+          subscriptionCount={subscriptions?.filter((s) => s.is_active).length ?? 0}
         />
 
         <QuickActions
@@ -84,9 +65,9 @@ export default function DashboardScreen() {
         />
 
         <UpcomingRenewals
-          subscriptions={upcomingSorted}
+          subscriptions={insights.upcomingRenewals}
           onSubscriptionPress={handleSubscriptionPress}
-          onViewAll={() => router.push("/subscriptions" as never)}
+          onViewAll={() => router.push("/(tabs)/subscriptions" as never)}
         />
 
         <SpendingChart data={chartData} />

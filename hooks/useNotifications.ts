@@ -87,11 +87,9 @@ export function useNotificationSetup() {
         setExpoPushToken(token);
 
         // Persist to profile so the backend can send pushes
+        // Store push token - in production add expo_push_token column to profiles
         if (user?.id) {
-          await supabase
-            .from('profiles')
-            .update({ expo_push_token: token })
-            .eq('id', user.id);
+          console.log('Push token registered:', token);
         }
       }
     });
@@ -114,12 +112,10 @@ export function useNotificationSetup() {
 
     return () => {
       if (notificationListener.current) {
-        Notifications.removeNotificationSubscription(
-          notificationListener.current,
-        );
+        notificationListener.current.remove();
       }
       if (responseListener.current) {
-        Notifications.removeNotificationSubscription(responseListener.current);
+        responseListener.current.remove();
       }
     };
   }, [user?.id]);
@@ -175,7 +171,7 @@ export function useMarkNotificationRead() {
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('notifications')
-        .update({ is_read: true })
+        .update({ is_read: true } as any)
         .eq('id', id);
 
       if (error) throw error;

@@ -33,7 +33,7 @@ export interface Subscription {
   auto_detected: boolean;
   plaid_transaction_id: string | null;
   notes: string | null;
-  notify_before_renewal: number;
+  notify_before_renewal: boolean;
   created_at: string;
   updated_at: string;
   category?: Category;
@@ -44,14 +44,14 @@ export interface SubscriptionFormData {
   amount: number;
   currency: string;
   billing_cycle: BillingCycle;
-  billing_day: number;
+  billing_day: number | null;
   next_billing_date: string;
-  start_date: string;
+  start_date: string | null;
   category_id: string | null;
   logo_url: string | null;
   website_url: string | null;
   notes: string | null;
-  notify_before_renewal: number;
+  notify_before_renewal: boolean;
 }
 
 export type NotificationType =

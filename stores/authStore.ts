@@ -9,14 +9,18 @@ interface AuthState {
   profile: Profile | null;
   isLoading: boolean;
   isInitialized: boolean;
+  isAuthenticated: boolean;
+  error: string | null;
 }
 
 interface AuthActions {
   initialize: () => void;
-  signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string, fullName: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInWithApple: () => Promise<void>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   fetchProfile: () => Promise<void>;
   updateProfile: (updates: Partial<Omit<Profile, 'id' | 'created_at'>>) => Promise<void>;
 }
@@ -27,6 +31,8 @@ const initialState: AuthState = {
   profile: null,
   isLoading: true,
   isInitialized: false,
+  isAuthenticated: false,
+  error: null,
 };
 
 export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
@@ -35,81 +41,98 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
   initialize: () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        set({ session, user: session?.user ?? null });
+        set({
+          session,
+          user: session?.user ?? null,
+          isAuthenticated: !!session?.user,
+        });
 
         if (event === 'SIGNED_IN' && session?.user) {
           await get().fetchProfile();
         }
 
         if (event === 'SIGNED_OUT') {
-          set({ profile: null });
+          set({ profile: null, isAuthenticated: false });
         }
 
         set({ isLoading: false, isInitialized: true });
       }
     );
 
-    // Return unsubscribe function for cleanup
     return () => {
       subscription.unsubscribe();
     };
   },
 
-  signInWithEmail: async (email: string, password: string) => {
-    set({ isLoading: true });
+  signIn: async (email: string, password: string) => {
+    set({ isLoading: true, error: null });
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-    } catch (error) {
-      set({ isLoading: false });
-      throw error;
+    } catch (err: any) {
+      set({ isLoading: false, error: err.message });
+      throw err;
     }
   },
 
-  signUpWithEmail: async (email: string, password: string, fullName: string) => {
-    set({ isLoading: true });
+  signUp: async (email: string, password: string, fullName: string) => {
+    set({ isLoading: true, error: null });
     try {
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
+        options: { data: { full_name: fullName } },
       });
       if (error) throw error;
-    } catch (error) {
-      set({ isLoading: false });
-      throw error;
+    } catch (err: any) {
+      set({ isLoading: false, error: err.message });
+      throw err;
     }
   },
 
   signInWithGoogle: async () => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-      });
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
       if (error) throw error;
-    } catch (error) {
-      set({ isLoading: false });
-      throw error;
+    } catch (err: any) {
+      set({ isLoading: false, error: err.message });
+      throw err;
+    }
+  },
+
+  signInWithApple: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'apple' });
+      if (error) throw error;
+    } catch (err: any) {
+      set({ isLoading: false, error: err.message });
+      throw err;
     }
   },
 
   signOut: async () => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       set({ ...initialState, isLoading: false, isInitialized: true });
-    } catch (error) {
+    } catch (err: any) {
+      set({ isLoading: false, error: err.message });
+      throw err;
+    }
+  },
+
+  resetPassword: async (email: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      if (error) throw error;
       set({ isLoading: false });
-      throw error;
+    } catch (err: any) {
+      set({ isLoading: false, error: err.message });
+      throw err;
     }
   },
 
@@ -138,7 +161,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .update({ ...updates, updated_at: new Date().toISOString() })
+        .update({ ...updates, updated_at: new Date().toISOString() } as any)
         .eq('id', user.id)
         .select()
         .single();

@@ -55,7 +55,7 @@ function applySort(
     case 'amount_desc':
       sorted.sort((a, b) => (b.amount ?? 0) - (a.amount ?? 0));
       break;
-    case 'next_billing_date':
+    case 'next_billing':
       sorted.sort((a, b) => {
         const dateA = a.next_billing_date
           ? new Date(a.next_billing_date).getTime()
@@ -66,7 +66,7 @@ function applySort(
         return dateA - dateB;
       });
       break;
-    case 'created_at':
+    case 'created':
       sorted.sort((a, b) => {
         const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
         const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
@@ -88,8 +88,8 @@ function applySort(
  */
 export function useSubscriptions() {
   const user = useAuthStore((s) => s.user);
-  const filters = useFilterStore((s) => s.filters);
-  const sort = useFilterStore((s) => s.sort);
+  const { category_id, is_active, search, sort } = useFilterStore();
+  const filters: FilterState = { category_id, is_active, search, sort };
 
   return useQuery<Subscription[]>({
     queryKey: ['subscriptions', user?.id, filters],
@@ -146,7 +146,7 @@ export function useCreateSubscription() {
 
       const { data, error } = await supabase
         .from('subscriptions')
-        .insert({ ...formData, user_id: user.id })
+        .insert({ ...formData, user_id: user.id } as any)
         .select('*, category:categories(*)')
         .single();
 
@@ -175,7 +175,7 @@ export function useUpdateSubscription() {
     }) => {
       const { data, error } = await supabase
         .from('subscriptions')
-        .update(formData)
+        .update(formData as any)
         .eq('id', id)
         .select('*, category:categories(*)')
         .single();
@@ -230,7 +230,7 @@ export function useToggleSubscription() {
     }) => {
       const { data, error } = await supabase
         .from('subscriptions')
-        .update({ is_active })
+        .update({ is_active } as any)
         .eq('id', id)
         .select('*, category:categories(*)')
         .single();

@@ -5,20 +5,34 @@ import { useRouter } from "expo-router";
 import { CreditCard, Mail } from "lucide-react-native";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/ui/toast";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { signIn, signInWithGoogle, isLoading } = useAuth();
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   async function handleLogin() {
-    setIsLoading(true);
-    // In production, use useAuth().signInWithEmail(email, password)
-    setTimeout(() => {
-      setIsLoading(false);
-      router.replace("/(tabs)");
-    }, 1000);
+    if (!email.trim() || !password) {
+      toast("Please enter your email and password", "error");
+      return;
+    }
+    try {
+      await signIn(email.trim(), password);
+    } catch (err: any) {
+      toast(err.message || "Failed to sign in", "error");
+    }
+  }
+
+  async function handleGoogleLogin() {
+    try {
+      await signInWithGoogle();
+    } catch (err: any) {
+      toast(err.message || "Failed to sign in with Google", "error");
+    }
   }
 
   return (
@@ -65,7 +79,7 @@ export default function LoginScreen() {
             <View className="h-px flex-1 bg-surface-300 dark:bg-dark-border" />
           </View>
 
-          <Button variant="outline" onPress={() => {}}>
+          <Button variant="outline" onPress={handleGoogleLogin} disabled={isLoading}>
             <View className="flex-row items-center">
               <Mail size={18} color="#78716C" />
               <Text className="ml-2 text-sm font-medium text-stone-700 dark:text-stone-300">

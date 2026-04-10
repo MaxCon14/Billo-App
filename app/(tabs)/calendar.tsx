@@ -4,16 +4,22 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { BillingCalendar } from "@/components/calendar/BillingCalendar";
 import { DayDetail } from "@/components/calendar/DayDetail";
-import { SAMPLE_SUBSCRIPTIONS } from "@/lib/sampleData";
+import { DashboardSkeleton } from "@/components/shared/LoadingSkeleton";
+import { useSubscriptions } from "@/hooks/useSubscriptions";
 
 export default function CalendarScreen() {
   const router = useRouter();
+  const { data: subscriptions = [], isLoading } = useSubscriptions();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
+  const activeSubs = useMemo(
+    () => subscriptions.filter((s) => s.is_active),
+    [subscriptions]
+  );
+
   const subsForSelectedDay = useMemo(() => {
-    return SAMPLE_SUBSCRIPTIONS.filter((sub) => {
-      if (!sub.is_active) return false;
+    return activeSubs.filter((sub) => {
       const billingDate = new Date(sub.next_billing_date);
       return (
         billingDate.getFullYear() === selectedDate.getFullYear() &&
@@ -21,7 +27,15 @@ export default function CalendarScreen() {
         billingDate.getDate() === selectedDate.getDate()
       );
     });
-  }, [selectedDate]);
+  }, [activeSubs, selectedDate]);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg" edges={["top"]}>
+        <DashboardSkeleton />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg" edges={["top"]}>
@@ -31,7 +45,7 @@ export default function CalendarScreen() {
         </Text>
 
         <BillingCalendar
-          subscriptions={SAMPLE_SUBSCRIPTIONS.filter((s) => s.is_active)}
+          subscriptions={activeSubs}
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
           currentMonth={currentMonth}

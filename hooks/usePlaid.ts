@@ -62,12 +62,11 @@ export function usePlaidLink() {
 
       const { error } = await supabase.from('plaid_items').insert({
         user_id: user.id,
-        public_token: metadata.public_token,
+        plaid_item_id: metadata.public_token,
+        plaid_access_token: '', // Exchanged server-side via edge function
         institution_id: metadata.institution?.institution_id ?? null,
         institution_name: metadata.institution?.name ?? null,
-        link_session_id: metadata.link_session_id,
-        accounts: metadata.accounts,
-      });
+      } as any);
 
       if (error) throw error;
 

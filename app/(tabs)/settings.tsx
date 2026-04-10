@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import React from "react";
+import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import {
   User,
   Bell,
@@ -14,6 +15,8 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Avatar } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/ui/toast";
 
 interface SettingsItemProps {
   icon: React.ReactNode;
@@ -47,9 +50,53 @@ function SettingsItem({ icon, title, subtitle, onPress, trailing }: SettingsItem
 }
 
 export default function SettingsScreen() {
-  const [pushEnabled, setPushEnabled] = useState(true);
-  const [emailEnabled, setEmailEnabled] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+  const router = useRouter();
+  const { profile, user, signOut, updateProfile } = useAuth();
+  const { toast } = useToast();
+
+  const pushEnabled = profile?.notification_push ?? true;
+  const emailEnabled = profile?.notification_email ?? true;
+
+  async function handleTogglePush(value: boolean) {
+    try {
+      await updateProfile({ notification_push: value });
+    } catch {
+      toast("Failed to update setting", "error");
+    }
+  }
+
+  async function handleToggleEmail(value: boolean) {
+    try {
+      await updateProfile({ notification_email: value });
+    } catch {
+      toast("Failed to update setting", "error");
+    }
+  }
+
+  async function handleSignOut() {
+    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Sign Out",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await signOut();
+          } catch {
+            toast("Failed to sign out", "error");
+          }
+        },
+      },
+    ]);
+  }
+
+  const initials =
+    profile?.full_name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) ?? "?";
 
   return (
     <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg" edges={["top"]}>
@@ -61,13 +108,17 @@ export default function SettingsScreen() {
         <Card>
           <CardContent>
             <View className="flex-row items-center py-2">
-              <Avatar fallback="JD" size="lg" />
+              <Avatar
+                fallback={initials}
+                src={profile?.avatar_url ?? undefined}
+                size="lg"
+              />
               <View className="ml-4 flex-1">
                 <Text className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                  John Doe
+                  {profile?.full_name ?? "User"}
                 </Text>
                 <Text className="text-sm text-stone-500 dark:text-stone-400">
-                  john@example.com
+                  {user?.email ?? ""}
                 </Text>
               </View>
             </View>
@@ -87,12 +138,13 @@ export default function SettingsScreen() {
             <SettingsItem
               icon={<CircleDollarSign size={18} color="#0D9488" />}
               title="Currency"
-              subtitle="USD ($)"
+              subtitle={profile?.currency ?? "USD"}
             />
             <SettingsItem
               icon={<Building2 size={18} color="#0D9488" />}
               title="Connected Banks"
               subtitle="Manage linked accounts"
+              onPress={() => router.push("/plaid/link")}
             />
           </CardContent>
         </Card>
@@ -107,7 +159,7 @@ export default function SettingsScreen() {
               title="Push Notifications"
               subtitle="Renewal reminders on your device"
               trailing={
-                <Switch checked={pushEnabled} onCheckedChange={setPushEnabled} />
+                <Switch checked={pushEnabled} onCheckedChange={handleTogglePush} />
               }
             />
             <SettingsItem
@@ -115,23 +167,7 @@ export default function SettingsScreen() {
               title="Email Notifications"
               subtitle="Renewal reminders via email"
               trailing={
-                <Switch checked={emailEnabled} onCheckedChange={setEmailEnabled} />
-              }
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent>
-            <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-              Appearance
-            </Text>
-            <SettingsItem
-              icon={<Palette size={18} color="#0D9488" />}
-              title="Dark Mode"
-              subtitle="Toggle dark theme"
-              trailing={
-                <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+                <Switch checked={emailEnabled} onCheckedChange={handleToggleEmail} />
               }
             />
           </CardContent>
@@ -142,18 +178,12 @@ export default function SettingsScreen() {
             <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
               About
             </Text>
-            <SettingsItem
-              icon={<Shield size={18} color="#0D9488" />}
-              title="Privacy Policy"
-            />
-            <SettingsItem
-              icon={<Shield size={18} color="#0D9488" />}
-              title="Terms of Service"
-            />
+            <SettingsItem icon={<Shield size={18} color="#0D9488" />} title="Privacy Policy" />
+            <SettingsItem icon={<Shield size={18} color="#0D9488" />} title="Terms of Service" />
           </CardContent>
         </Card>
 
-        <Pressable className="active:opacity-80">
+        <Pressable onPress={handleSignOut} className="active:opacity-80">
           <View className="flex-row items-center justify-center rounded-2xl border border-red-200 bg-red-50 py-3.5 dark:border-red-900 dark:bg-red-950">
             <LogOut size={18} color="#EF4444" />
             <Text className="ml-2 text-sm font-semibold text-red-500">Sign Out</Text>

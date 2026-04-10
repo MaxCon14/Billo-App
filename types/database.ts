@@ -1,10 +1,11 @@
 export interface Profile {
   id: string;
-  email: string;
   full_name: string | null;
   avatar_url: string | null;
   currency: string;
-  notification_enabled: boolean;
+  notification_email: boolean;
+  notification_push: boolean;
+  reminder_days_before: number;
   created_at: string;
   updated_at: string;
 }
@@ -19,8 +20,8 @@ export interface Database {
       };
       subscriptions: {
         Row: import('@/types/subscription').Subscription;
-        Insert: Omit<import('@/types/subscription').Subscription, 'id' | 'created_at' | 'updated_at'>;
-        Update: Partial<Omit<import('@/types/subscription').Subscription, 'id' | 'created_at'>>;
+        Insert: Omit<import('@/types/subscription').Subscription, 'id' | 'created_at' | 'updated_at' | 'category'>;
+        Update: Partial<Omit<import('@/types/subscription').Subscription, 'id' | 'created_at' | 'category'>>;
       };
       categories: {
         Row: import('@/types/subscription').Category;

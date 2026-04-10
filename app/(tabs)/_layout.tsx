@@ -8,10 +8,14 @@ import {
   BarChart3,
   Settings,
 } from "lucide-react-native";
+import { useBillingAdvancement } from "@/hooks/useBillingAdvancement";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+
+  // Advance past-due billing dates on app launch
+  useBillingAdvancement();
 
   return (
     <Tabs

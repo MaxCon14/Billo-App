@@ -4,30 +4,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Plus, Search, SlidersHorizontal } from "lucide-react-native";
 import { SubscriptionList } from "@/components/subscription/SubscriptionList";
-import { SAMPLE_SUBSCRIPTIONS, SAMPLE_CATEGORIES } from "@/lib/sampleData";
 import { CategoryBadge } from "@/components/subscription/CategoryBadge";
-import type { Subscription, Category, SortOption } from "@/types/subscription";
+import { useSubscriptions, useCategories } from "@/hooks/useSubscriptions";
+import { useFilterStore } from "@/stores/filterStore";
+import type { Subscription } from "@/types/subscription";
 
 export default function SubscriptionsScreen() {
   const router = useRouter();
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { data: subscriptions = [], isLoading, refetch, isRefetching } = useSubscriptions();
+  const { data: categories = [] } = useCategories();
+  const { search, category_id, setSearch, setCategoryFilter } = useFilterStore();
   const [showFilters, setShowFilters] = useState(false);
-
-  const filtered = useMemo(() => {
-    let subs = [...SAMPLE_SUBSCRIPTIONS];
-    if (search) {
-      const q = search.toLowerCase();
-      subs = subs.filter((s) => s.name.toLowerCase().includes(q));
-    }
-    if (selectedCategory) {
-      subs = subs.filter((s) => s.category_id === selectedCategory);
-    }
-    return subs.sort(
-      (a, b) =>
-        new Date(a.next_billing_date).getTime() - new Date(b.next_billing_date).getTime()
-    );
-  }, [search, selectedCategory]);
 
   return (
     <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg" edges={["top"]}>
@@ -65,30 +52,30 @@ export default function SubscriptionsScreen() {
 
         {showFilters && (
           <View className="mt-3 flex-row flex-wrap gap-2">
-            <Pressable onPress={() => setSelectedCategory(null)}>
+            <Pressable onPress={() => setCategoryFilter(null)}>
               <View
                 className={`rounded-full px-3 py-1.5 ${
-                  !selectedCategory
+                  !category_id
                     ? "bg-primary-600"
                     : "border border-surface-300 bg-white dark:border-dark-border dark:bg-dark-card"
                 }`}
               >
                 <Text
                   className={`text-xs font-medium ${
-                    !selectedCategory ? "text-white" : "text-stone-600 dark:text-stone-400"
+                    !category_id ? "text-white" : "text-stone-600 dark:text-stone-400"
                   }`}
                 >
                   All
                 </Text>
               </View>
             </Pressable>
-            {SAMPLE_CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <CategoryBadge
                 key={cat.id}
                 category={cat}
-                selected={selectedCategory === cat.id}
+                selected={category_id === cat.id}
                 onPress={() =>
-                  setSelectedCategory(selectedCategory === cat.id ? null : cat.id)
+                  setCategoryFilter(category_id === cat.id ? null : cat.id)
                 }
               />
             ))}
@@ -97,9 +84,11 @@ export default function SubscriptionsScreen() {
       </View>
 
       <SubscriptionList
-        subscriptions={filtered}
-        isLoading={false}
+        subscriptions={subscriptions}
+        isLoading={isLoading}
         onSubscriptionPress={(sub) => router.push(`/subscription/${sub.id}`)}
+        onRefresh={() => refetch()}
+        isRefreshing={isRefetching}
       />
     </SafeAreaView>
   );

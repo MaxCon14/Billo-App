@@ -1,10 +1,9 @@
-import React, { useMemo } from "react";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import React from "react";
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   Calendar,
-  Clock,
   DollarSign,
   ExternalLink,
   Pause,
@@ -16,7 +15,12 @@ import { Logo } from "@/components/shared/Logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { SAMPLE_SUBSCRIPTIONS } from "@/lib/sampleData";
+import { useToast } from "@/components/ui/toast";
+import {
+  useSubscription,
+  useDeleteSubscription,
+  useToggleSubscription,
+} from "@/hooks/useSubscriptions";
 import {
   formatCurrency,
   formatDate,
@@ -28,7 +32,18 @@ import {
 export default function SubscriptionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const subscription = SAMPLE_SUBSCRIPTIONS.find((s) => s.id === id);
+  const { toast } = useToast();
+  const { data: subscription, isLoading } = useSubscription(id);
+  const deleteMutation = useDeleteSubscription();
+  const toggleMutation = useToggleSubscription();
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-surface-50 dark:bg-dark-bg">
+        <ActivityIndicator size="large" color="#0D9488" />
+      </SafeAreaView>
+    );
+  }
 
   if (!subscription) {
     return (
@@ -41,6 +56,44 @@ export default function SubscriptionDetailScreen() {
   const daysUntil = getDaysUntil(subscription.next_billing_date);
   const monthly = getMonthlyAmount(subscription.amount, subscription.billing_cycle);
   const yearly = getYearlyAmount(subscription.amount, subscription.billing_cycle);
+
+  function handleToggle() {
+    toggleMutation.mutate(
+      { id: subscription!.id, is_active: !subscription!.is_active },
+      {
+        onSuccess: () => {
+          toast(
+            subscription!.is_active ? "Subscription paused" : "Subscription resumed",
+            "success"
+          );
+        },
+        onError: () => toast("Failed to update subscription", "error"),
+      }
+    );
+  }
+
+  function handleDelete() {
+    Alert.alert(
+      "Delete Subscription",
+      `Are you sure you want to delete ${subscription!.name}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            deleteMutation.mutate(subscription!.id, {
+              onSuccess: () => {
+                toast("Subscription deleted", "success");
+                router.back();
+              },
+              onError: () => toast("Failed to delete subscription", "error"),
+            });
+          },
+        },
+      ]
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-surface-50 dark:bg-dark-bg" edges={["bottom"]}>
@@ -65,7 +118,11 @@ export default function SubscriptionDetailScreen() {
               </Badge>
             )}
             <Badge variant={subscription.is_active ? "default" : "secondary"}>
-              <Text className={`text-xs font-medium ${subscription.is_active ? "text-primary-800" : "text-stone-500"}`}>
+              <Text
+                className={`text-xs font-medium ${
+                  subscription.is_active ? "text-primary-800" : "text-stone-500"
+                }`}
+              >
                 {subscription.is_active ? "Active" : "Paused"}
               </Text>
             </Badge>
@@ -98,7 +155,7 @@ export default function SubscriptionDetailScreen() {
           </Card>
         </View>
 
-        {/* Details */}
+        {/* Spending summary */}
         <Card>
           <CardContent>
             <Text className="mb-3 text-sm font-semibold text-stone-900 dark:text-stone-100">
@@ -144,14 +201,21 @@ export default function SubscriptionDetailScreen() {
 
         {/* Actions */}
         <View className="gap-3">
-          <Button variant="outline" onPress={() => {}}>
+          <Button
+            variant="outline"
+            onPress={() => router.push(`/subscription/edit?id=${subscription.id}`)}
+          >
             <View className="flex-row items-center">
               <Edit3 size={16} color="#0D9488" />
               <Text className="ml-2 font-medium text-primary-600">Edit Subscription</Text>
             </View>
           </Button>
 
-          <Button variant="outline" onPress={() => {}}>
+          <Button
+            variant="outline"
+            onPress={handleToggle}
+            disabled={toggleMutation.isPending}
+          >
             <View className="flex-row items-center">
               {subscription.is_active ? (
                 <>
@@ -184,16 +248,8 @@ export default function SubscriptionDetailScreen() {
 
           <Button
             variant="destructive"
-            onPress={() =>
-              Alert.alert(
-                "Delete Subscription",
-                "Are you sure you want to delete this subscription?",
-                [
-                  { text: "Cancel", style: "cancel" },
-                  { text: "Delete", style: "destructive", onPress: () => router.back() },
-                ]
-              )
-            }
+            onPress={handleDelete}
+            disabled={deleteMutation.isPending}
           >
             <View className="flex-row items-center">
               <Trash2 size={16} color="#fff" />

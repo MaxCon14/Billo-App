@@ -5,28 +5,38 @@ import { useRouter } from "expo-router";
 import { CreditCard } from "lucide-react-native";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/ui/toast";
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { signUp, isLoading } = useAuth();
+  const { toast } = useToast();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
   async function handleRegister() {
-    if (password !== confirmPassword) {
-      setError("Passwords don't match");
+    if (!fullName.trim() || !email.trim() || !password) {
+      toast("Please fill in all fields", "error");
       return;
     }
-    setError("");
-    setIsLoading(true);
-    // In production, use useAuth().signUpWithEmail(email, password, fullName)
-    setTimeout(() => {
-      setIsLoading(false);
+    if (password !== confirmPassword) {
+      toast("Passwords don't match", "error");
+      return;
+    }
+    if (password.length < 6) {
+      toast("Password must be at least 6 characters", "error");
+      return;
+    }
+    try {
+      await signUp(email.trim(), password, fullName.trim());
+      toast("Account created! Check your email to verify.", "success");
       router.replace("/(auth)/onboarding");
-    }, 1000);
+    } catch (err: any) {
+      toast(err.message || "Failed to create account", "error");
+    }
   }
 
   return (
@@ -61,7 +71,7 @@ export default function RegisterScreen() {
           />
           <Input
             label="Password"
-            placeholder="Create a password"
+            placeholder="Create a password (6+ characters)"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -72,7 +82,6 @@ export default function RegisterScreen() {
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry
-            error={error}
           />
 
           <Button onPress={handleRegister} disabled={isLoading} className="mt-2">
