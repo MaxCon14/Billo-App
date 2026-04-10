@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, IS_DEMO_MODE } from "@/lib/supabase";
 import { getNextBillingDate } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/authStore";
@@ -22,6 +22,7 @@ export function useBillingAdvancement() {
   const hasRun = useRef(false);
 
   useEffect(() => {
+    if (IS_DEMO_MODE) return;
     if (!user?.id || hasRun.current) return;
     hasRun.current = true;
 

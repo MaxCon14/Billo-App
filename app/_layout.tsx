@@ -5,22 +5,25 @@ import { ActivityIndicator, View, useColorScheme } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastProvider } from "@/components/ui/toast";
 import { useAuth } from "@/hooks/useAuth";
+import { IS_DEMO_MODE } from "@/lib/supabase";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5,
-      retry: 2,
+      retry: IS_DEMO_MODE ? 0 : 2,
     },
   },
 });
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isLoading, user } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
+    // In demo mode, skip straight to the main app
+    if (IS_DEMO_MODE) return;
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === "(auth)";
@@ -32,9 +35,9 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [user, isLoading, segments]);
 
-  if (isLoading) {
+  if (!IS_DEMO_MODE && isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-surface-50 dark:bg-dark-bg">
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#FAFAF9" }}>
         <ActivityIndicator size="large" color="#0D9488" />
       </View>
     );
@@ -60,8 +63,8 @@ export default function RootLayout() {
               animation: "slide_from_right",
             }}
           >
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen
               name="subscription/[id]"
               options={{

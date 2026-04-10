@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { supabase, IS_DEMO_MODE } from '@/lib/supabase';
 import type { Profile } from '@/types/database';
 
 interface AuthState {
@@ -39,6 +39,28 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
   ...initialState,
 
   initialize: () => {
+    if (IS_DEMO_MODE) {
+      set({
+        user: { id: 'demo-user', email: 'demo@subtracker.app' } as User,
+        session: null,
+        profile: {
+          id: 'demo-user',
+          full_name: 'Demo User',
+          avatar_url: null,
+          currency: 'USD',
+          notification_email: true,
+          notification_push: true,
+          reminder_days_before: 3,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        isAuthenticated: true,
+        isLoading: false,
+        isInitialized: true,
+      });
+      return () => {};
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         set({
@@ -137,6 +159,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
   },
 
   fetchProfile: async () => {
+    if (IS_DEMO_MODE) return;
     const { user } = get();
     if (!user) return;
 
@@ -155,6 +178,12 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
   },
 
   updateProfile: async (updates: Partial<Omit<Profile, 'id' | 'created_at'>>) => {
+    if (IS_DEMO_MODE) {
+      const { profile } = get();
+      set({ profile: { ...profile!, ...updates, updated_at: new Date().toISOString() } });
+      return;
+    }
+
     const { user } = get();
     if (!user) throw new Error('No authenticated user');
 

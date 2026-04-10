@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { supabase, IS_DEMO_MODE } from '@/lib/supabase';
 import type {
   Subscription,
   SubscriptionFormData,
@@ -9,6 +9,7 @@ import type {
 } from '@/types/subscription';
 import { useAuthStore } from '@/stores/authStore';
 import { useFilterStore } from '@/stores/filterStore';
+import { SAMPLE_SUBSCRIPTIONS, SAMPLE_CATEGORIES } from '@/lib/sampleData';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -92,8 +93,9 @@ export function useSubscriptions() {
   const filters: FilterState = { category_id, is_active, search, sort };
 
   return useQuery<Subscription[]>({
-    queryKey: ['subscriptions', user?.id, filters],
+    queryKey: ['subscriptions', IS_DEMO_MODE ? 'demo' : user?.id, filters],
     queryFn: async () => {
+      if (IS_DEMO_MODE) return SAMPLE_SUBSCRIPTIONS;
       if (!user?.id) return [];
 
       const { data, error } = await supabase
@@ -104,7 +106,7 @@ export function useSubscriptions() {
       if (error) throw error;
       return data as Subscription[];
     },
-    enabled: !!user?.id,
+    enabled: IS_DEMO_MODE || !!user?.id,
     select: (data) => applySort(applyFilters(data, filters), sort),
   });
 }
@@ -118,6 +120,12 @@ export function useSubscription(id: string | undefined) {
     queryFn: async () => {
       if (!id) throw new Error('Subscription ID is required');
 
+      if (IS_DEMO_MODE) {
+        const found = SAMPLE_SUBSCRIPTIONS.find((s) => s.id === id);
+        if (!found) throw new Error('Subscription not found');
+        return found;
+      }
+
       const { data, error } = await supabase
         .from('subscriptions')
         .select('*, category:categories(*)')
@@ -127,7 +135,7 @@ export function useSubscription(id: string | undefined) {
       if (error) throw error;
       return data as Subscription;
     },
-    enabled: !!id,
+    enabled: IS_DEMO_MODE || !!id,
   });
 }
 
@@ -142,6 +150,23 @@ export function useCreateSubscription() {
 
   return useMutation({
     mutationFn: async (formData: SubscriptionFormData) => {
+      if (IS_DEMO_MODE) {
+        const category = SAMPLE_CATEGORIES.find((c) => c.id === formData.category_id) ?? null;
+        return {
+          id: `sub-demo-${Date.now()}`,
+          user_id: 'user-1',
+          ...formData,
+          logo_url: null,
+          website_url: null,
+          auto_detected: false,
+          plaid_transaction_id: null,
+          notes: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          category,
+        } as Subscription;
+      }
+
       if (!user?.id) throw new Error('User must be authenticated');
 
       const { data, error } = await supabase
@@ -173,6 +198,12 @@ export function useUpdateSubscription() {
       id: string;
       data: Partial<SubscriptionFormData>;
     }) => {
+      if (IS_DEMO_MODE) {
+        const existing = SAMPLE_SUBSCRIPTIONS.find((s) => s.id === id);
+        if (!existing) throw new Error('Subscription not found');
+        return { ...existing, ...formData } as Subscription;
+      }
+
       const { data, error } = await supabase
         .from('subscriptions')
         .update(formData as any)
@@ -200,6 +231,8 @@ export function useDeleteSubscription() {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      if (IS_DEMO_MODE) return id;
+
       const { error } = await supabase
         .from('subscriptions')
         .delete()
@@ -228,6 +261,12 @@ export function useToggleSubscription() {
       id: string;
       is_active: boolean;
     }) => {
+      if (IS_DEMO_MODE) {
+        const existing = SAMPLE_SUBSCRIPTIONS.find((s) => s.id === id);
+        if (!existing) throw new Error('Subscription not found');
+        return { ...existing, is_active } as Subscription;
+      }
+
       const { data, error } = await supabase
         .from('subscriptions')
         .update({ is_active } as any)
@@ -255,6 +294,7 @@ export function useCategories() {
   return useQuery<Category[]>({
     queryKey: ['categories'],
     queryFn: async () => {
+      if (IS_DEMO_MODE) return SAMPLE_CATEGORIES;
       if (!user?.id) return [];
 
       const { data, error } = await supabase
@@ -266,6 +306,6 @@ export function useCategories() {
       if (error) throw error;
       return data as Category[];
     },
-    enabled: !!user?.id,
+    enabled: IS_DEMO_MODE || !!user?.id,
   });
 }
