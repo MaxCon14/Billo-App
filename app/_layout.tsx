@@ -22,8 +22,6 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // In demo mode, skip straight to the main app
-    if (IS_DEMO_MODE) return;
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === "(auth)";
@@ -35,7 +33,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [user, isLoading, segments]);
 
-  if (!IS_DEMO_MODE && isLoading) {
+  if (isLoading) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#FAFAF9" }}>
         <ActivityIndicator size="large" color="#0D9488" />

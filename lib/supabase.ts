@@ -19,9 +19,9 @@ export const supabase = createClient(
   IS_DEMO_MODE ? 'placeholder-key' : supabaseAnonKey,
   {
     auth: {
-      storage: AsyncStorage,
-      autoRefreshToken: true,
-      persistSession: true,
+      storage: IS_DEMO_MODE ? undefined : AsyncStorage,
+      autoRefreshToken: !IS_DEMO_MODE,
+      persistSession: !IS_DEMO_MODE,
       detectSessionInUrl: false,
     },
   }

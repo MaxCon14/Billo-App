@@ -40,21 +40,12 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
 
   initialize: () => {
     if (IS_DEMO_MODE) {
+      // In demo mode, don't auto-login — show the auth screen
       set({
-        user: { id: 'demo-user', email: 'demo@subtracker.app' } as User,
+        user: null,
         session: null,
-        profile: {
-          id: 'demo-user',
-          full_name: 'Demo User',
-          avatar_url: null,
-          currency: 'USD',
-          notification_email: true,
-          notification_push: true,
-          reminder_days_before: 3,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        isAuthenticated: true,
+        profile: null,
+        isAuthenticated: false,
         isLoading: false,
         isInitialized: true,
       });
@@ -88,6 +79,26 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
 
   signIn: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
+    if (IS_DEMO_MODE) {
+      set({
+        user: { id: 'demo-user', email } as User,
+        session: null,
+        profile: {
+          id: 'demo-user',
+          full_name: email.split('@')[0],
+          avatar_url: null,
+          currency: 'USD',
+          notification_email: true,
+          notification_push: true,
+          reminder_days_before: 3,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        isAuthenticated: true,
+        isLoading: false,
+      });
+      return;
+    }
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
@@ -99,6 +110,26 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
 
   signUp: async (email: string, password: string, fullName: string) => {
     set({ isLoading: true, error: null });
+    if (IS_DEMO_MODE) {
+      set({
+        user: { id: 'demo-user', email } as User,
+        session: null,
+        profile: {
+          id: 'demo-user',
+          full_name: fullName,
+          avatar_url: null,
+          currency: 'USD',
+          notification_email: true,
+          notification_push: true,
+          reminder_days_before: 3,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        isAuthenticated: true,
+        isLoading: false,
+      });
+      return;
+    }
     try {
       const { error } = await supabase.auth.signUp({
         email,
@@ -135,6 +166,10 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
   },
 
   signOut: async () => {
+    if (IS_DEMO_MODE) {
+      set({ ...initialState, isLoading: false, isInitialized: true });
+      return;
+    }
     set({ isLoading: true, error: null });
     try {
       const { error } = await supabase.auth.signOut();

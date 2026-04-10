@@ -9,7 +9,10 @@ import type {
 } from '@/types/subscription';
 import { useAuthStore } from '@/stores/authStore';
 import { useFilterStore } from '@/stores/filterStore';
-import { SAMPLE_SUBSCRIPTIONS, SAMPLE_CATEGORIES } from '@/lib/sampleData';
+import { SAMPLE_CATEGORIES } from '@/lib/sampleData';
+
+// In-memory store for demo mode subscriptions
+let demoSubscriptions: Subscription[] = [];
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -95,7 +98,7 @@ export function useSubscriptions() {
   return useQuery<Subscription[]>({
     queryKey: ['subscriptions', IS_DEMO_MODE ? 'demo' : user?.id, filters],
     queryFn: async () => {
-      if (IS_DEMO_MODE) return SAMPLE_SUBSCRIPTIONS;
+      if (IS_DEMO_MODE) return [...demoSubscriptions];
       if (!user?.id) return [];
 
       const { data, error } = await supabase
@@ -121,7 +124,7 @@ export function useSubscription(id: string | undefined) {
       if (!id) throw new Error('Subscription ID is required');
 
       if (IS_DEMO_MODE) {
-        const found = SAMPLE_SUBSCRIPTIONS.find((s) => s.id === id);
+        const found = demoSubscriptions.find((s) => s.id === id);
         if (!found) throw new Error('Subscription not found');
         return found;
       }
@@ -152,9 +155,9 @@ export function useCreateSubscription() {
     mutationFn: async (formData: SubscriptionFormData) => {
       if (IS_DEMO_MODE) {
         const category = SAMPLE_CATEGORIES.find((c) => c.id === formData.category_id) ?? null;
-        return {
+        const newSub = {
           id: `sub-demo-${Date.now()}`,
-          user_id: 'user-1',
+          user_id: 'demo-user',
           ...formData,
           logo_url: null,
           website_url: null,
@@ -165,6 +168,8 @@ export function useCreateSubscription() {
           updated_at: new Date().toISOString(),
           category,
         } as Subscription;
+        demoSubscriptions.push(newSub);
+        return newSub;
       }
 
       if (!user?.id) throw new Error('User must be authenticated');
@@ -199,9 +204,10 @@ export function useUpdateSubscription() {
       data: Partial<SubscriptionFormData>;
     }) => {
       if (IS_DEMO_MODE) {
-        const existing = SAMPLE_SUBSCRIPTIONS.find((s) => s.id === id);
-        if (!existing) throw new Error('Subscription not found');
-        return { ...existing, ...formData } as Subscription;
+        const idx = demoSubscriptions.findIndex((s) => s.id === id);
+        if (idx === -1) throw new Error('Subscription not found');
+        demoSubscriptions[idx] = { ...demoSubscriptions[idx], ...formData, updated_at: new Date().toISOString() };
+        return demoSubscriptions[idx];
       }
 
       const { data, error } = await supabase
@@ -231,7 +237,10 @@ export function useDeleteSubscription() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      if (IS_DEMO_MODE) return id;
+      if (IS_DEMO_MODE) {
+        demoSubscriptions = demoSubscriptions.filter((s) => s.id !== id);
+        return id;
+      }
 
       const { error } = await supabase
         .from('subscriptions')
@@ -262,9 +271,10 @@ export function useToggleSubscription() {
       is_active: boolean;
     }) => {
       if (IS_DEMO_MODE) {
-        const existing = SAMPLE_SUBSCRIPTIONS.find((s) => s.id === id);
-        if (!existing) throw new Error('Subscription not found');
-        return { ...existing, is_active } as Subscription;
+        const idx = demoSubscriptions.findIndex((s) => s.id === id);
+        if (idx === -1) throw new Error('Subscription not found');
+        demoSubscriptions[idx] = { ...demoSubscriptions[idx], is_active };
+        return demoSubscriptions[idx];
       }
 
       const { data, error } = await supabase
