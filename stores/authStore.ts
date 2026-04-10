@@ -39,6 +39,9 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
   ...initialState,
 
   initialize: () => {
+    // Skip if already initialized (prevents resetting state on re-mount)
+    if (get().isInitialized) return () => {};
+
     if (IS_DEMO_MODE) {
       // In demo mode, don't auto-login — show the auth screen
       set({
