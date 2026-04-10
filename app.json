@@ -22,8 +22,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0D9488"
       },
-      "package": "com.subtracker.app",
-      "edgeToEdgeEnabled": true
+      "package": "com.subtracker.app"
     },
     "web": {
       "favicon": "./assets/favicon.png",

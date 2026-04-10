@@ -1,13 +1,4 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
 import { BillingCycle } from '@/types/subscription';
-
-/**
- * Merge Tailwind CSS classes with clsx and tailwind-merge.
- */
-export function cn(...inputs: ClassValue[]): string {
-  return twMerge(clsx(inputs));
-}
 
 /**
  * Format a numeric amount as a currency string using Intl.NumberFormat.
