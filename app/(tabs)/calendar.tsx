@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { BillingCalendar } from "@/components/calendar/BillingCalendar";
@@ -41,7 +41,10 @@ export default function CalendarScreen() {
   return (
     <SafeAreaView style={s.screen} edges={["top"]}>
       <ScrollView style={s.flex1} contentContainerStyle={s.scrollContent}>
-        <Text style={s.title}>Billing Calendar</Text>
+        <View style={s.headerSection}>
+          <Text style={s.title}>Calendar</Text>
+          <Text style={s.subtitle}>Upcoming billing dates</Text>
+        </View>
 
         <BillingCalendar
           subscriptions={activeSubs}
@@ -64,6 +67,19 @@ export default function CalendarScreen() {
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.stone[50] },
   flex1: { flex: 1 },
-  scrollContent: { padding: 16, gap: 16 },
-  title: { fontSize: 24, fontWeight: "bold", color: colors.stone[900] },
+  scrollContent: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 24, gap: 24 },
+  headerSection: {
+    paddingTop: 8,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: colors.stone[900],
+  },
+  subtitle: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: colors.stone[400],
+    marginTop: 4,
+  },
 });

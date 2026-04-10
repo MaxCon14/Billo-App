@@ -1,6 +1,6 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 import type { Category } from "@/types/subscription";
 
 interface CategoryBadgeProps {
@@ -13,18 +13,26 @@ export function CategoryBadge({ category, selected, onPress }: CategoryBadgeProp
   return (
     <Pressable
       onPress={() => onPress(category)}
-      style={({ pressed }) => pressed ? styles.pressed : undefined}
+      style={({ pressed }) => pressed && styles.pressed}
     >
       <View
         style={[
           styles.badge,
           selected
-            ? { backgroundColor: category.color + "20", borderColor: category.color }
+            ? {
+                backgroundColor: colors.primary[50],
+                borderColor: colors.primary[600],
+              }
             : styles.badgeUnselected,
         ]}
       >
         <View style={[styles.dot, { backgroundColor: category.color }]} />
-        <Text style={[styles.label, selected ? styles.labelSelected : styles.labelUnselected]}>
+        <Text
+          style={[
+            styles.label,
+            selected ? styles.labelSelected : styles.labelUnselected,
+          ]}
+        >
           {category.name}
         </Text>
       </View>
@@ -34,32 +42,32 @@ export function CategoryBadge({ category, selected, onPress }: CategoryBadgeProp
 
 const styles = StyleSheet.create({
   pressed: {
-    opacity: 0.8,
+    opacity: 0.7,
   },
   badge: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 9999,
-    paddingHorizontal: 12,
+    borderRadius: radius.full,
+    paddingHorizontal: 14,
     paddingVertical: 8,
-    borderWidth: 1,
+    borderWidth: 1.5,
   },
   badgeUnselected: {
     borderColor: colors.stone[200],
-    backgroundColor: colors.white,
+    backgroundColor: colors.stone[50],
   },
   dot: {
     marginRight: 8,
-    height: 12,
-    width: 12,
-    borderRadius: 6,
+    height: 8,
+    width: 8,
+    borderRadius: 4,
   },
   label: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "500",
   },
   labelSelected: {
-    color: colors.stone[900],
+    color: colors.primary[600],
   },
   labelUnselected: {
     color: colors.stone[600],

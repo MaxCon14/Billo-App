@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { colors } from "@/lib/theme";
-import { Button } from "@/components/ui/button";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { colors, radius, shadows } from "@/lib/theme";
 import { Input } from "@/components/ui/input";
 import { BillingCycleSelector } from "./BillingCycleSelector";
 import { CategoryBadge } from "./CategoryBadge";
@@ -86,9 +85,7 @@ export function SubscriptionForm({
         <BillingCycleSelector value={billingCycle} onChange={setBillingCycle} />
 
         <View>
-          <Text style={styles.sectionLabel}>
-            Category
-          </Text>
+          <Text style={styles.sectionLabel}>Category</Text>
           <View style={styles.categoryWrap}>
             {categories.map((cat) => (
               <CategoryBadge
@@ -129,11 +126,23 @@ export function SubscriptionForm({
           numberOfLines={3}
         />
 
-        <Button onPress={handleSubmit} disabled={isLoading} style={styles.submitButton}>
+        <Pressable
+          onPress={handleSubmit}
+          disabled={isLoading}
+          style={({ pressed }) => [
+            styles.submitButton,
+            pressed && styles.submitPressed,
+            isLoading && styles.submitDisabled,
+          ]}
+        >
           <Text style={styles.submitText}>
-            {isLoading ? "Saving..." : initialData ? "Update Subscription" : "Add Subscription"}
+            {isLoading
+              ? "Saving..."
+              : initialData
+                ? "Update Subscription"
+                : "Add Subscription"}
           </Text>
-        </Button>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -145,14 +154,15 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
+    paddingBottom: 40,
   },
   formGroup: {
     gap: 16,
   },
   sectionLabel: {
-    marginBottom: 8,
+    marginBottom: 10,
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
     color: colors.stone[700],
   },
   categoryWrap: {
@@ -161,11 +171,24 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   submitButton: {
-    marginTop: 16,
+    marginTop: 8,
+    borderRadius: radius.lg,
+    backgroundColor: colors.primary[600],
+    paddingVertical: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    ...shadows.sm,
+  },
+  submitPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.99 }],
+  },
+  submitDisabled: {
+    opacity: 0.5,
   },
   submitText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     color: colors.white,
   },
 });

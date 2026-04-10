@@ -1,6 +1,6 @@
 import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { colors } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 import { BILLING_CYCLES } from "@/lib/constants";
 import type { BillingCycle } from "@/types/subscription";
 
@@ -12,9 +12,7 @@ interface BillingCycleSelectorProps {
 export function BillingCycleSelector({ value, onChange }: BillingCycleSelectorProps) {
   return (
     <View>
-      <Text style={styles.label}>
-        Billing Cycle
-      </Text>
+      <Text style={styles.label}>Billing Cycle</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={styles.row}>
           {BILLING_CYCLES.map((cycle) => {
@@ -23,7 +21,7 @@ export function BillingCycleSelector({ value, onChange }: BillingCycleSelectorPr
               <Pressable
                 key={cycle.value}
                 onPress={() => onChange(cycle.value)}
-                style={({ pressed }) => pressed ? styles.pressed : undefined}
+                style={({ pressed }) => pressed && styles.pressed}
               >
                 <View
                   style={[
@@ -34,7 +32,9 @@ export function BillingCycleSelector({ value, onChange }: BillingCycleSelectorPr
                   <Text
                     style={[
                       styles.chipText,
-                      isSelected ? styles.chipTextSelected : styles.chipTextUnselected,
+                      isSelected
+                        ? styles.chipTextSelected
+                        : styles.chipTextUnselected,
                     ]}
                   >
                     {cycle.label}
@@ -51,12 +51,12 @@ export function BillingCycleSelector({ value, onChange }: BillingCycleSelectorPr
 
 const styles = StyleSheet.create({
   pressed: {
-    opacity: 0.8,
+    opacity: 0.7,
   },
   label: {
-    marginBottom: 8,
+    marginBottom: 10,
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
     color: colors.stone[700],
   },
   row: {
@@ -64,27 +64,24 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   chip: {
-    borderRadius: 12,
+    borderRadius: radius.full,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderWidth: 1,
   },
   chipSelected: {
     backgroundColor: colors.primary[600],
-    borderColor: colors.primary[600],
   },
   chipUnselected: {
-    borderColor: colors.stone[300],
-    backgroundColor: colors.white,
+    backgroundColor: colors.stone[100],
   },
   chipText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
   },
   chipTextSelected: {
     color: colors.white,
   },
   chipTextUnselected: {
-    color: colors.stone[700],
+    color: colors.stone[600],
   },
 });
