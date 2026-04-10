@@ -1,31 +1,28 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { formatCurrency, getDaysUntil } from "@/lib/utils";
-import { colors } from "@/lib/theme";
+import { formatCurrency } from "@/lib/utils";
+import { colors, shadows, radius } from "@/lib/theme";
 import type { Subscription } from "@/types/subscription";
 import { Logo } from "@/components/shared/Logo";
-import { Badge } from "@/components/ui/badge";
 
 interface SubscriptionCardProps {
   subscription: Subscription;
   onPress: (subscription: Subscription) => void;
 }
 
-function getDaysColor(days: number): string {
-  if (days < 3) return colors.red[500];
-  if (days < 7) return "#CA8A04"; // yellow-600
-  return colors.stone[500];
-}
+const CYCLE_SHORT: Record<string, string> = {
+  weekly: "Weekly",
+  monthly: "Monthly",
+  quarterly: "Quarterly",
+  semi_annual: "Semi-annual",
+  yearly: "Yearly",
+};
 
 export function SubscriptionCard({ subscription, onPress }: SubscriptionCardProps) {
-  const daysUntil = getDaysUntil(subscription.next_billing_date);
-  const daysLabel =
-    daysUntil === 0 ? "Today" : daysUntil === 1 ? "Tomorrow" : `in ${daysUntil} days`;
-
   return (
     <Pressable
       onPress={() => onPress(subscription)}
-      style={({ pressed }) => pressed ? styles.pressed : undefined}
+      style={({ pressed }) => [pressed && styles.pressed]}
     >
       <View style={styles.card}>
         <Logo
@@ -34,33 +31,20 @@ export function SubscriptionCard({ subscription, onPress }: SubscriptionCardProp
           size={44}
         />
         <View style={styles.info}>
-          <Text style={styles.name}>
+          <Text style={styles.name} numberOfLines={1}>
             {subscription.name}
           </Text>
-          <View style={styles.badgeRow}>
-            {subscription.category && (
-              <Badge
-                variant="default"
-                style={{ backgroundColor: subscription.category.color + "20" }}
-              >
-                <Text style={[styles.categoryText, { color: subscription.category.color }]}>
-                  {subscription.category.name}
-                </Text>
-              </Badge>
-            )}
-            {!subscription.is_active && (
-              <Badge variant="secondary">
-                <Text style={styles.pausedText}>Paused</Text>
-              </Badge>
-            )}
-          </View>
+          <Text style={styles.category} numberOfLines={1}>
+            {subscription.category?.name ?? "Uncategorized"}
+            {!subscription.is_active && "  \u00B7  Paused"}
+          </Text>
         </View>
         <View style={styles.amountContainer}>
           <Text style={styles.amount}>
             {formatCurrency(subscription.amount, subscription.currency)}
           </Text>
-          <Text style={[styles.daysLabel, { color: getDaysColor(daysUntil) }]}>
-            {daysLabel}
+          <Text style={styles.cycle}>
+            {CYCLE_SHORT[subscription.billing_cycle] ?? subscription.billing_cycle}
           </Text>
         </View>
       </View>
@@ -70,39 +54,31 @@ export function SubscriptionCard({ subscription, onPress }: SubscriptionCardProp
 
 const styles = StyleSheet.create({
   pressed: {
-    opacity: 0.8,
+    opacity: 0.7,
+    transform: [{ scale: 0.99 }],
   },
   card: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.stone[200],
+    borderRadius: radius.xl,
     backgroundColor: colors.white,
     padding: 16,
+    ...shadows.sm,
   },
   info: {
-    marginLeft: 12,
+    marginLeft: 14,
     flex: 1,
   },
   name: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
     color: colors.stone[900],
+    marginBottom: 3,
   },
-  badgeRow: {
-    marginTop: 4,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  categoryText: {
+  category: {
     fontSize: 12,
-    fontWeight: "500",
-  },
-  pausedText: {
-    fontSize: 12,
-    color: colors.stone[500],
+    fontWeight: "400",
+    color: colors.stone[400],
   },
   amountContainer: {
     alignItems: "flex-end",
@@ -111,9 +87,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: colors.stone[900],
+    marginBottom: 3,
+    letterSpacing: -0.2,
   },
-  daysLabel: {
-    marginTop: 4,
+  cycle: {
     fontSize: 12,
+    fontWeight: "400",
+    color: colors.stone[400],
   },
 });

@@ -9,6 +9,7 @@ import {
   Settings,
 } from "lucide-react-native";
 import { useBillingAdvancement } from "@/hooks/useBillingAdvancement";
+import { colors, darkColors } from "@/lib/theme";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -21,14 +22,15 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#0D9488",
-        tabBarInactiveTintColor: isDark ? "#78716C" : "#A8A29E",
+        tabBarActiveTintColor: colors.primary[600],
+        tabBarInactiveTintColor: colors.stone[400],
         tabBarStyle: {
-          backgroundColor: isDark ? "#1C1917" : "#FFFFFF",
-          borderTopColor: isDark ? "#292524" : "#E7E5E4",
-          height: 85,
-          paddingBottom: 20,
-          paddingTop: 8,
+          backgroundColor: isDark ? colors.stone[900] : colors.white,
+          borderTopColor: isDark ? colors.stone[800] : colors.stone[100],
+          borderTopWidth: 1,
+          height: 88,
+          paddingBottom: 24,
+          paddingTop: 10,
         },
         tabBarLabelStyle: {
           fontSize: 11,

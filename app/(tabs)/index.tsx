@@ -10,8 +10,15 @@ import { DashboardSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useInsights } from "@/hooks/useInsights";
 import { useAuth } from "@/hooks/useAuth";
-import { colors } from "@/lib/theme";
+import { colors, shadows, radius } from "@/lib/theme";
 import type { Subscription } from "@/types/subscription";
+
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -44,9 +51,9 @@ export default function DashboardScreen() {
       <ScrollView style={s.flex1} contentContainerStyle={s.scrollContent}>
         <View style={s.headerRow}>
           <View>
-            <Text style={s.title}>SubTracker</Text>
-            <Text style={s.subtitle}>
-              {profile?.full_name ? `Welcome, ${profile.full_name}` : "Manage your subscriptions"}
+            <Text style={s.greeting}>{getGreeting()}</Text>
+            <Text style={s.name}>
+              {profile?.full_name || "there"}
             </Text>
           </View>
         </View>
@@ -78,8 +85,23 @@ export default function DashboardScreen() {
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.stone[50] },
   flex1: { flex: 1 },
-  scrollContent: { padding: 16, gap: 16 },
-  headerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  title: { fontSize: 24, fontWeight: "bold", color: colors.stone[900] },
-  subtitle: { fontSize: 14, color: colors.stone[500] },
+  scrollContent: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 24, gap: 24 },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: 8,
+  },
+  greeting: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: colors.stone[400],
+    letterSpacing: 0.2,
+  },
+  name: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: colors.stone[900],
+    marginTop: 2,
+  },
 });
