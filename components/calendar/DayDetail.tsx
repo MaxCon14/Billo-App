@@ -5,7 +5,7 @@ import type { Subscription } from "@/types/subscription";
 import { Logo } from "@/components/shared/Logo";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CalendarOff } from "lucide-react-native";
-import { colors } from "@/lib/theme";
+import { colors, shadows, radius } from "@/lib/theme";
 
 interface DayDetailProps {
   date: Date;
@@ -24,25 +24,30 @@ export function DayDetail({ date, subscriptions, onSubscriptionPress }: DayDetai
         <EmptyState
           title="No bills due"
           description="Nothing scheduled for this day."
-          icon={<CalendarOff size={24} color="#A8A29E" />}
+          icon={<CalendarOff size={24} color={colors.stone[400]} />}
           style={{ paddingVertical: 24 }}
         />
       ) : (
         <>
           <View style={styles.list}>
-            {subscriptions.map((sub) => (
+            {subscriptions.map((sub, index) => (
               <Pressable
                 key={sub.id}
                 onPress={() => onSubscriptionPress(sub)}
                 style={({ pressed }) => pressed && styles.pressed}
               >
                 <View style={styles.row}>
-                  <Logo name={sub.name} logoUrl={sub.logo_url} size={36} />
-                  <Text style={styles.subName}>{sub.name}</Text>
+                  <Logo name={sub.name} logoUrl={sub.logo_url} size={40} />
+                  <Text style={styles.subName} numberOfLines={1}>
+                    {sub.name}
+                  </Text>
                   <Text style={styles.subAmount}>
                     {formatCurrency(sub.amount, sub.currency)}
                   </Text>
                 </View>
+                {index < subscriptions.length - 1 && (
+                  <View style={styles.rowSeparator} />
+                )}
               </Pressable>
             ))}
           </View>
@@ -63,45 +68,50 @@ export function DayDetail({ date, subscriptions, onSubscriptionPress }: DayDetai
 const styles = StyleSheet.create({
   card: {
     marginTop: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.stone[200],
+    borderRadius: radius.xl,
     backgroundColor: colors.white,
-    padding: 16,
+    padding: 20,
+    ...shadows.md,
   },
   dateLabel: {
-    marginBottom: 12,
-    fontSize: 14,
-    fontWeight: "600",
+    marginBottom: 16,
+    fontSize: 16,
+    fontWeight: "700",
     color: colors.stone[900],
   },
   list: {
-    gap: 12,
+    gap: 0,
   },
   pressed: {
-    opacity: 0.8,
+    opacity: 0.7,
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
+    paddingVertical: 10,
+  },
+  rowSeparator: {
+    height: 1,
+    backgroundColor: colors.stone[100],
+    marginLeft: 54,
   },
   subName: {
-    marginLeft: 12,
+    marginLeft: 14,
     flex: 1,
-    fontSize: 14,
-    fontWeight: "500",
-    color: colors.stone[900],
-  },
-  subAmount: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "600",
     color: colors.stone[900],
   },
+  subAmount: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.stone[900],
+  },
   totalBar: {
-    marginTop: 12,
+    marginTop: 16,
     borderTopWidth: 1,
     borderTopColor: colors.stone[200],
-    paddingTop: 12,
+    paddingTop: 16,
   },
   totalRow: {
     flexDirection: "row",
@@ -109,13 +119,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   totalLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: colors.stone[500],
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.stone[400],
   },
   totalAmount: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
     color: colors.stone[900],
+    letterSpacing: -0.3,
   },
 });

@@ -2,8 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { formatCurrency } from "@/lib/utils";
 import type { Category } from "@/types/subscription";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { colors } from "@/lib/theme";
+import { colors, shadows, radius } from "@/lib/theme";
 
 interface CategoryData {
   category: Category;
@@ -17,70 +16,81 @@ interface SpendingByCategoryProps {
 
 export function SpendingByCategory({ data }: SpendingByCategoryProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Spending by Category</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {data.length === 0 ? (
-          <Text style={styles.emptyText}>No category data yet</Text>
-        ) : (
-          <View style={styles.list}>
-            {data.map((item) => (
-              <View key={item.category.id}>
-                <View style={styles.labelRow}>
-                  <View style={styles.categoryLabel}>
-                    <View
-                      style={[
-                        styles.colorDot,
-                        { backgroundColor: item.category.color },
-                      ]}
-                    />
-                    <Text style={styles.categoryName}>
-                      {item.category.name}
-                    </Text>
-                  </View>
-                  <View style={styles.valueRow}>
-                    <Text style={styles.percentage}>
-                      {item.percentage.toFixed(0)}%
-                    </Text>
-                    <Text style={styles.amount}>
-                      {formatCurrency(item.total, "USD")}
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles.barTrack}>
+    <View style={styles.card}>
+      <Text style={styles.title}>Spending by Category</Text>
+
+      {data.length === 0 ? (
+        <Text style={styles.emptyText}>No category data yet</Text>
+      ) : (
+        <View style={styles.list}>
+          {data.map((item) => (
+            <View key={item.category.id} style={styles.itemContainer}>
+              <View style={styles.labelRow}>
+                <View style={styles.categoryLabel}>
                   <View
                     style={[
-                      styles.barFill,
-                      {
-                        backgroundColor: item.category.color,
-                        width: `${item.percentage}%`,
-                      },
+                      styles.colorDot,
+                      { backgroundColor: item.category.color },
                     ]}
                   />
+                  <Text style={styles.categoryName}>
+                    {item.category.name}
+                  </Text>
+                </View>
+                <View style={styles.valueRow}>
+                  <Text style={styles.percentage}>
+                    {item.percentage.toFixed(0)}%
+                  </Text>
+                  <Text style={styles.amount}>
+                    {formatCurrency(item.total, "USD")}
+                  </Text>
                 </View>
               </View>
-            ))}
-          </View>
-        )}
-      </CardContent>
-    </Card>
+              <View style={styles.barTrack}>
+                <View
+                  style={[
+                    styles.barFill,
+                    {
+                      backgroundColor: item.category.color,
+                      width: `${item.percentage}%`,
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  card: {
+    borderRadius: radius.xl,
+    backgroundColor: colors.white,
+    padding: 20,
+    ...shadows.md,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.stone[900],
+    marginBottom: 16,
+  },
   emptyText: {
-    paddingVertical: 16,
+    paddingVertical: 20,
     textAlign: "center",
     fontSize: 14,
-    color: colors.stone[500],
+    color: colors.stone[400],
   },
   list: {
     gap: 16,
   },
+  itemContainer: {
+    gap: 8,
+  },
   labelRow: {
-    marginBottom: 6,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -90,14 +100,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   colorDot: {
-    marginRight: 8,
-    height: 12,
-    width: 12,
-    borderRadius: 6,
+    marginRight: 10,
+    height: 10,
+    width: 10,
+    borderRadius: 5,
   },
   categoryName: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
     color: colors.stone[700],
   },
   valueRow: {
@@ -105,23 +115,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   percentage: {
-    marginRight: 8,
-    fontSize: 12,
-    color: colors.stone[500],
+    marginRight: 10,
+    fontSize: 13,
+    fontWeight: "500",
+    color: colors.stone[400],
   },
   amount: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     color: colors.stone[900],
   },
   barTrack: {
-    height: 8,
+    height: 6,
     overflow: "hidden",
-    borderRadius: 4,
-    backgroundColor: colors.stone[200],
+    borderRadius: radius.full,
+    backgroundColor: colors.stone[100],
   },
   barFill: {
     height: "100%",
-    borderRadius: 4,
+    borderRadius: radius.full,
   },
 });

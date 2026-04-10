@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/toast";
-import { colors } from "@/lib/theme";
+import { colors, shadows, radius } from "@/lib/theme";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -66,11 +66,19 @@ export default function LoginScreen() {
             secureTextEntry
           />
 
-          <Button onPress={handleLogin} disabled={isLoading} style={{ marginTop: 8 }}>
-            <Text style={styles.buttonText}>
+          <Pressable
+            onPress={handleLogin}
+            disabled={isLoading}
+            style={({ pressed }) => [
+              styles.primaryBtn,
+              pressed && styles.primaryBtnPressed,
+              isLoading && styles.primaryBtnDisabled,
+            ]}
+          >
+            <Text style={styles.primaryBtnText}>
               {isLoading ? "Signing in..." : "Sign In"}
             </Text>
-          </Button>
+          </Pressable>
 
           <View style={styles.dividerRow}>
             <View style={styles.dividerLine} />
@@ -78,12 +86,19 @@ export default function LoginScreen() {
             <View style={styles.dividerLine} />
           </View>
 
-          <Button variant="outline" onPress={handleGoogleLogin} disabled={isLoading}>
+          <Pressable
+            onPress={handleGoogleLogin}
+            disabled={isLoading}
+            style={({ pressed }) => [
+              styles.googleBtn,
+              pressed && styles.googleBtnPressed,
+            ]}
+          >
             <View style={styles.googleRow}>
-              <Mail size={18} color="#78716C" />
+              <Mail size={18} color={colors.stone[500]} />
               <Text style={styles.googleText}>Continue with Google</Text>
             </View>
-          </Button>
+          </Pressable>
 
           <View style={styles.footerRow}>
             <Text style={styles.footerText}>Don't have an account? </Text>
@@ -112,64 +127,98 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   iconWrapper: {
-    marginBottom: 16,
-    borderRadius: 16,
+    marginBottom: 20,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: colors.primary[600],
-    padding: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    ...shadows.lg,
   },
   title: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: "700",
     color: colors.stone[900],
   },
   subtitle: {
     marginTop: 8,
     textAlign: "center",
-    fontSize: 14,
-    color: colors.stone[500],
+    fontSize: 15,
+    color: colors.stone[400],
+    lineHeight: 22,
+    paddingHorizontal: 16,
   },
   form: {
     gap: 16,
   },
-  buttonText: {
+  primaryBtn: {
+    marginTop: 8,
+    height: 52,
+    borderRadius: radius.lg,
+    backgroundColor: colors.primary[600],
+    alignItems: "center",
+    justifyContent: "center",
+    ...shadows.md,
+  },
+  primaryBtnPressed: {
+    backgroundColor: colors.primary[700],
+  },
+  primaryBtnDisabled: {
+    opacity: 0.6,
+  },
+  primaryBtnText: {
     fontSize: 16,
     fontWeight: "600",
     color: colors.white,
   },
   dividerRow: {
-    marginVertical: 16,
+    marginVertical: 8,
     flexDirection: "row",
     alignItems: "center",
   },
   dividerLine: {
     height: 1,
     flex: 1,
-    backgroundColor: colors.stone[300],
+    backgroundColor: colors.stone[200],
   },
   dividerText: {
     marginHorizontal: 16,
     fontSize: 12,
-    color: colors.stone[500],
+    fontWeight: "600",
+    color: colors.stone[400],
+  },
+  googleBtn: {
+    height: 52,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.stone[200],
+    backgroundColor: colors.white,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  googleBtnPressed: {
+    backgroundColor: colors.stone[50],
   },
   googleRow: {
     flexDirection: "row",
     alignItems: "center",
   },
   googleText: {
-    marginLeft: 8,
-    fontSize: 14,
-    fontWeight: "500",
+    marginLeft: 10,
+    fontSize: 15,
+    fontWeight: "600",
     color: colors.stone[700],
   },
   footerRow: {
-    marginTop: 16,
+    marginTop: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
   },
   footerText: {
     fontSize: 14,
-    color: colors.stone[500],
+    color: colors.stone[400],
   },
   footerLink: {
     fontSize: 14,
