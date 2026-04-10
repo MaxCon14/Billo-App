@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { CreditCard, Plus, Building2, Bell, ArrowRight } from "lucide-react-native";
 import { Button } from "@/components/ui/button";
-import { colors } from "@/lib/theme";
+import { colors, shadows, radius } from "@/lib/theme";
 
 const STEPS = [
   {
@@ -51,7 +51,7 @@ export default function OnboardingScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.content}>
         <View style={styles.iconCircle}>
-          <Icon size={48} color="#0D9488" />
+          <Icon size={40} color={colors.primary[600]} />
         </View>
 
         <Text style={styles.title}>{currentStep.title}</Text>
@@ -71,14 +71,20 @@ export default function OnboardingScreen() {
       </View>
 
       <View style={styles.footer}>
-        <Button onPress={handleNext}>
+        <Pressable
+          onPress={handleNext}
+          style={({ pressed }) => [
+            styles.primaryBtn,
+            pressed && styles.primaryBtnPressed,
+          ]}
+        >
           <View style={styles.buttonRow}>
             <Text style={styles.buttonText}>
               {step === STEPS.length - 1 ? "Get Started" : "Next"}
             </Text>
             <ArrowRight size={18} color="#fff" />
           </View>
-        </Button>
+        </Pressable>
 
         {step < STEPS.length - 1 && (
           <Pressable
@@ -102,29 +108,32 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 32,
+    paddingHorizontal: 40,
   },
   iconCircle: {
-    marginBottom: 32,
-    borderRadius: 24,
-    backgroundColor: colors.primary[100],
-    padding: 24,
+    marginBottom: 36,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.primary[50],
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
     marginBottom: 12,
     textAlign: "center",
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "700",
     color: colors.stone[900],
   },
   description: {
-    marginBottom: 32,
+    marginBottom: 40,
     textAlign: "center",
     fontSize: 16,
-    color: colors.stone[500],
+    lineHeight: 24,
+    color: colors.stone[400],
   },
   dotsRow: {
-    marginBottom: 32,
     flexDirection: "row",
     gap: 8,
   },
@@ -133,33 +142,46 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   dotActive: {
-    width: 32,
+    width: 24,
     backgroundColor: colors.primary[600],
   },
   dotInactive: {
     width: 8,
-    backgroundColor: colors.stone[300],
+    backgroundColor: colors.stone[200],
   },
   footer: {
     paddingHorizontal: 24,
-    paddingBottom: 32,
+    paddingBottom: 40,
+  },
+  primaryBtn: {
+    height: 52,
+    borderRadius: radius.lg,
+    backgroundColor: colors.primary[600],
+    alignItems: "center",
+    justifyContent: "center",
+    ...shadows.md,
+  },
+  primaryBtnPressed: {
+    backgroundColor: colors.primary[700],
   },
   buttonRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 8,
   },
   buttonText: {
-    marginRight: 8,
     fontSize: 16,
     fontWeight: "600",
     color: colors.white,
   },
   skipButton: {
-    marginTop: 16,
+    marginTop: 20,
     alignItems: "center",
+    paddingVertical: 8,
   },
   skipText: {
-    fontSize: 14,
-    color: colors.stone[500],
+    fontSize: 15,
+    fontWeight: "500",
+    color: colors.stone[400],
   },
 });
