@@ -7,7 +7,7 @@ import {
   type ViewStyle,
   type TextStyle,
 } from "react-native";
-import { colors } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 export type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
@@ -21,31 +21,32 @@ export interface BadgeProps extends ViewProps {
 function getVariantStyle(variant: BadgeVariant): ViewStyle {
   switch (variant) {
     case "secondary":
-      return { backgroundColor: colors.stone[200] };
+      return { backgroundColor: colors.stone[100] };
     case "destructive":
-      return { backgroundColor: colors.red[100] };
+      return { backgroundColor: colors.red[50] };
     case "outline":
       return {
-        borderWidth: 1,
-        borderColor: colors.stone[300],
+        borderWidth: 1.5,
+        borderColor: colors.stone[200],
         backgroundColor: colors.transparent,
       };
     case "default":
     default:
-      return { backgroundColor: colors.primary[100] };
+      return { backgroundColor: colors.primary[50] };
   }
 }
 
 function getTextVariantStyle(variant: BadgeVariant): TextStyle {
   switch (variant) {
     case "secondary":
-    case "outline":
-      return { color: colors.stone[700] };
+      return { color: colors.stone[600] };
     case "destructive":
-      return { color: colors.red[800] };
+      return { color: colors.red[600] };
+    case "outline":
+      return { color: colors.stone[600] };
     case "default":
     default:
-      return { color: colors.primary[800] };
+      return { color: colors.primary[700] };
   }
 }
 
@@ -75,13 +76,15 @@ const styles = StyleSheet.create({
   badge: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 9999,
+    alignSelf: "flex-start",
+    borderRadius: radius.full,
     paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingVertical: 6,
   },
   badgeText: {
     fontSize: 12,
     fontWeight: "600",
+    letterSpacing: 0.2,
   },
 });
 

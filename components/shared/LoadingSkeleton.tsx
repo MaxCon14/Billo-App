@@ -1,19 +1,19 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Skeleton } from "@/components/ui/skeleton";
-import { colors } from "@/lib/theme";
+import { colors, shadows, radius } from "@/lib/theme";
 
 export function SubscriptionCardSkeleton() {
   return (
     <View style={styles.card}>
-      <Skeleton style={{ height: 40, width: 40 }} circle />
+      <Skeleton style={{ height: 44, width: 44 }} circle />
       <View style={styles.cardMiddle}>
-        <Skeleton style={{ marginBottom: 8, height: 16, width: 128 }} />
-        <Skeleton style={{ height: 12, width: 80 }} />
+        <Skeleton style={{ marginBottom: 8, height: 14, width: 120, borderRadius: 6 }} />
+        <Skeleton style={{ height: 10, width: 72, borderRadius: 5 }} />
       </View>
       <View style={styles.cardRight}>
-        <Skeleton style={{ marginBottom: 8, height: 16, width: 64 }} />
-        <Skeleton style={{ height: 12, width: 48 }} />
+        <Skeleton style={{ marginBottom: 8, height: 14, width: 56, borderRadius: 6 }} />
+        <Skeleton style={{ height: 10, width: 40, borderRadius: 5 }} />
       </View>
     </View>
   );
@@ -22,12 +22,12 @@ export function SubscriptionCardSkeleton() {
 export function DashboardSkeleton() {
   return (
     <View style={styles.dashboardContainer}>
-      <Skeleton style={{ height: 160, width: "100%", borderRadius: 16 }} />
+      <Skeleton style={{ height: 160, width: "100%", borderRadius: radius.xl }} />
       <View style={styles.doubleRow}>
-        <Skeleton style={{ height: 96, flex: 1, borderRadius: 16 }} />
-        <Skeleton style={{ height: 96, flex: 1, borderRadius: 16 }} />
+        <Skeleton style={{ height: 100, flex: 1, borderRadius: radius.xl }} />
+        <Skeleton style={{ height: 100, flex: 1, borderRadius: radius.xl }} />
       </View>
-      <Skeleton style={{ marginBottom: 8, height: 20, width: 160 }} />
+      <Skeleton style={{ marginBottom: 12, height: 18, width: 160, borderRadius: 6 }} />
       {Array.from({ length: 3 }).map((_, i) => (
         <SubscriptionCardSkeleton key={i} />
       ))}
@@ -49,14 +49,13 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.stone[200],
+    borderRadius: radius.xl,
     backgroundColor: colors.white,
     padding: 16,
+    ...shadows.sm,
   },
   cardMiddle: {
-    marginLeft: 12,
+    marginLeft: 14,
     flex: 1,
   },
   cardRight: {

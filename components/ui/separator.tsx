@@ -26,13 +26,13 @@ export { Separator };
 
 const styles = StyleSheet.create({
   horizontal: {
-    height: StyleSheet.hairlineWidth,
+    height: 1,
     width: "100%",
-    backgroundColor: colors.stone[200],
+    backgroundColor: colors.stone[100],
   },
   vertical: {
-    width: StyleSheet.hairlineWidth,
+    width: 1,
     height: "100%",
-    backgroundColor: colors.stone[200],
+    backgroundColor: colors.stone[100],
   },
 });

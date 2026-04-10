@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import { Pressable, Animated } from "react-native";
+import { Pressable, Animated, StyleSheet } from "react-native";
+import { colors, shadows } from "@/lib/theme";
 
 export interface SwitchProps {
   checked: boolean;
@@ -8,7 +9,8 @@ export interface SwitchProps {
 }
 
 const TRACK_WIDTH = 52;
-const TRACK_PADDING = 2;
+const TRACK_HEIGHT = 30;
+const TRACK_PADDING = 3;
 const THUMB_SIZE = 24;
 const TRAVEL = TRACK_WIDTH - THUMB_SIZE - TRACK_PADDING * 2;
 
@@ -18,49 +20,79 @@ const Switch: React.FC<SwitchProps> = ({
   disabled = false,
 }) => {
   const translateX = useRef(new Animated.Value(checked ? TRAVEL : 0)).current;
+  const trackColor = useRef(
+    new Animated.Value(checked ? 1 : 0)
+  ).current;
 
   useEffect(() => {
-    Animated.spring(translateX, {
-      toValue: checked ? TRAVEL : 0,
-      useNativeDriver: true,
-      bounciness: 2,
-      speed: 20,
-    }).start();
-  }, [checked, translateX]);
+    Animated.parallel([
+      Animated.spring(translateX, {
+        toValue: checked ? TRAVEL : 0,
+        useNativeDriver: false,
+        bounciness: 4,
+        speed: 16,
+      }),
+      Animated.timing(trackColor, {
+        toValue: checked ? 1 : 0,
+        duration: 200,
+        useNativeDriver: false,
+      }),
+    ]).start();
+  }, [checked, translateX, trackColor]);
+
+  const interpolatedBg = trackColor.interpolate({
+    inputRange: [0, 1],
+    outputRange: [colors.stone[200], colors.primary[600]],
+  });
 
   return (
     <Pressable
       onPress={() => !disabled && onCheckedChange(!checked)}
-      style={{
-        width: TRACK_WIDTH,
-        height: THUMB_SIZE + TRACK_PADDING * 2,
-        padding: TRACK_PADDING,
-        justifyContent: "center",
-        borderRadius: (THUMB_SIZE + TRACK_PADDING * 2) / 2,
-        backgroundColor: checked ? "#0D9488" : "#D6D3D1",
-        opacity: disabled ? 0.5 : 1,
-      }}
+      style={[
+        styles.track,
+        { opacity: disabled ? 0.4 : 1 },
+      ]}
       accessibilityRole="switch"
       accessibilityState={{ checked, disabled }}
     >
       <Animated.View
-        style={{
-          width: THUMB_SIZE,
-          height: THUMB_SIZE,
-          borderRadius: THUMB_SIZE / 2,
-          backgroundColor: "#FFFFFF",
-          transform: [{ translateX }],
-          elevation: 2,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.2,
-          shadowRadius: 1.5,
-        }}
-      />
+        style={[
+          styles.trackInner,
+          { backgroundColor: interpolatedBg },
+        ]}
+      >
+        <Animated.View
+          style={[
+            styles.thumb,
+            { transform: [{ translateX }] },
+          ]}
+        />
+      </Animated.View>
     </Pressable>
   );
 };
 
 Switch.displayName = "Switch";
+
+const styles = StyleSheet.create({
+  track: {
+    width: TRACK_WIDTH,
+    height: TRACK_HEIGHT,
+  },
+  trackInner: {
+    width: TRACK_WIDTH,
+    height: TRACK_HEIGHT,
+    borderRadius: TRACK_HEIGHT / 2,
+    padding: TRACK_PADDING,
+    justifyContent: "center",
+  },
+  thumb: {
+    width: THUMB_SIZE,
+    height: THUMB_SIZE,
+    borderRadius: THUMB_SIZE / 2,
+    backgroundColor: colors.white,
+    ...shadows.sm,
+  },
+});
 
 export { Switch };

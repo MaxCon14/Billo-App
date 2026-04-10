@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Image, type ImageStyle, StyleSheet, Text, View, type ViewStyle } from "react-native";
-import { colors } from "@/lib/theme";
+import { colors, shadows } from "@/lib/theme";
 
 interface LogoProps {
   name: string;
@@ -11,8 +11,16 @@ interface LogoProps {
 
 function hashToColor(str: string): string {
   const palette = [
-    "#E24B4A", "#7F77DD", "#639922", "#378ADD", "#1D9E75",
-    "#D85A30", "#D4537E", "#BA7517", "#0D9488", "#6366F1",
+    colors.primary[500],
+    colors.red[500],
+    colors.green[500],
+    colors.amber[500],
+    "#0D9488",
+    "#8B5CF6",
+    "#EC4899",
+    "#F97316",
+    "#06B6D4",
+    "#6366F1",
   ];
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -25,23 +33,35 @@ export function Logo({ name, logoUrl, size = 40, style: styleProp }: LogoProps) 
   const [imgError, setImgError] = useState(false);
   const bgColor = hashToColor(name);
   const initial = name.charAt(0).toUpperCase();
-  const fontSize = size * 0.4;
+  const fontSize = size * 0.42;
 
   if (logoUrl && !imgError) {
     return (
-      <Image
-        source={{ uri: logoUrl }}
+      <View
         style={[
           {
             width: size,
             height: size,
             borderRadius: size / 2,
-            backgroundColor: colors.stone[100],
-          } as ImageStyle,
-          styleProp as ImageStyle,
+            overflow: "hidden",
+          },
+          shadows.sm,
+          styleProp,
         ]}
-        onError={() => setImgError(true)}
-      />
+      >
+        <Image
+          source={{ uri: logoUrl }}
+          style={
+            {
+              width: size,
+              height: size,
+              borderRadius: size / 2,
+              backgroundColor: colors.stone[100],
+            } as ImageStyle
+          }
+          onError={() => setImgError(true)}
+        />
+      </View>
     );
   }
 
@@ -55,10 +75,13 @@ export function Logo({ name, logoUrl, size = 40, style: styleProp }: LogoProps) 
           borderRadius: size / 2,
           backgroundColor: bgColor,
         },
+        shadows.sm,
         styleProp,
       ]}
     >
-      <Text style={[styles.initial, { fontSize }]}>{initial}</Text>
+      <Text style={[styles.initial, { fontSize, lineHeight: fontSize * 1.2 }]}>
+        {initial}
+      </Text>
     </View>
   );
 }
@@ -71,5 +94,6 @@ const styles = StyleSheet.create({
   initial: {
     fontWeight: "700",
     color: colors.white,
+    textAlign: "center",
   },
 });

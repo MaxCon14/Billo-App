@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Animated, StyleSheet, View } from "react-native";
-import { colors } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 interface ProgressProps {
   value: number;
@@ -14,34 +14,39 @@ export function Progress({ value, color }: ProgressProps) {
   useEffect(() => {
     Animated.timing(width, {
       toValue: clampedValue,
-      duration: 500,
+      duration: 600,
       useNativeDriver: false,
     }).start();
   }, [clampedValue]);
 
   return (
-    <View style={s.track}>
+    <View style={styles.track}>
       <Animated.View
-        style={{
-          height: "100%",
-          borderRadius: 9999,
-          backgroundColor: color || colors.primary[500],
-          width: width.interpolate({
-            inputRange: [0, 100],
-            outputRange: ["0%", "100%"],
-          }),
-        }}
+        style={[
+          styles.fill,
+          {
+            backgroundColor: color || colors.primary[500],
+            width: width.interpolate({
+              inputRange: [0, 100],
+              outputRange: ["0%", "100%"],
+            }),
+          },
+        ]}
       />
     </View>
   );
 }
 
-const s = StyleSheet.create({
+const styles = StyleSheet.create({
   track: {
-    height: 8,
+    height: 6,
     width: "100%",
     overflow: "hidden",
-    borderRadius: 9999,
-    backgroundColor: colors.stone[200],
+    borderRadius: radius.full,
+    backgroundColor: colors.stone[100],
+  },
+  fill: {
+    height: "100%",
+    borderRadius: radius.full,
   },
 });

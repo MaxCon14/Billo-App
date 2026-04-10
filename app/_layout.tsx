@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastProvider } from "@/components/ui/toast";
 import { useAuth } from "@/hooks/useAuth";
 import { IS_DEMO_MODE } from "@/lib/supabase";
+import { colors, darkColors } from "@/lib/theme";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,8 +36,8 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#FAFAF9" }}>
-        <ActivityIndicator size="large" color="#0D9488" />
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.stone[50] }}>
+        <ActivityIndicator size="large" color={colors.primary[600]} />
       </View>
     );
   }
@@ -56,7 +57,7 @@ export default function RootLayout() {
             screenOptions={{
               headerShown: false,
               contentStyle: {
-                backgroundColor: colorScheme === "dark" ? "#0C0A09" : "#FAFAF9",
+                backgroundColor: colorScheme === "dark" ? darkColors.bg : colors.stone[50],
               },
               animation: "slide_from_right",
             }}
@@ -68,7 +69,15 @@ export default function RootLayout() {
               options={{
                 headerShown: true,
                 title: "Subscription Details",
-                headerTintColor: "#0D9488",
+                headerTintColor: colors.primary[600],
+                headerStyle: {
+                  backgroundColor: colorScheme === "dark" ? darkColors.bg : colors.stone[50],
+                },
+                headerTitleStyle: {
+                  fontWeight: "600",
+                  fontSize: 17,
+                },
+                headerShadowVisible: false,
               }}
             />
             <Stack.Screen
@@ -76,8 +85,16 @@ export default function RootLayout() {
               options={{
                 headerShown: true,
                 title: "Add Subscription",
-                headerTintColor: "#0D9488",
+                headerTintColor: colors.primary[600],
                 presentation: "modal",
+                headerStyle: {
+                  backgroundColor: colorScheme === "dark" ? darkColors.bg : colors.stone[50],
+                },
+                headerTitleStyle: {
+                  fontWeight: "600",
+                  fontSize: 17,
+                },
+                headerShadowVisible: false,
               }}
             />
             <Stack.Screen
@@ -85,8 +102,16 @@ export default function RootLayout() {
               options={{
                 headerShown: true,
                 title: "Edit Subscription",
-                headerTintColor: "#0D9488",
+                headerTintColor: colors.primary[600],
                 presentation: "modal",
+                headerStyle: {
+                  backgroundColor: colorScheme === "dark" ? darkColors.bg : colors.stone[50],
+                },
+                headerTitleStyle: {
+                  fontWeight: "600",
+                  fontSize: 17,
+                },
+                headerShadowVisible: false,
               }}
             />
             <Stack.Screen
@@ -94,8 +119,16 @@ export default function RootLayout() {
               options={{
                 headerShown: true,
                 title: "Connect Bank",
-                headerTintColor: "#0D9488",
+                headerTintColor: colors.primary[600],
                 presentation: "modal",
+                headerStyle: {
+                  backgroundColor: colorScheme === "dark" ? darkColors.bg : colors.stone[50],
+                },
+                headerTitleStyle: {
+                  fontWeight: "600",
+                  fontSize: 17,
+                },
+                headerShadowVisible: false,
               }}
             />
           </Stack>

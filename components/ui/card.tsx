@@ -8,7 +8,7 @@ import {
   type ViewStyle,
   type TextStyle,
 } from "react-native";
-import { colors } from "@/lib/theme";
+import { colors, shadows, radius } from "@/lib/theme";
 
 // Card
 export interface CardProps extends ViewProps {
@@ -90,35 +90,32 @@ CardFooter.displayName = "CardFooter";
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.white,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.stone[200],
-    elevation: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    borderRadius: radius.xl,
+    padding: 20,
+    ...shadows.md,
   },
   cardHeader: {
-    paddingBottom: 12,
+    paddingBottom: 16,
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "700",
     color: colors.stone[900],
+    letterSpacing: -0.3,
   },
   cardDescription: {
     fontSize: 14,
     color: colors.stone[500],
+    marginTop: 4,
+    lineHeight: 20,
   },
   cardContent: {
-    paddingVertical: 8,
+    paddingVertical: 4,
   },
   cardFooter: {
     flexDirection: "row",
     alignItems: "center",
-    paddingTop: 12,
+    paddingTop: 16,
   },
 });
 

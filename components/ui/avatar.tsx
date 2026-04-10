@@ -7,7 +7,7 @@ import {
   type ViewProps,
   type ViewStyle,
 } from "react-native";
-import { colors } from "@/lib/theme";
+import { colors, shadows, radius } from "@/lib/theme";
 
 export type AvatarSize = "sm" | "md" | "lg";
 
@@ -21,7 +21,7 @@ export interface AvatarProps extends ViewProps {
 function getSizeStyle(size: AvatarSize): ViewStyle {
   switch (size) {
     case "sm":
-      return { height: 32, width: 32 };
+      return { height: 36, width: 36 };
     case "lg":
       return { height: 64, width: 64 };
     case "md":
@@ -33,9 +33,9 @@ function getSizeStyle(size: AvatarSize): ViewStyle {
 function getTextSize(size: AvatarSize): number {
   switch (size) {
     case "sm":
-      return 12;
+      return 13;
     case "lg":
-      return 20;
+      return 22;
     case "md":
     default:
       return 16;
@@ -62,11 +62,13 @@ const Avatar = React.forwardRef<React.ElementRef<typeof View>, AvatarProps>(
             onError={() => setImageError(true)}
           />
         ) : (
-          <Text
-            style={[styles.fallbackText, { fontSize: getTextSize(size) }]}
-          >
-            {fallback}
-          </Text>
+          <View style={styles.fallbackContainer}>
+            <Text
+              style={[styles.fallbackText, { fontSize: getTextSize(size) }]}
+            >
+              {fallback}
+            </Text>
+          </View>
         )}
       </View>
     );
@@ -79,17 +81,27 @@ const styles = StyleSheet.create({
   avatar: {
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 9999,
+    borderRadius: radius.full,
     overflow: "hidden",
     backgroundColor: colors.primary[100],
+    ...shadows.sm,
   },
   image: {
     height: "100%",
     width: "100%",
   },
+  fallbackContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
+    backgroundColor: colors.primary[100],
+  },
   fallbackText: {
-    fontWeight: "bold",
-    color: colors.primary[700],
+    fontWeight: "700",
+    color: colors.primary[600],
+    letterSpacing: 0.5,
   },
 });
 

@@ -9,7 +9,7 @@ import {
   type ViewProps,
   type ViewStyle,
 } from "react-native";
-import { colors } from "@/lib/theme";
+import { colors, shadows, radius } from "@/lib/theme";
 
 export interface SelectOption {
   label: string;
@@ -46,7 +46,11 @@ const Select: React.FC<SelectProps> = ({
 
       <Pressable
         onPress={() => !disabled && setOpen(true)}
-        style={[styles.trigger, disabled && styles.disabled]}
+        style={({ pressed }) => [
+          styles.trigger,
+          disabled && styles.disabled,
+          pressed && !disabled && styles.triggerPressed,
+        ]}
       >
         <Text
           style={[
@@ -87,9 +91,10 @@ const Select: React.FC<SelectProps> = ({
                       onValueChange(item.value);
                       setOpen(false);
                     }}
-                    style={[
+                    style={({ pressed }) => [
                       styles.option,
                       isSelected && styles.optionSelected,
+                      pressed && styles.optionPressed,
                     ]}
                   >
                     <Text
@@ -124,38 +129,43 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   label: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: colors.stone[700],
-    marginBottom: 6,
+    fontSize: 13,
+    fontWeight: "600",
+    color: colors.stone[600],
+    marginBottom: 8,
+    letterSpacing: 0.1,
   },
   trigger: {
-    height: 48,
+    height: 52,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderRadius: 12,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.stone[300],
-    backgroundColor: colors.white,
+    borderColor: colors.stone[200],
+    backgroundColor: colors.stone[50],
     paddingHorizontal: 16,
   },
+  triggerPressed: {
+    backgroundColor: colors.stone[100],
+  },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.4,
   },
   triggerText: {
-    fontSize: 16,
+    fontSize: 15,
     flex: 1,
   },
   triggerTextSelected: {
     color: colors.stone[900],
+    fontWeight: "500",
   },
   triggerTextPlaceholder: {
     color: colors.stone[400],
   },
   chevron: {
     color: colors.stone[400],
-    fontSize: 16,
+    fontSize: 14,
     marginLeft: 8,
   },
   overlay: {
@@ -168,51 +178,55 @@ const styles = StyleSheet.create({
     width: "85%",
     maxHeight: "60%",
     backgroundColor: colors.white,
-    borderRadius: 16,
+    borderRadius: radius["2xl"],
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: colors.stone[200],
+    ...shadows.lg,
   },
   dropdownHeader: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: colors.stone[200],
+    borderBottomColor: colors.stone[100],
   },
   dropdownHeaderText: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 17,
+    fontWeight: "700",
     color: colors.stone[900],
+    letterSpacing: -0.2,
   },
   option: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
     flexDirection: "row",
     alignItems: "center",
   },
   optionSelected: {
     backgroundColor: colors.primary[50],
   },
+  optionPressed: {
+    backgroundColor: colors.stone[50],
+  },
   optionText: {
-    fontSize: 16,
+    fontSize: 15,
     flex: 1,
   },
   optionTextDefault: {
-    color: colors.stone[900],
+    color: colors.stone[800],
   },
   optionTextSelected: {
-    color: colors.primary[700],
+    color: colors.primary[600],
     fontWeight: "600",
   },
   checkmark: {
     color: colors.primary[600],
     fontSize: 16,
+    fontWeight: "600",
   },
   separator: {
     height: 1,
     backgroundColor: colors.stone[100],
-    marginHorizontal: 16,
+    marginHorizontal: 20,
   },
 });
 

@@ -20,10 +20,10 @@ const CYCLE_LABELS: Record<BillingCycle, string> = {
   yearly: "/yr",
 };
 
-const SIZE_FONT: Record<string, number> = {
-  sm: 14,
-  md: 18,
-  lg: 24,
+const SIZE_CONFIG: Record<string, { amount: number; cycle: number }> = {
+  sm: { amount: 14, cycle: 10 },
+  md: { amount: 18, cycle: 12 },
+  lg: { amount: 28, cycle: 14 },
 };
 
 export function PriceDisplay({
@@ -33,13 +33,17 @@ export function PriceDisplay({
   size = "md",
   style: styleProp,
 }: PriceDisplayProps) {
+  const config = SIZE_CONFIG[size];
+
   return (
     <View style={[styles.container, styleProp]}>
-      <Text style={[styles.amount, { fontSize: SIZE_FONT[size] }]}>
+      <Text style={[styles.amount, { fontSize: config.amount }]}>
         {formatCurrency(amount, currency)}
       </Text>
       {cycle && (
-        <Text style={styles.cycle}>{CYCLE_LABELS[cycle]}</Text>
+        <Text style={[styles.cycle, { fontSize: config.cycle }]}>
+          {CYCLE_LABELS[cycle]}
+        </Text>
       )}
     </View>
   );
@@ -53,10 +57,11 @@ const styles = StyleSheet.create({
   amount: {
     fontWeight: "700",
     color: colors.stone[900],
+    letterSpacing: -0.3,
   },
   cycle: {
     marginLeft: 2,
-    fontSize: 12,
-    color: colors.stone[500],
+    fontWeight: "500",
+    color: colors.stone[400],
   },
 });

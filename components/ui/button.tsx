@@ -7,7 +7,7 @@ import {
   type ViewStyle,
   type TextStyle,
 } from "react-native";
-import { colors } from "@/lib/theme";
+import { colors, shadows, radius } from "@/lib/theme";
 
 export type ButtonVariant =
   | "default"
@@ -28,60 +28,74 @@ export interface ButtonProps extends Omit<PressableProps, "children"> {
 function getVariantStyle(variant: ButtonVariant): ViewStyle {
   switch (variant) {
     case "destructive":
-      return { backgroundColor: colors.red[500] };
+      return {
+        backgroundColor: colors.red[500],
+        ...shadows.sm,
+      };
     case "outline":
       return {
-        borderWidth: 1,
-        borderColor: colors.stone[300],
-        backgroundColor: colors.transparent,
+        borderWidth: 1.5,
+        borderColor: colors.stone[200],
+        backgroundColor: colors.white,
       };
     case "secondary":
-      return { backgroundColor: colors.stone[200] };
+      return {
+        backgroundColor: colors.stone[100],
+      };
     case "ghost":
-      return { backgroundColor: colors.transparent };
+      return {
+        backgroundColor: colors.transparent,
+      };
     case "default":
     default:
-      return { backgroundColor: colors.primary[600] };
+      return {
+        backgroundColor: colors.primary[600],
+        ...shadows.sm,
+      };
   }
 }
 
 function getTextVariantStyle(variant: ButtonVariant): TextStyle {
   switch (variant) {
     case "default":
+      return { color: colors.white };
     case "destructive":
       return { color: colors.white };
     case "outline":
+      return { color: colors.stone[800] };
     case "secondary":
+      return { color: colors.stone[800] };
     case "ghost":
+      return { color: colors.primary[600] };
     default:
-      return { color: colors.stone[900] };
+      return { color: colors.white };
   }
 }
 
 function getSizeStyle(size: ButtonSize): ViewStyle {
   switch (size) {
     case "sm":
-      return { height: 36, paddingHorizontal: 16 };
+      return { height: 40, paddingHorizontal: 16 };
     case "lg":
       return { height: 56, paddingHorizontal: 32 };
     case "icon":
-      return { height: 48, width: 48 };
+      return { height: 52, width: 52 };
     case "default":
     default:
-      return { height: 48, paddingHorizontal: 24 };
+      return { height: 52, paddingHorizontal: 24 };
   }
 }
 
 function getTextSizeStyle(size: ButtonSize): TextStyle {
   switch (size) {
     case "sm":
-      return { fontSize: 14 };
+      return { fontSize: 13 };
     case "lg":
-      return { fontSize: 18 };
+      return { fontSize: 17 };
     case "default":
     case "icon":
     default:
-      return { fontSize: 16 };
+      return { fontSize: 15 };
   }
 }
 
@@ -141,16 +155,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 12,
+    borderRadius: radius.lg,
   },
   buttonText: {
-    fontWeight: "600",
+    fontWeight: "700",
+    letterSpacing: 0.2,
   },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.4,
   },
   pressed: {
-    opacity: 0.8,
+    opacity: 0.75,
+    transform: [{ scale: 0.98 }],
   },
 });
 
