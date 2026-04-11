@@ -14,7 +14,7 @@ interface AuthState {
 }
 
 interface AuthActions {
-  initialize: () => void;
+  initialize: () => () => void;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
@@ -35,11 +35,31 @@ const initialState: AuthState = {
   error: null,
 };
 
+// Module-level flag to guarantee single initialization across all hook instances
+let _initCalled = false;
+
 export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
   ...initialState,
 
   initialize: () => {
-    if (get().isInitialized) return () => {};
+    // Prevent duplicate listeners — set flag IMMEDIATELY (not in the callback)
+    if (_initCalled) return () => {};
+    _initCalled = true;
+
+    // Get current session first, then listen for changes
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      set({
+        session,
+        user: session?.user ?? null,
+        isAuthenticated: !!session?.user,
+        isLoading: false,
+        isInitialized: true,
+      });
+
+      if (session?.user) {
+        get().fetchProfile();
+      }
+    });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -47,6 +67,8 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
           session,
           user: session?.user ?? null,
           isAuthenticated: !!session?.user,
+          isLoading: false,
+          isInitialized: true,
         });
 
         if (event === 'SIGNED_IN' && session?.user) {
@@ -56,29 +78,29 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
         if (event === 'SIGNED_OUT') {
           set({ profile: null, isAuthenticated: false });
         }
-
-        set({ isLoading: false, isInitialized: true });
       }
     );
 
     return () => {
       subscription.unsubscribe();
+      _initCalled = false;
     };
   },
 
   signIn: async (email: string, password: string) => {
-    set({ isLoading: true, error: null });
+    set({ error: null });
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      // onAuthStateChange will set user/session/isLoading
     } catch (err: any) {
-      set({ isLoading: false, error: err.message });
+      set({ error: err.message });
       throw err;
     }
   },
 
   signUp: async (email: string, password: string, fullName: string) => {
-    set({ isLoading: true, error: null });
+    set({ error: null });
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -86,60 +108,58 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
         options: { data: { full_name: fullName } },
       });
       if (error) throw error;
-      // If session is returned, user was auto-signed-in (email confirmation disabled).
-      // onAuthStateChange will handle setting user/session.
-      // If no session, email confirmation is required — reset loading state.
+      // If no session returned, email confirmation is required
       if (!data.session) {
         set({ isLoading: false });
       }
+      // Otherwise onAuthStateChange will handle the SIGNED_IN event
     } catch (err: any) {
-      set({ isLoading: false, error: err.message });
+      set({ error: err.message });
       throw err;
     }
   },
 
   signInWithGoogle: async () => {
-    set({ isLoading: true, error: null });
+    set({ error: null });
     try {
       const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
       if (error) throw error;
     } catch (err: any) {
-      set({ isLoading: false, error: err.message });
+      set({ error: err.message });
       throw err;
     }
   },
 
   signInWithApple: async () => {
-    set({ isLoading: true, error: null });
+    set({ error: null });
     try {
       const { error } = await supabase.auth.signInWithOAuth({ provider: 'apple' });
       if (error) throw error;
     } catch (err: any) {
-      set({ isLoading: false, error: err.message });
+      set({ error: err.message });
       throw err;
     }
   },
 
   signOut: async () => {
-    set({ isLoading: true, error: null });
+    set({ error: null });
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       set({ ...initialState, isLoading: false, isInitialized: true });
     } catch (err: any) {
-      set({ isLoading: false, error: err.message });
+      set({ error: err.message });
       throw err;
     }
   },
 
   resetPassword: async (email: string) => {
-    set({ isLoading: true, error: null });
+    set({ error: null });
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email);
       if (error) throw error;
-      set({ isLoading: false });
     } catch (err: any) {
-      set({ isLoading: false, error: err.message });
+      set({ error: err.message });
       throw err;
     }
   },

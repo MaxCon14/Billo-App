@@ -5,6 +5,7 @@ import { ActivityIndicator, AppState, View, useColorScheme } from "react-native"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastProvider } from "@/components/ui/toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthStore } from "@/stores/authStore";
 import { colors, darkColors } from "@/lib/theme";
 import { BiometricLockScreen } from "@/components/BiometricLockScreen";
 import { useBiometricStore } from "@/stores/biometricStore";
@@ -22,7 +23,9 @@ const queryClient = new QueryClient({
 const GRACE_PERIOD_MS = 30_000; // 30 seconds
 
 function BiometricGate({ children }: { children: React.ReactNode }) {
-  const { profile, user } = useAuth();
+  // Use store directly to avoid creating a second useAuth() instance
+  const profile = useAuthStore((s) => s.profile);
+  const user = useAuthStore((s) => s.user);
   const { isLocked, lastBackgroundTime, setLocked, setLastBackgroundTime } = useBiometricStore();
   const appState = useRef(AppState.currentState);
   const hasPromptedOnMount = useRef(false);

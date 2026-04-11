@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 
 /**
@@ -7,14 +7,10 @@ import { useAuthStore } from '@/stores/authStore';
  */
 export function useAuth() {
   const store = useAuthStore();
-  const initialized = useRef(false);
 
   useEffect(() => {
-    if (!initialized.current) {
-      initialized.current = true;
-      store.initialize();
-    }
-    // Only run once on mount — store.initialize is stable
+    // initialize() is idempotent — module-level flag prevents duplicate listeners
+    store.initialize();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -38,12 +34,10 @@ export function useAuth() {
 
 /**
  * Lightweight hook that returns only session information.
- * Useful for components that only need to check auth status.
  */
 export function useSession() {
   const session = useAuthStore((s) => s.session);
   const isLoading = useAuthStore((s) => s.isLoading);
-
   return { session, isLoading };
 }
 
