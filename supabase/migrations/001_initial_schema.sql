@@ -1,6 +1,5 @@
 -- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pg_cron";
 
 -- Users profile table (extends Supabase auth.users)
 CREATE TABLE public.profiles (

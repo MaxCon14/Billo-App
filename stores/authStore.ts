@@ -80,12 +80,18 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
   signUp: async (email: string, password: string, fullName: string) => {
     set({ isLoading: true, error: null });
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: { data: { full_name: fullName } },
       });
       if (error) throw error;
+      // If session is returned, user was auto-signed-in (email confirmation disabled).
+      // onAuthStateChange will handle setting user/session.
+      // If no session, email confirmation is required — reset loading state.
+      if (!data.session) {
+        set({ isLoading: false });
+      }
     } catch (err: any) {
       set({ isLoading: false, error: err.message });
       throw err;

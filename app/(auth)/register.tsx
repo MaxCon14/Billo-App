@@ -11,7 +11,7 @@ import { colors, shadows, radius } from "@/lib/theme";
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const { signUp, isLoading } = useAuth();
+  const { signUp, isLoading, user } = useAuth();
   const { toast } = useToast();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -33,8 +33,12 @@ export default function RegisterScreen() {
     }
     try {
       await signUp(email.trim(), password, fullName.trim());
-      toast("Account created! You can now sign in.", "success");
-      router.replace("/(auth)/login");
+      toast("Account created successfully!", "success");
+      // If email confirmation is disabled, Supabase auto-signs in the user
+      // and AuthGuard will redirect to (tabs). Only go to login if not auto-signed-in.
+      if (!user) {
+        router.replace("/(auth)/login");
+      }
     } catch (err: any) {
       toast(err.message || "Failed to create account", "error");
     }
