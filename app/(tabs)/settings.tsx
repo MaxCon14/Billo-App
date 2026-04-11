@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -10,6 +10,7 @@ import {
   LogOut,
   ChevronRight,
   Shield,
+  Fingerprint,
 } from "lucide-react-native";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -17,6 +18,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/toast";
 import { colors, shadows, radius } from "@/lib/theme";
+import * as LocalAuthentication from "expo-local-authentication";
 
 interface SettingsItemProps {
   icon: React.ReactNode;
@@ -48,6 +50,30 @@ export default function SettingsScreen() {
 
   const pushEnabled = profile?.notification_push ?? true;
   const emailEnabled = profile?.notification_email ?? true;
+  const biometricEnabled = profile?.biometric_lock_enabled ?? false;
+
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricLabel, setBiometricLabel] = useState("Biometric Lock");
+
+  useEffect(() => {
+    async function checkBiometrics() {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+      setBiometricAvailable(hasHardware && isEnrolled);
+
+      if (hasHardware) {
+        const types = await LocalAuthentication.supportedAuthenticationTypesAsync();
+        if (types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)) {
+          setBiometricLabel("Face ID");
+        } else if (types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT)) {
+          setBiometricLabel("Touch ID");
+        } else {
+          setBiometricLabel("Biometric Lock");
+        }
+      }
+    }
+    checkBiometrics();
+  }, []);
 
   async function handleTogglePush(value: boolean) {
     try {
@@ -60,6 +86,26 @@ export default function SettingsScreen() {
   async function handleToggleEmail(value: boolean) {
     try {
       await updateProfile({ notification_email: value });
+    } catch {
+      toast("Failed to update setting", "error");
+    }
+  }
+
+  async function handleToggleBiometric(value: boolean) {
+    if (value) {
+      // Verify biometric works before enabling
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Verify to enable biometric lock",
+        cancelLabel: "Cancel",
+      });
+      if (!result.success) {
+        toast("Biometric verification failed", "error");
+        return;
+      }
+    }
+    try {
+      await updateProfile({ biometric_lock_enabled: value } as any);
+      toast(value ? `${biometricLabel} enabled` : `${biometricLabel} disabled`, "success");
     } catch {
       toast("Failed to update setting", "error");
     }
@@ -113,6 +159,22 @@ export default function SettingsScreen() {
           <SettingsItem icon={<CircleDollarSign size={18} color={colors.primary[500]} />} title="Currency" subtitle={profile?.currency ?? "USD"} />
           <View style={s.divider} />
           <SettingsItem icon={<Building2 size={18} color={colors.primary[500]} />} title="Connected Banks" subtitle="Manage linked accounts" onPress={() => router.push("/plaid/link")} />
+        </View>
+
+        <View style={s.card}>
+          <Text style={s.sectionLabel}>SECURITY</Text>
+          <SettingsItem
+            icon={<Fingerprint size={18} color={colors.primary[500]} />}
+            title={biometricLabel}
+            subtitle={biometricAvailable ? "Require authentication to open app" : "Not available on this device"}
+            trailing={
+              <Switch
+                checked={biometricEnabled}
+                onCheckedChange={handleToggleBiometric}
+                disabled={!biometricAvailable}
+              />
+            }
+          />
         </View>
 
         <View style={s.card}>

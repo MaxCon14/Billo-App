@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Image, type ImageStyle, StyleSheet, Text, View, type ViewStyle } from "react-native";
 import { colors, shadows } from "@/lib/theme";
+import { getLogoUrl, getFallbackLogoUrl } from "@/lib/logoService";
 
 interface LogoProps {
   name: string;
   logoUrl?: string | null;
+  websiteUrl?: string | null;
   size?: number;
   style?: ViewStyle;
 }
@@ -29,13 +31,22 @@ function hashToColor(str: string): string {
   return palette[Math.abs(hash) % palette.length];
 }
 
-export function Logo({ name, logoUrl, size = 40, style: styleProp }: LogoProps) {
+export function Logo({ name, logoUrl, websiteUrl, size = 40, style: styleProp }: LogoProps) {
   const [imgError, setImgError] = useState(false);
+  const [fallbackError, setFallbackError] = useState(false);
   const bgColor = hashToColor(name);
   const initial = name.charAt(0).toUpperCase();
   const fontSize = size * 0.42;
 
-  if (logoUrl && !imgError) {
+  // Priority: explicit logoUrl > Google favicon > Clearbit fallback > initial
+  const faviconUrl = getLogoUrl(websiteUrl);
+  const clearbitUrl = getFallbackLogoUrl(websiteUrl);
+
+  const resolvedUrl = logoUrl ?? faviconUrl;
+  const showFallbackImg = imgError && clearbitUrl && !fallbackError;
+  const showInitial = (!resolvedUrl && !showFallbackImg) || (imgError && !showFallbackImg);
+
+  if (resolvedUrl && !imgError) {
     return (
       <View
         style={[
@@ -50,7 +61,7 @@ export function Logo({ name, logoUrl, size = 40, style: styleProp }: LogoProps) 
         ]}
       >
         <Image
-          source={{ uri: logoUrl }}
+          source={{ uri: resolvedUrl }}
           style={
             {
               width: size,
@@ -60,6 +71,36 @@ export function Logo({ name, logoUrl, size = 40, style: styleProp }: LogoProps) 
             } as ImageStyle
           }
           onError={() => setImgError(true)}
+        />
+      </View>
+    );
+  }
+
+  if (showFallbackImg) {
+    return (
+      <View
+        style={[
+          {
+            width: size,
+            height: size,
+            borderRadius: size / 2,
+            overflow: "hidden",
+          },
+          shadows.sm,
+          styleProp,
+        ]}
+      >
+        <Image
+          source={{ uri: clearbitUrl! }}
+          style={
+            {
+              width: size,
+              height: size,
+              borderRadius: size / 2,
+              backgroundColor: colors.stone[100],
+            } as ImageStyle
+          }
+          onError={() => setFallbackError(true)}
         />
       </View>
     );

@@ -9,6 +9,7 @@ import type {
 } from '@/types/subscription';
 import { useAuthStore } from '@/stores/authStore';
 import { useFilterStore } from '@/stores/filterStore';
+import { scheduleTrialReminder, cancelTrialReminder } from '@/lib/trialNotifications';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -140,8 +141,11 @@ export function useCreateSubscription() {
       if (error) throw error;
       return data as Subscription;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+      if (data.is_trial && data.trial_ends_at) {
+        scheduleTrialReminder(data.id, data.name, data.trial_ends_at).catch(() => {});
+      }
     },
   });
 }
@@ -172,6 +176,11 @@ export function useUpdateSubscription() {
       queryClient.invalidateQueries({
         queryKey: ['subscriptions', data.id],
       });
+      if (data.is_trial && data.trial_ends_at) {
+        scheduleTrialReminder(data.id, data.name, data.trial_ends_at).catch(() => {});
+      } else {
+        cancelTrialReminder(data.id).catch(() => {});
+      }
     },
   });
 }

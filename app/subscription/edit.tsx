@@ -65,6 +65,8 @@ export default function EditSubscriptionScreen() {
     website_url: subscription.website_url,
     notes: subscription.notes,
     notify_before_renewal: subscription.notify_before_renewal,
+    is_trial: subscription.is_trial ?? false,
+    trial_ends_at: subscription.trial_ends_at ?? null,
   };
 
   return (

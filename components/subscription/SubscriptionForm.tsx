@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors, radius, shadows } from "@/lib/theme";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { BillingCycleSelector } from "./BillingCycleSelector";
 import { CategoryBadge } from "./CategoryBadge";
 import type { BillingCycle, Category, SubscriptionFormData } from "@/types/subscription";
@@ -32,14 +33,21 @@ export function SubscriptionForm({
   );
   const [notes, setNotes] = useState(initialData?.notes ?? "");
   const [websiteUrl, setWebsiteUrl] = useState(initialData?.website_url ?? "");
+  const [isTrial, setIsTrial] = useState(initialData?.is_trial ?? false);
+  const [trialEndsAt, setTrialEndsAt] = useState(
+    initialData?.trial_ends_at ?? ""
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {};
     if (!name.trim()) newErrors.name = "Name is required";
-    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0)
+    if (!isTrial && (!amount || isNaN(Number(amount)) || Number(amount) <= 0))
       newErrors.amount = "Enter a valid amount";
-    if (!nextBillingDate) newErrors.nextBillingDate = "Next billing date is required";
+    if (!isTrial && !nextBillingDate)
+      newErrors.nextBillingDate = "Next billing date is required";
+    if (isTrial && !trialEndsAt)
+      newErrors.trialEndsAt = "Trial end date is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -48,17 +56,21 @@ export function SubscriptionForm({
     if (!validate()) return;
     onSubmit({
       name: name.trim(),
-      amount: Number(amount),
+      amount: isTrial ? 0 : Number(amount),
       currency: "USD",
       billing_cycle: billingCycle,
-      billing_day: new Date(nextBillingDate).getDate(),
-      next_billing_date: nextBillingDate,
-      start_date: nextBillingDate,
+      billing_day: isTrial
+        ? new Date(trialEndsAt).getDate()
+        : new Date(nextBillingDate).getDate(),
+      next_billing_date: isTrial ? trialEndsAt : nextBillingDate,
+      start_date: isTrial ? trialEndsAt : nextBillingDate,
       category_id: categoryId,
       logo_url: null,
       website_url: websiteUrl || null,
       notes: notes || null,
       notify_before_renewal: true,
+      is_trial: isTrial,
+      trial_ends_at: isTrial ? trialEndsAt : null,
     });
   }
 
@@ -73,16 +85,37 @@ export function SubscriptionForm({
           error={errors.name}
         />
 
-        <Input
-          label="Amount"
-          placeholder="9.99"
-          value={amount}
-          onChangeText={setAmount}
-          keyboardType="decimal-pad"
-          error={errors.amount}
-        />
+        {/* Trial Toggle */}
+        <View style={styles.trialRow}>
+          <View style={styles.trialInfo}>
+            <Text style={styles.trialLabel}>This is a free trial</Text>
+            <Text style={styles.trialHint}>Track trial expiration dates</Text>
+          </View>
+          <Switch checked={isTrial} onCheckedChange={setIsTrial} />
+        </View>
 
-        <BillingCycleSelector value={billingCycle} onChange={setBillingCycle} />
+        {isTrial ? (
+          <Input
+            label="Trial End Date"
+            placeholder="YYYY-MM-DD"
+            value={trialEndsAt}
+            onChangeText={setTrialEndsAt}
+            error={errors.trialEndsAt}
+          />
+        ) : (
+          <>
+            <Input
+              label="Amount"
+              placeholder="9.99"
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="decimal-pad"
+              error={errors.amount}
+            />
+
+            <BillingCycleSelector value={billingCycle} onChange={setBillingCycle} />
+          </>
+        )}
 
         <View>
           <Text style={styles.sectionLabel}>Category</Text>
@@ -100,13 +133,15 @@ export function SubscriptionForm({
           </View>
         </View>
 
-        <Input
-          label="Next Billing Date"
-          placeholder="YYYY-MM-DD"
-          value={nextBillingDate}
-          onChangeText={setNextBillingDate}
-          error={errors.nextBillingDate}
-        />
+        {!isTrial && (
+          <Input
+            label="Next Billing Date"
+            placeholder="YYYY-MM-DD"
+            value={nextBillingDate}
+            onChangeText={setNextBillingDate}
+            error={errors.nextBillingDate}
+          />
+        )}
 
         <Input
           label="Website URL (optional)"
@@ -158,6 +193,28 @@ const styles = StyleSheet.create({
   },
   formGroup: {
     gap: 16,
+  },
+  trialRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.amber[50],
+    borderRadius: radius.lg,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.amber[200],
+  },
+  trialInfo: {
+    flex: 1,
+  },
+  trialLabel: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.stone[900],
+  },
+  trialHint: {
+    fontSize: 13,
+    color: colors.stone[400],
+    marginTop: 2,
   },
   sectionLabel: {
     marginBottom: 10,

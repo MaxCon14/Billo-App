@@ -34,6 +34,8 @@ export interface Subscription {
   plaid_transaction_id: string | null;
   notes: string | null;
   notify_before_renewal: boolean;
+  is_trial: boolean;
+  trial_ends_at: string | null;
   created_at: string;
   updated_at: string;
   category?: Category;
@@ -52,6 +54,8 @@ export interface SubscriptionFormData {
   website_url: string | null;
   notes: string | null;
   notify_before_renewal: boolean;
+  is_trial: boolean;
+  trial_ends_at: string | null;
 }
 
 export type NotificationType =

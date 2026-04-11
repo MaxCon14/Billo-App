@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
@@ -10,7 +10,9 @@ import {
   Play,
   Trash2,
   Edit3,
+  XCircle,
 } from "lucide-react-native";
+import { findCancellationUrl } from "@/lib/cancellationLinks";
 import { Logo } from "@/components/shared/Logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -54,6 +56,8 @@ export default function SubscriptionDetailScreen() {
     );
   }
 
+  const isTrial = subscription.is_trial && subscription.trial_ends_at;
+  const trialDaysLeft = isTrial ? getDaysUntil(subscription.trial_ends_at!) : null;
   const daysUntil = getDaysUntil(subscription.next_billing_date);
   const monthly = getMonthlyAmount(subscription.amount, subscription.billing_cycle);
   const yearly = getYearlyAmount(subscription.amount, subscription.billing_cycle);
@@ -98,7 +102,7 @@ export default function SubscriptionDetailScreen() {
       <ScrollView style={s.flex1} contentContainerStyle={s.scrollContent}>
         {/* Hero Section */}
         <View style={s.heroSection}>
-          <Logo name={subscription.name} logoUrl={subscription.logo_url} size={80} />
+          <Logo name={subscription.name} logoUrl={subscription.logo_url} websiteUrl={subscription.website_url} size={80} />
           <Text style={s.name}>{subscription.name}</Text>
           {subscription.description && <Text style={s.desc}>{subscription.description}</Text>}
           <View style={s.badgeRow}>
@@ -109,11 +113,23 @@ export default function SubscriptionDetailScreen() {
                 </Text>
               </Badge>
             )}
-            <Badge variant={subscription.is_active ? "default" : "secondary"}>
-              <Text style={{ fontSize: 12, fontWeight: "500", color: subscription.is_active ? colors.primary[800] : colors.stone[500] }}>
-                {subscription.is_active ? "Active" : "Paused"}
-              </Text>
-            </Badge>
+            {isTrial ? (
+              <Badge style={{ backgroundColor: colors.amber[100] }}>
+                <Text style={{ fontSize: 12, fontWeight: "600", color: colors.amber[600] }}>
+                  {trialDaysLeft !== null && trialDaysLeft <= 0
+                    ? "Trial Expired"
+                    : trialDaysLeft === 1
+                      ? "Trial ends tomorrow"
+                      : `Trial \u2022 ${trialDaysLeft}d left`}
+                </Text>
+              </Badge>
+            ) : (
+              <Badge variant={subscription.is_active ? "default" : "secondary"}>
+                <Text style={{ fontSize: 12, fontWeight: "500", color: subscription.is_active ? colors.primary[800] : colors.stone[500] }}>
+                  {subscription.is_active ? "Active" : "Paused"}
+                </Text>
+              </Badge>
+            )}
           </View>
         </View>
 
@@ -170,6 +186,33 @@ export default function SubscriptionDetailScreen() {
           </View>
         )}
 
+        {/* Cancellation Assistant */}
+        {(() => {
+          const cancelUrl = findCancellationUrl(subscription.name);
+          return (
+            <View style={s.card}>
+              <Text style={s.sectionTitle}>Cancel Subscription</Text>
+              <Text style={s.cancelNote}>
+                This opens the provider's website to cancel your plan.
+              </Text>
+              {cancelUrl ? (
+                <Pressable
+                  onPress={() => Linking.openURL(cancelUrl)}
+                  style={({ pressed }) => [s.cancelBtn, pressed && s.cancelBtnPressed]}
+                >
+                  <XCircle size={18} color={colors.red[500]} />
+                  <Text style={s.cancelBtnText}>Go to Cancellation Page</Text>
+                </Pressable>
+              ) : (
+                <View style={s.cancelBtnDisabled}>
+                  <XCircle size={18} color={colors.stone[300]} />
+                  <Text style={s.cancelBtnTextDisabled}>Cancellation page not available</Text>
+                </View>
+              )}
+            </View>
+          );
+        })()}
+
         {/* Action Buttons */}
         <View style={s.actionsGap}>
           <Pressable
@@ -200,7 +243,7 @@ export default function SubscriptionDetailScreen() {
 
           {subscription.website_url && (
             <Pressable
-              onPress={() => {}}
+              onPress={() => Linking.openURL(subscription.website_url!)}
               style={({ pressed }) => [s.actionBtn, s.actionBtnOutline, pressed && s.actionBtnPressed]}
             >
               <ExternalLink size={18} color={colors.stone[500]} />
@@ -363,5 +406,46 @@ const s = StyleSheet.create({
   actionBtnText: {
     fontSize: 15,
     fontWeight: "500",
+  },
+
+  /* Cancel */
+  cancelNote: {
+    fontSize: 13,
+    color: colors.stone[400],
+    marginBottom: 16,
+    lineHeight: 18,
+  },
+  cancelBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    height: 48,
+    borderRadius: radius.lg,
+    backgroundColor: colors.red[50],
+    borderWidth: 1,
+    borderColor: colors.red[200],
+  },
+  cancelBtnPressed: {
+    backgroundColor: colors.red[100],
+  },
+  cancelBtnText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.red[500],
+  },
+  cancelBtnDisabled: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    height: 48,
+    borderRadius: radius.lg,
+    backgroundColor: colors.stone[100],
+  },
+  cancelBtnTextDisabled: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: colors.stone[400],
   },
 });

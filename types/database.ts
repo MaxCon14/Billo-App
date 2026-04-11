@@ -6,6 +6,7 @@ export interface Profile {
   notification_email: boolean;
   notification_push: boolean;
   reminder_days_before: number;
+  biometric_lock_enabled: boolean;
   created_at: string;
   updated_at: string;
 }

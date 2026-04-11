@@ -37,7 +37,7 @@ export function DayDetail({ date, subscriptions, onSubscriptionPress }: DayDetai
                 style={({ pressed }) => pressed && styles.pressed}
               >
                 <View style={styles.row}>
-                  <Logo name={sub.name} logoUrl={sub.logo_url} size={40} />
+                  <Logo name={sub.name} logoUrl={sub.logo_url} websiteUrl={sub.website_url} size={40} />
                   <Text style={styles.subName} numberOfLines={1}>
                     {sub.name}
                   </Text>

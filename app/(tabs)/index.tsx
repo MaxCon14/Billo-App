@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { SpendingSummary } from "@/components/dashboard/SpendingSummary";
+import { TrialsEndingSoon } from "@/components/dashboard/TrialsEndingSoon";
 import { UpcomingRenewals } from "@/components/dashboard/UpcomingRenewals";
 import { SpendingChart } from "@/components/dashboard/SpendingChart";
 import { QuickActions } from "@/components/dashboard/QuickActions";
@@ -68,6 +69,11 @@ export default function DashboardScreen() {
         <QuickActions
           onAddSubscription={() => router.push("/subscription/add")}
           onConnectBank={() => router.push("/plaid/link")}
+        />
+
+        <TrialsEndingSoon
+          subscriptions={subscriptions ?? []}
+          onSubscriptionPress={handleSubscriptionPress}
         />
 
         <UpcomingRenewals
