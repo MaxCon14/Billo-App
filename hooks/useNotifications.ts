@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -9,114 +8,125 @@ import { useAuthStore } from '@/stores/authStore';
 
 // ─── Notification Setup ─────────────────────────────────────────────────────
 
-/**
- * Configure how incoming notifications are displayed when the app is
- * in the foreground.
- */
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// Lazy-load expo-notifications to avoid crashes in Expo Go (SDK 53+ removed
+// push notification support from Expo Go). All notification calls are wrapped
+// in try-catch so the app degrades gracefully.
+
+let Notifications: typeof import('expo-notifications') | null = null;
+
+async function getNotificationsModule() {
+  if (!Notifications) {
+    try {
+      Notifications = await import('expo-notifications');
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: true,
+          shouldShowBanner: true,
+          shouldShowList: true,
+        }),
+      });
+    } catch {
+      Notifications = null;
+    }
+  }
+  return Notifications;
+}
 
 async function registerForPushNotificationsAsync(): Promise<string | null> {
-  // Push notifications only work on physical devices
-  if (!Device.isDevice) {
-    console.warn('Push notifications require a physical device');
+  try {
+    const N = await getNotificationsModule();
+    if (!N) return null;
+
+    // Push notifications only work on physical devices
+    if (!Device.isDevice) {
+      console.warn('Push notifications require a physical device');
+      return null;
+    }
+
+    // Android needs a notification channel
+    if (Platform.OS === 'android') {
+      await N.setNotificationChannelAsync('default', {
+        name: 'Default',
+        importance: N.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+
+    // Check / request permissions
+    const { status: existingStatus } = await N.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== 'granted') {
+      const { status } = await N.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== 'granted') {
+      console.warn('Push notification permission not granted');
+      return null;
+    }
+
+    // Get the Expo push token
+    const projectId =
+      Constants.expoConfig?.extra?.eas?.projectId ??
+      Constants.easConfig?.projectId;
+
+    const tokenData = await N.getExpoPushTokenAsync({ projectId });
+    return tokenData.data;
+  } catch {
+    // Notifications not available (e.g. Expo Go)
     return null;
   }
-
-  // Android needs a notification channel
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'Default',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-    });
-  }
-
-  // Check / request permissions
-  const { status: existingStatus } =
-    await Notifications.getPermissionsAsync();
-  let finalStatus = existingStatus;
-
-  if (existingStatus !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
-  }
-
-  if (finalStatus !== 'granted') {
-    console.warn('Push notification permission not granted');
-    return null;
-  }
-
-  // Get the Expo push token
-  const projectId =
-    Constants.expoConfig?.extra?.eas?.projectId ??
-    Constants.easConfig?.projectId;
-
-  const tokenData = await Notifications.getExpoPushTokenAsync({
-    projectId,
-  });
-
-  return tokenData.data;
 }
 
 /**
  * On mount, registers for push notifications and sets up notification
  * listeners for both received and interaction (response) events.
- * Persists the push token to the user's profile in Supabase.
  */
 export function useNotificationSetup() {
   const user = useAuthStore((s) => s.user);
   const [expoPushToken, setExpoPushToken] = useState<string>('');
-  const notificationListener = useRef<Notifications.EventSubscription | null>(
-    null,
-  );
-  const responseListener = useRef<Notifications.EventSubscription | null>(null);
+  const cleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    // Register and persist token
-    registerForPushNotificationsAsync().then(async (token) => {
-      if (token) {
-        setExpoPushToken(token);
+    let mounted = true;
 
-        // Persist to profile so the backend can send pushes
-        // Store push token - in production add expo_push_token column to profiles
+    async function setup() {
+      // Register push token
+      const token = await registerForPushNotificationsAsync();
+      if (token && mounted) {
+        setExpoPushToken(token);
         if (user?.id) {
           console.log('Push token registered:', token);
         }
       }
-    });
 
-    // Foreground notification listener
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification) => {
-        // The notification is available on notification.request.content
-        // Components can subscribe to the Notifications event emitter if
-        // they need to react to incoming notifications.
+      // Set up listeners
+      const N = await getNotificationsModule();
+      if (!N || !mounted) return;
+
+      const notifSub = N.addNotificationReceivedListener((notification) => {
         console.log('Notification received:', notification);
       });
 
-    // User tapped / interacted with a notification
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener((response) => {
+      const responseSub = N.addNotificationResponseReceivedListener((response) => {
         console.log('Notification response:', response);
-        // Navigation or deeplink handling can be added here
       });
 
+      cleanupRef.current = () => {
+        notifSub.remove();
+        responseSub.remove();
+      };
+    }
+
+    setup();
+
     return () => {
-      if (notificationListener.current) {
-        notificationListener.current.remove();
-      }
-      if (responseListener.current) {
-        responseListener.current.remove();
-      }
+      mounted = false;
+      cleanupRef.current?.();
     };
   }, [user?.id]);
 
