@@ -38,9 +38,9 @@ export function Logo({ name, logoUrl, websiteUrl, size = 40, style: styleProp }:
   const initial = name.charAt(0).toUpperCase();
   const fontSize = size * 0.42;
 
-  // Priority: explicit logoUrl > Google favicon > Clearbit fallback > initial
-  const faviconUrl = getLogoUrl(websiteUrl);
-  const clearbitUrl = getFallbackLogoUrl(websiteUrl);
+  // Priority: explicit logoUrl > Google favicon (by url or name) > Clearbit fallback > initial
+  const faviconUrl = getLogoUrl(websiteUrl, name);
+  const clearbitUrl = getFallbackLogoUrl(websiteUrl, name);
 
   const resolvedUrl = logoUrl ?? faviconUrl;
   const showFallbackImg = imgError && clearbitUrl && !fallbackError;

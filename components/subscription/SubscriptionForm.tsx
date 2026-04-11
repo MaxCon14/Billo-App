@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { BillingCycleSelector } from "./BillingCycleSelector";
 import { CategoryBadge } from "./CategoryBadge";
 import type { BillingCycle, Category, SubscriptionFormData } from "@/types/subscription";
+import { getWebsiteForService } from "@/lib/knownServices";
 
 interface SubscriptionFormProps {
   initialData?: Partial<SubscriptionFormData>;
@@ -38,6 +39,16 @@ export function SubscriptionForm({
     initialData?.trial_ends_at ?? ""
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Auto-fill website URL when user types a known service name
+  function handleNameChange(text: string) {
+    setName(text);
+    // Only auto-fill if user hasn't manually entered a URL
+    if (!websiteUrl) {
+      const url = getWebsiteForService(text);
+      if (url) setWebsiteUrl(url);
+    }
+  }
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {};
@@ -81,7 +92,7 @@ export function SubscriptionForm({
           label="Subscription Name"
           placeholder="e.g., Netflix, Spotify"
           value={name}
-          onChangeText={setName}
+          onChangeText={handleNameChange}
           error={errors.name}
         />
 

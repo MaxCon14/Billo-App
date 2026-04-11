@@ -1,0 +1,395 @@
+/**
+ * Mapping of well-known subscription service names to their website domains.
+ * Used by the Logo component to auto-resolve favicons even when the user
+ * hasn't provided a website_url.
+ *
+ * Keys are lowercase for case-insensitive matching.
+ */
+
+const KNOWN_SERVICES: Record<string, string> = {
+  // Streaming – Video
+  netflix: "netflix.com",
+  hulu: "hulu.com",
+  "disney+": "disneyplus.com",
+  "disney plus": "disneyplus.com",
+  disneyplus: "disneyplus.com",
+  "hbo max": "max.com",
+  "hbo go": "max.com",
+  max: "max.com",
+  "amazon prime": "amazon.com",
+  "amazon prime video": "primevideo.com",
+  "prime video": "primevideo.com",
+  "apple tv": "tv.apple.com",
+  "apple tv+": "tv.apple.com",
+  peacock: "peacocktv.com",
+  paramount: "paramountplus.com",
+  "paramount+": "paramountplus.com",
+  "paramount plus": "paramountplus.com",
+  crunchyroll: "crunchyroll.com",
+  funimation: "funimation.com",
+  mubi: "mubi.com",
+  "discovery+": "discoveryplus.com",
+  "discovery plus": "discoveryplus.com",
+  tubi: "tubi.tv",
+  pluto: "pluto.tv",
+  "pluto tv": "pluto.tv",
+  roku: "roku.com",
+  "youtube tv": "tv.youtube.com",
+  "youtube premium": "youtube.com",
+  youtube: "youtube.com",
+  twitch: "twitch.tv",
+  "twitch turbo": "twitch.tv",
+  starz: "starz.com",
+  showtime: "showtime.com",
+  britbox: "britbox.com",
+  curiositystream: "curiositystream.com",
+  "curiosity stream": "curiositystream.com",
+
+  // Streaming – Music
+  spotify: "spotify.com",
+  "apple music": "music.apple.com",
+  tidal: "tidal.com",
+  deezer: "deezer.com",
+  pandora: "pandora.com",
+  soundcloud: "soundcloud.com",
+  "soundcloud go": "soundcloud.com",
+  "amazon music": "music.amazon.com",
+  "youtube music": "music.youtube.com",
+  audiomack: "audiomack.com",
+
+  // Gaming
+  "xbox game pass": "xbox.com",
+  "xbox live": "xbox.com",
+  "xbox live gold": "xbox.com",
+  xbox: "xbox.com",
+  "playstation plus": "playstation.com",
+  "ps plus": "playstation.com",
+  "playstation now": "playstation.com",
+  playstation: "playstation.com",
+  "nintendo switch online": "nintendo.com",
+  nintendo: "nintendo.com",
+  "ea play": "ea.com",
+  "ea access": "ea.com",
+  "ubisoft+": "ubisoft.com",
+  steam: "store.steampowered.com",
+  "epic games": "epicgames.com",
+  "humble bundle": "humblebundle.com",
+  "game pass": "xbox.com",
+  "geforce now": "nvidia.com",
+  roblox: "roblox.com",
+
+  // Productivity / Cloud
+  "microsoft 365": "microsoft.com",
+  "office 365": "microsoft.com",
+  "microsoft office": "microsoft.com",
+  onedrive: "onedrive.live.com",
+  "google one": "one.google.com",
+  "google workspace": "workspace.google.com",
+  "google drive": "drive.google.com",
+  icloud: "icloud.com",
+  "icloud+": "icloud.com",
+  dropbox: "dropbox.com",
+  evernote: "evernote.com",
+  notion: "notion.so",
+  todoist: "todoist.com",
+  trello: "trello.com",
+  asana: "asana.com",
+  slack: "slack.com",
+  zoom: "zoom.us",
+  "1password": "1password.com",
+  lastpass: "lastpass.com",
+  bitwarden: "bitwarden.com",
+  dashlane: "dashlane.com",
+  grammarly: "grammarly.com",
+  canva: "canva.com",
+  figma: "figma.com",
+  miro: "miro.com",
+  linear: "linear.app",
+  clickup: "clickup.com",
+  monday: "monday.com",
+  "monday.com": "monday.com",
+  basecamp: "basecamp.com",
+  airtable: "airtable.com",
+
+  // Developer Tools
+  github: "github.com",
+  "github copilot": "github.com",
+  gitlab: "gitlab.com",
+  bitbucket: "bitbucket.org",
+  vercel: "vercel.com",
+  netlify: "netlify.com",
+  heroku: "heroku.com",
+  "digital ocean": "digitalocean.com",
+  digitalocean: "digitalocean.com",
+  aws: "aws.amazon.com",
+  "amazon web services": "aws.amazon.com",
+  "google cloud": "cloud.google.com",
+  azure: "azure.microsoft.com",
+  cloudflare: "cloudflare.com",
+  datadog: "datadoghq.com",
+  sentry: "sentry.io",
+  jetbrains: "jetbrains.com",
+  "docker hub": "hub.docker.com",
+  docker: "docker.com",
+  postman: "postman.com",
+  "chat gpt": "openai.com",
+  chatgpt: "openai.com",
+  openai: "openai.com",
+  claude: "anthropic.com",
+  anthropic: "anthropic.com",
+  copilot: "github.com",
+  cursor: "cursor.com",
+  replit: "replit.com",
+
+  // VPN / Security
+  nordvpn: "nordvpn.com",
+  expressvpn: "expressvpn.com",
+  surfshark: "surfshark.com",
+  protonvpn: "protonvpn.com",
+  "proton vpn": "protonvpn.com",
+  proton: "proton.me",
+  "proton mail": "proton.me",
+  mullvad: "mullvad.net",
+  "private internet access": "privateinternetaccess.com",
+  pia: "privateinternetaccess.com",
+  norton: "norton.com",
+  mcafee: "mcafee.com",
+  kaspersky: "kaspersky.com",
+  malwarebytes: "malwarebytes.com",
+
+  // Creative / Design
+  "adobe creative cloud": "adobe.com",
+  adobe: "adobe.com",
+  photoshop: "adobe.com",
+  illustrator: "adobe.com",
+  lightroom: "adobe.com",
+  "premiere pro": "adobe.com",
+  "after effects": "adobe.com",
+  "adobe xd": "adobe.com",
+  sketch: "sketch.com",
+  invision: "invisionapp.com",
+  "affinity designer": "affinity.serif.com",
+  procreate: "procreate.com",
+  shutterstock: "shutterstock.com",
+  "getty images": "gettyimages.com",
+  envato: "envato.com",
+  "envato elements": "elements.envato.com",
+
+  // Communication
+  discord: "discord.com",
+  "discord nitro": "discord.com",
+  telegram: "telegram.org",
+  "telegram premium": "telegram.org",
+  whatsapp: "whatsapp.com",
+  signal: "signal.org",
+  skype: "skype.com",
+  "google fi": "fi.google.com",
+  teams: "microsoft.com",
+  "microsoft teams": "microsoft.com",
+
+  // Fitness / Health
+  peloton: "onepeloton.com",
+  fitbit: "fitbit.com",
+  "fitbit premium": "fitbit.com",
+  strava: "strava.com",
+  myfitnesspal: "myfitnesspal.com",
+  headspace: "headspace.com",
+  calm: "calm.com",
+  noom: "noom.com",
+  "apple fitness": "apple.com",
+  "apple fitness+": "apple.com",
+  whoop: "whoop.com",
+  "nike run club": "nike.com",
+  "nike training": "nike.com",
+  gymshark: "gymshark.com",
+
+  // News / Reading
+  "new york times": "nytimes.com",
+  nyt: "nytimes.com",
+  "wall street journal": "wsj.com",
+  wsj: "wsj.com",
+  "washington post": "washingtonpost.com",
+  bloomberg: "bloomberg.com",
+  economist: "economist.com",
+  "the economist": "economist.com",
+  medium: "medium.com",
+  substack: "substack.com",
+  "kindle unlimited": "amazon.com",
+  audible: "audible.com",
+  scribd: "scribd.com",
+  "the athletic": "theathletic.com",
+  "apple news": "apple.com",
+  "apple news+": "apple.com",
+  wired: "wired.com",
+
+  // Shopping / Delivery
+  amazon: "amazon.com",
+  costco: "costco.com",
+  walmart: "walmart.com",
+  "walmart+": "walmart.com",
+  "walmart plus": "walmart.com",
+  instacart: "instacart.com",
+  "instacart+": "instacart.com",
+  doordash: "doordash.com",
+  "dashpass": "doordash.com",
+  "uber eats": "ubereats.com",
+  "uber one": "uber.com",
+  uber: "uber.com",
+  grubhub: "grubhub.com",
+  "grubhub+": "grubhub.com",
+  shipt: "shipt.com",
+  "hello fresh": "hellofresh.com",
+  hellofresh: "hellofresh.com",
+  "blue apron": "blueapron.com",
+
+  // Education
+  coursera: "coursera.org",
+  udemy: "udemy.com",
+  skillshare: "skillshare.com",
+  "linkedin learning": "linkedin.com",
+  linkedin: "linkedin.com",
+  "linkedin premium": "linkedin.com",
+  duolingo: "duolingo.com",
+  "duolingo plus": "duolingo.com",
+  "duolingo super": "duolingo.com",
+  masterclass: "masterclass.com",
+  "khan academy": "khanacademy.org",
+  pluralsight: "pluralsight.com",
+  "brilliant.org": "brilliant.org",
+  brilliant: "brilliant.org",
+  codecademy: "codecademy.com",
+  treehouse: "teamtreehouse.com",
+  udacity: "udacity.com",
+
+  // Finance
+  robinhood: "robinhood.com",
+  "robinhood gold": "robinhood.com",
+  coinbase: "coinbase.com",
+  "coinbase pro": "coinbase.com",
+  acorns: "acorns.com",
+  betterment: "betterment.com",
+  wealthfront: "wealthfront.com",
+  "personal capital": "personalcapital.com",
+  mint: "mint.intuit.com",
+  ynab: "ynab.com",
+  "you need a budget": "ynab.com",
+  quickbooks: "quickbooks.intuit.com",
+  freshbooks: "freshbooks.com",
+  stripe: "stripe.com",
+  paypal: "paypal.com",
+  venmo: "venmo.com",
+  "cash app": "cash.app",
+
+  // Social Media
+  twitter: "x.com",
+  "twitter blue": "x.com",
+  "x premium": "x.com",
+  reddit: "reddit.com",
+  "reddit premium": "reddit.com",
+  snapchat: "snapchat.com",
+  "snapchat+": "snapchat.com",
+  "snapchat plus": "snapchat.com",
+  tiktok: "tiktok.com",
+  instagram: "instagram.com",
+  facebook: "facebook.com",
+  meta: "meta.com",
+  "meta verified": "meta.com",
+  pinterest: "pinterest.com",
+
+  // Dating
+  tinder: "tinder.com",
+  "tinder gold": "tinder.com",
+  "tinder plus": "tinder.com",
+  bumble: "bumble.com",
+  "bumble premium": "bumble.com",
+  hinge: "hinge.co",
+  "match.com": "match.com",
+  match: "match.com",
+  okcupid: "okcupid.com",
+  eharmony: "eharmony.com",
+
+  // Storage / Backup
+  backblaze: "backblaze.com",
+  carbonite: "carbonite.com",
+  "google storage": "one.google.com",
+  box: "box.com",
+  "box.com": "box.com",
+  pcloud: "pcloud.com",
+  mega: "mega.nz",
+  "mega.nz": "mega.nz",
+  idrive: "idrive.com",
+
+  // Email
+  gmail: "gmail.com",
+  outlook: "outlook.com",
+  "hey email": "hey.com",
+  hey: "hey.com",
+  fastmail: "fastmail.com",
+  tutanota: "tutanota.com",
+  "zoho mail": "zoho.com",
+  zoho: "zoho.com",
+
+  // Domain / Hosting
+  godaddy: "godaddy.com",
+  namecheap: "namecheap.com",
+  squarespace: "squarespace.com",
+  wix: "wix.com",
+  wordpress: "wordpress.com",
+  "wordpress.com": "wordpress.com",
+  bluehost: "bluehost.com",
+  siteground: "siteground.com",
+  hostinger: "hostinger.com",
+  shopify: "shopify.com",
+  webflow: "webflow.com",
+
+  // Utilities / Misc
+  "apple one": "apple.com",
+  apple: "apple.com",
+  google: "google.com",
+  microsoft: "microsoft.com",
+  "t-mobile": "t-mobile.com",
+  tmobile: "t-mobile.com",
+  verizon: "verizon.com",
+  "at&t": "att.com",
+  att: "att.com",
+  comcast: "xfinity.com",
+  xfinity: "xfinity.com",
+  spectrum: "spectrum.com",
+  sprint: "sprint.com",
+  cricket: "cricketwireless.com",
+  mint_mobile: "mintmobile.com",
+  "mint mobile": "mintmobile.com",
+  "us cellular": "uscellular.com",
+  "visible": "visible.com",
+};
+
+/**
+ * Look up the domain for a subscription by its name.
+ * Uses case-insensitive exact match first, then fuzzy substring matching.
+ */
+export function getDomainForService(name: string): string | null {
+  if (!name) return null;
+  const lower = name.toLowerCase().trim();
+
+  // Exact match
+  if (KNOWN_SERVICES[lower]) return KNOWN_SERVICES[lower];
+
+  // Fuzzy: check if the name contains a known service name, or vice versa
+  for (const [key, domain] of Object.entries(KNOWN_SERVICES)) {
+    if (lower.includes(key) || key.includes(lower)) {
+      return domain;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Get the full website URL for a known service name.
+ */
+export function getWebsiteForService(name: string): string | null {
+  const domain = getDomainForService(name);
+  return domain ? `https://${domain}` : null;
+}
+
+export { KNOWN_SERVICES };
