@@ -1,13 +1,6 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
-const GC_BASE = "https://bankaccountdata.gocardless.com/api/v2";
+import { GC_BASE, corsHeaders, getGoCardlessToken, jsonResponse } from "../_shared/gocardless.ts";
 
 // ─── Known subscription merchants for detection ────────────────────────────
 const KNOWN_MERCHANTS = [
@@ -113,10 +106,7 @@ serve(async (req) => {
     // Extract user from auth header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: "Authorization required" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "Authorization required" }, 401);
     }
 
     const { data: { user }, error: authError } = await createClient(
@@ -126,18 +116,12 @@ serve(async (req) => {
     ).auth.getUser();
 
     if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "Unauthorized" }, 401);
     }
 
     const { requisition_id } = await req.json();
     if (!requisition_id) {
-      return new Response(
-        JSON.stringify({ error: "requisition_id required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "requisition_id required" }, 400);
     }
 
     // Get bank row
@@ -149,26 +133,10 @@ serve(async (req) => {
       .single();
 
     if (!bank) {
-      return new Response(
-        JSON.stringify({ error: "Bank connection not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "Bank connection not found" }, 404);
     }
 
-    // Get GoCardless access token
-    const { data: tokenData } = await supabase.functions.invoke(
-      "gocardless-get-token",
-      { body: {} }
-    );
-
-    if (!tokenData?.access) {
-      return new Response(
-        JSON.stringify({ error: "Failed to obtain access token" }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const token = tokenData.access;
+    const token = await getGoCardlessToken();
 
     // Fetch requisition to get account IDs
     const reqRes = await fetch(`${GC_BASE}/requisitions/${requisition_id}/`, {
@@ -178,21 +146,16 @@ serve(async (req) => {
     if (!reqRes.ok) {
       const err = await reqRes.text();
       console.error("Requisition fetch error:", err);
-      return new Response(
-        JSON.stringify({ error: "Failed to fetch requisition" }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "Failed to fetch requisition", detail: err }, 502);
     }
 
     const requisition = await reqRes.json();
     const accountIds: string[] = requisition.accounts || [];
 
     if (accountIds.length === 0) {
-      return new Response(
-        JSON.stringify({
-          error: "No accounts linked yet. The bank authorization may still be pending.",
-        }),
-        { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      return jsonResponse(
+        { error: "No accounts linked yet. The bank authorization may still be pending." },
+        422
       );
     }
 
@@ -393,19 +356,16 @@ serve(async (req) => {
       );
     }
 
-    return new Response(
-      JSON.stringify({
-        transactions_fetched: totalFetched,
-        subscriptions_detected: newCandidates.length,
-        bank_status: "active",
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({
+      transactions_fetched: totalFetched,
+      subscriptions_detected: newCandidates.length,
+      bank_status: "active",
+    });
   } catch (error) {
     console.error("Sync error:", error);
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    return jsonResponse(
+      { error: error instanceof Error ? error.message : "Internal server error" },
+      500
     );
   }
 });

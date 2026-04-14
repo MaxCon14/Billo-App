@@ -17,28 +17,20 @@ export function useInstitutions(country: string) {
   return useQuery<Institution[]>({
     queryKey: ['institutions', country],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke(
+      const { data, error } = await supabase.functions.invoke<Institution[]>(
         'gocardless-get-institutions',
-        { body: {}, headers: {} }
+        { body: { country } }
       );
 
-      // The edge function uses query params, so we invoke with GET-style
-      // Actually Supabase functions.invoke always POSTs, so the edge function
-      // reads from the URL. We need to pass country differently:
-      // Use a workaround by passing it in the body and reading on the server,
-      // OR invoke via fetch directly.
-      const res = await fetch(
-        `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/gocardless-get-institutions?country=${country}`,
-        {
-          headers: {
-            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-            'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '',
-          },
-        }
-      );
-
-      if (!res.ok) throw new Error('Failed to fetch institutions');
-      return res.json();
+      if (error) {
+        console.error('useInstitutions error:', error);
+        throw error;
+      }
+      if (!Array.isArray(data)) {
+        console.error('useInstitutions: unexpected response shape', data);
+        throw new Error('Unexpected response from gocardless-get-institutions');
+      }
+      return data;
     },
     enabled: !!country && country.length === 2,
     staleTime: 1000 * 60 * 30, // Cache institutions for 30 min

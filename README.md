@@ -69,7 +69,6 @@ cp .env.example .env
 
 4. Deploy Edge Functions:
    ```bash
-   supabase functions deploy gocardless-get-token
    supabase functions deploy gocardless-get-institutions
    supabase functions deploy gocardless-create-requisition
    supabase functions deploy gocardless-sync-transactions

@@ -1,13 +1,6 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
-const GC_BASE = "https://bankaccountdata.gocardless.com/api/v2";
+import { GC_BASE, corsHeaders, getGoCardlessToken, jsonResponse } from "../_shared/gocardless.ts";
 
 /**
  * Creates a GoCardless requisition (bank connection request).
@@ -31,10 +24,7 @@ serve(async (req) => {
     // Extract user from auth header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: "Authorization required" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "Authorization required" }, 401);
     }
 
     const { data: { user }, error: authError } = await createClient(
@@ -44,39 +34,22 @@ serve(async (req) => {
     ).auth.getUser();
 
     if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "Unauthorized" }, 401);
     }
 
     const { institution_id, institution_name, institution_logo } = await req.json();
 
     if (!institution_id) {
-      return new Response(
-        JSON.stringify({ error: "institution_id required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "institution_id required" }, 400);
     }
 
-    // Get GoCardless access token
-    const { data: tokenData, error: tokenError } = await supabase.functions.invoke(
-      "gocardless-get-token",
-      { body: {} }
-    );
-
-    if (tokenError || !tokenData?.access) {
-      return new Response(
-        JSON.stringify({ error: "Failed to obtain access token" }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    const token = await getGoCardlessToken();
 
     // Create requisition
     const res = await fetch(`${GC_BASE}/requisitions/`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${tokenData.access}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -89,10 +62,10 @@ serve(async (req) => {
 
     if (!res.ok) {
       const err = await res.text();
-      console.error("Requisition create error:", err);
-      return new Response(
-        JSON.stringify({ error: "Failed to create bank connection" }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      console.error(`Requisition create failed (${res.status}):`, err);
+      return jsonResponse(
+        { error: "Failed to create bank connection", detail: err },
+        502
       );
     }
 
@@ -112,18 +85,15 @@ serve(async (req) => {
       console.error("DB insert error:", dbError);
     }
 
-    return new Response(
-      JSON.stringify({
-        link: requisition.link,
-        requisition_id: requisition.id,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({
+      link: requisition.link,
+      requisition_id: requisition.id,
+    });
   } catch (error) {
     console.error("Create requisition error:", error);
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    return jsonResponse(
+      { error: error instanceof Error ? error.message : "Internal server error" },
+      500
     );
   }
 });
