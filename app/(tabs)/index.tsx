@@ -1,7 +1,8 @@
-import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { Sparkles } from "lucide-react-native";
 import { SpendingSummary } from "@/components/dashboard/SpendingSummary";
 import { TrialsEndingSoon } from "@/components/dashboard/TrialsEndingSoon";
 import { UpcomingRenewals } from "@/components/dashboard/UpcomingRenewals";
@@ -11,6 +12,8 @@ import { DashboardSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useInsights } from "@/hooks/useInsights";
 import { useAuth } from "@/hooks/useAuth";
+import { useAutoSync, useDetectedSubscriptions } from "@/hooks/useGoCardless";
+import { useBankStore } from "@/stores/bankStore";
 import { colors, shadows, radius } from "@/lib/theme";
 import type { Subscription } from "@/types/subscription";
 
@@ -26,8 +29,24 @@ export default function DashboardScreen() {
   const { profile } = useAuth();
   const { data: subscriptions, isLoading } = useSubscriptions();
   const insights = useInsights(subscriptions);
+  const { data: detected } = useDetectedSubscriptions();
+  const newDetectedCount = useBankStore((s) => s.newDetectedCount);
+  const runAutoSync = useAutoSync();
+  const autoSyncRan = useRef(false);
 
   const currency = profile?.currency ?? "USD";
+
+  // Auto-sync on mount (once)
+  useEffect(() => {
+    if (!autoSyncRan.current && profile) {
+      autoSyncRan.current = true;
+      runAutoSync();
+    }
+  }, [profile, runAutoSync]);
+
+  const pendingDetected = (detected ?? []).filter((d) => d.status === "pending");
+  const showDetectedBanner = pendingDetected.length > 0 || newDetectedCount > 0;
+  const detectedCount = pendingDetected.length || newDetectedCount;
 
   const chartData = insights.byCategory.map((item) => ({
     category: item.category.name,
@@ -59,6 +78,26 @@ export default function DashboardScreen() {
           </View>
         </View>
 
+        {/* New subscriptions detected banner */}
+        {showDetectedBanner && (
+          <Pressable
+            onPress={() => router.push("/bank/review")}
+            style={({ pressed }) => [s.detectedBanner, pressed && s.pressed]}
+          >
+            <View style={s.detectedIcon}>
+              <Sparkles size={18} color={colors.primary[600]} />
+            </View>
+            <View style={s.detectedInfo}>
+              <Text style={s.detectedTitle}>
+                {detectedCount} new subscription{detectedCount !== 1 ? "s" : ""} found
+              </Text>
+              <Text style={s.detectedSubtitle}>
+                Tap to review and add to your list
+              </Text>
+            </View>
+          </Pressable>
+        )}
+
         <SpendingSummary
           totalMonthly={insights.totalMonthly}
           totalYearly={insights.totalYearly}
@@ -68,7 +107,7 @@ export default function DashboardScreen() {
 
         <QuickActions
           onAddSubscription={() => router.push("/subscription/add")}
-          onConnectBank={() => router.push("/plaid/link")}
+          onConnectBank={() => router.push("/bank/connect")}
         />
 
         <TrialsEndingSoon
@@ -110,4 +149,34 @@ const s = StyleSheet.create({
     color: colors.stone[900],
     marginTop: 2,
   },
+  detectedBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.primary[50],
+    borderRadius: radius.xl,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.primary[200],
+  },
+  detectedIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.white,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
+  },
+  detectedInfo: { flex: 1 },
+  detectedTitle: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.primary[600],
+  },
+  detectedSubtitle: {
+    marginTop: 2,
+    fontSize: 13,
+    color: colors.stone[500],
+  },
+  pressed: { opacity: 0.7 },
 });

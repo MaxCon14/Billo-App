@@ -39,10 +39,20 @@ export interface Database {
         Insert: Omit<import('@/types/subscription').Transaction, 'id' | 'created_at'>;
         Update: Partial<Omit<import('@/types/subscription').Transaction, 'id' | 'created_at'>>;
       };
-      plaid_items: {
-        Row: import('@/types/plaid').PlaidItem;
-        Insert: Omit<import('@/types/plaid').PlaidItem, 'id' | 'created_at'>;
-        Update: Partial<Omit<import('@/types/plaid').PlaidItem, 'id' | 'created_at'>>;
+      connected_banks: {
+        Row: import('@/types/gocardless').ConnectedBank;
+        Insert: Omit<import('@/types/gocardless').ConnectedBank, 'id' | 'created_at'>;
+        Update: Partial<Omit<import('@/types/gocardless').ConnectedBank, 'id' | 'created_at'>>;
+      };
+      bank_transactions: {
+        Row: import('@/types/gocardless').BankTransaction;
+        Insert: Omit<import('@/types/gocardless').BankTransaction, 'id' | 'created_at'>;
+        Update: Partial<Omit<import('@/types/gocardless').BankTransaction, 'id' | 'created_at'>>;
+      };
+      detected_subscriptions: {
+        Row: import('@/types/gocardless').DetectedSubscription;
+        Insert: Omit<import('@/types/gocardless').DetectedSubscription, 'id' | 'created_at'>;
+        Update: Partial<Omit<import('@/types/gocardless').DetectedSubscription, 'id' | 'created_at'>>;
       };
     };
   };

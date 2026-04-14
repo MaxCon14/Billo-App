@@ -31,7 +31,6 @@ export interface Subscription {
   website_url: string | null;
   is_active: boolean;
   auto_detected: boolean;
-  plaid_transaction_id: string | null;
   notes: string | null;
   notify_before_renewal: boolean;
   is_trial: boolean;
@@ -79,7 +78,6 @@ export interface Transaction {
   id: string;
   user_id: string;
   subscription_id: string | null;
-  plaid_transaction_id: string | null;
   amount: number;
   date: string;
   merchant_name: string | null;

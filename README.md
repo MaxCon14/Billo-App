@@ -8,7 +8,7 @@ A subscription tracking and management app built with React Native (Expo), Supab
 - **Subscription Management** — Add, edit, pause, and delete subscriptions with category tagging
 - **Calendar View** — Monthly calendar showing billing dates with day-detail drill-down
 - **Spending Insights** — Category breakdown, spending trends, most expensive rankings
-- **Bank Linking** — Connect bank accounts via Plaid to auto-detect recurring charges
+- **Bank Linking** — Connect bank accounts via GoCardless (PSD2 open banking) to auto-detect recurring charges across the EU and UK
 - **Smart Notifications** — Configurable renewal reminders via push and email
 - **Dark Mode** — Full dark mode support from day one
 
@@ -22,7 +22,7 @@ A subscription tracking and management app built with React Native (Expo), Supab
 | UI Components | shadcn/ui-inspired + react-native-reusables |
 | State | Zustand (client) + TanStack React Query (server) |
 | Backend | Supabase (Postgres, Auth, Edge Functions, RLS) |
-| Bank Linking | Plaid API |
+| Bank Linking | GoCardless Bank Account Data API (PSD2) |
 | Notifications | Expo Notifications + Resend (email) |
 | Icons | Lucide React Native |
 
@@ -34,7 +34,7 @@ A subscription tracking and management app built with React Native (Expo), Supab
 - npm or yarn
 - Expo CLI (`npm install -g expo-cli`)
 - [Supabase account](https://supabase.com)
-- [Plaid developer account](https://plaid.com) (optional, for bank linking)
+- [GoCardless Bank Account Data account](https://bankaccountdata.gocardless.com) (optional, for bank linking — free for EU/UK)
 
 ### Installation
 
@@ -69,12 +69,20 @@ cp .env.example .env
 
 4. Deploy Edge Functions:
    ```bash
-   supabase functions deploy plaid-webhook
-   supabase functions deploy detect-subscriptions
+   supabase functions deploy gocardless-get-token
+   supabase functions deploy gocardless-get-institutions
+   supabase functions deploy gocardless-create-requisition
+   supabase functions deploy gocardless-sync-transactions
    supabase functions deploy send-reminders
    ```
 
-5. Set up the daily reminder CRON job in SQL Editor:
+5. Set the GoCardless secrets for the edge functions:
+   ```bash
+   supabase secrets set GOCARDLESS_SECRET_ID=your_secret_id
+   supabase secrets set GOCARDLESS_SECRET_KEY=your_secret_key
+   ```
+
+6. Set up the daily reminder CRON job in SQL Editor:
    ```sql
    SELECT cron.schedule(
      'daily-reminders',
@@ -105,7 +113,7 @@ npm run web      # Web browser
 │   ├── (auth)/             # Auth screens (login, register, onboarding)
 │   ├── (tabs)/             # Main tab navigation (dashboard, subs, calendar, insights, settings)
 │   ├── subscription/       # Subscription detail + add screens
-│   └── plaid/              # Plaid bank linking flow
+│   └── bank/               # GoCardless bank connection + review flow
 ├── components/
 │   ├── ui/                 # Base UI components (Button, Card, Input, etc.)
 │   ├── subscription/       # Subscription-specific components
@@ -129,9 +137,8 @@ npm run web      # Web browser
 |----------|-------------|
 | `EXPO_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key |
-| `EXPO_PUBLIC_PLAID_CLIENT_ID` | Plaid API client ID |
-| `EXPO_PUBLIC_PLAID_ENV` | Plaid environment (sandbox/development/production) |
-| `PLAID_SECRET` | Plaid API secret (server-side only) |
+| `GOCARDLESS_SECRET_ID` | GoCardless Bank Account Data secret ID (server-side only) |
+| `GOCARDLESS_SECRET_KEY` | GoCardless Bank Account Data secret key (server-side only) |
 | `RESEND_API_KEY` | Resend API key for emails |
 | `EXPO_PUBLIC_LOGO_DEV_API_KEY` | Logo.dev API key |
 | `SENTRY_DSN` | Sentry error tracking DSN |
@@ -139,13 +146,15 @@ npm run web      # Web browser
 
 ## Database Schema
 
-The app uses 6 main tables with Row Level Security enabled:
+The app uses 8 main tables with Row Level Security enabled:
 
 - **profiles** — User preferences (currency, notification settings)
 - **categories** — Subscription categories (9 defaults + custom)
 - **subscriptions** — Core subscription data with billing info
-- **plaid_items** — Linked bank accounts
-- **transactions** — Transaction history for detected subscriptions
+- **connected_banks** — Linked bank accounts via GoCardless requisitions
+- **bank_transactions** — Raw transaction data fetched from GoCardless
+- **detected_subscriptions** — Pending recurring charges awaiting user review
+- **transactions** — Manual transaction history for tracked subscriptions
 - **notifications** — In-app notification log
 
 ## License

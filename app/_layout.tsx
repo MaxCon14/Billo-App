@@ -2,6 +2,7 @@ import React, { useEffect, useCallback, useRef } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, AppState, View, useColorScheme } from "react-native";
+import * as Linking from "expo-linking";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastProvider } from "@/components/ui/toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,6 +10,8 @@ import { useAuthStore } from "@/stores/authStore";
 import { colors, darkColors } from "@/lib/theme";
 import { BiometricLockScreen } from "@/components/BiometricLockScreen";
 import { useBiometricStore } from "@/stores/biometricStore";
+import { useBankStore } from "@/stores/bankStore";
+import { useSyncTransactions } from "@/hooks/useGoCardless";
 import * as LocalAuthentication from "expo-local-authentication";
 
 const queryClient = new QueryClient({
@@ -26,7 +29,7 @@ function BiometricGate({ children }: { children: React.ReactNode }) {
   // Use store directly to avoid creating a second useAuth() instance
   const profile = useAuthStore((s) => s.profile);
   const user = useAuthStore((s) => s.user);
-  const { isLocked, lastBackgroundTime, setLocked, setLastBackgroundTime } = useBiometricStore();
+  const { isLocked, setLocked, setLastBackgroundTime } = useBiometricStore();
   const appState = useRef(AppState.currentState);
   const hasPromptedOnMount = useRef(false);
 
@@ -110,6 +113,56 @@ function BiometricGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/**
+ * Listens for the GoCardless redirect deep link (subtracker://bank-connected)
+ * and triggers the transaction sync, then navigates to the review screen.
+ */
+function BankDeepLinkHandler() {
+  const router = useRouter();
+  const user = useAuthStore((s) => s.user);
+  const pendingRequisitionId = useBankStore((s) => s.pendingRequisitionId);
+  const setPendingRequisitionId = useBankStore((s) => s.setPendingRequisitionId);
+  const syncMutation = useSyncTransactions();
+
+  const handleUrl = useCallback(
+    (url: string) => {
+      if (!user) return;
+      const parsed = Linking.parse(url);
+      if (parsed.hostname !== "bank-connected" && !url.includes("bank-connected")) return;
+
+      const reqId = pendingRequisitionId;
+      if (!reqId) return;
+
+      // Sync transactions, then navigate to review
+      syncMutation.mutate(reqId, {
+        onSuccess: () => {
+          setPendingRequisitionId(null);
+          router.push("/bank/review");
+        },
+        onError: () => {
+          setPendingRequisitionId(null);
+          router.push("/bank/review");
+        },
+      });
+    },
+    [user, pendingRequisitionId, setPendingRequisitionId, router, syncMutation]
+  );
+
+  useEffect(() => {
+    // Handle URL when app is opened via deep link from background
+    const subscription = Linking.addEventListener("url", ({ url }) => handleUrl(url));
+
+    // Handle URL when app is opened from cold start via deep link
+    Linking.getInitialURL().then((url) => {
+      if (url) handleUrl(url);
+    });
+
+    return () => subscription.remove();
+  }, [handleUrl]);
+
+  return null;
+}
+
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isLoading, user } = useAuth();
   const segments = useSegments();
@@ -147,6 +200,7 @@ export default function RootLayout() {
         <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
         <AuthGuard>
           <BiometricGate>
+            <BankDeepLinkHandler />
             <Stack
               screenOptions={{
                 headerShown: false,
@@ -209,10 +263,27 @@ export default function RootLayout() {
                 }}
               />
               <Stack.Screen
-                name="plaid/link"
+                name="bank/connect"
                 options={{
                   headerShown: true,
                   title: "Connect Bank",
+                  headerTintColor: colors.primary[600],
+                  presentation: "modal",
+                  headerStyle: {
+                    backgroundColor: colorScheme === "dark" ? darkColors.bg : colors.stone[50],
+                  },
+                  headerTitleStyle: {
+                    fontWeight: "600",
+                    fontSize: 17,
+                  },
+                  headerShadowVisible: false,
+                }}
+              />
+              <Stack.Screen
+                name="bank/review"
+                options={{
+                  headerShown: true,
+                  title: "Review Subscriptions",
                   headerTintColor: colors.primary[600],
                   presentation: "modal",
                   headerStyle: {
