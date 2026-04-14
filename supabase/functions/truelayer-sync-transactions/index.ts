@@ -1,6 +1,10 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { GC_BASE, corsHeaders, getGoCardlessToken, jsonResponse } from "../_shared/gocardless.ts";
+import {
+  API_BASE,
+  corsHeaders,
+  refreshAccessToken,
+} from "../_shared/truelayer.ts";
 
 // ─── Known subscription merchants for detection ────────────────────────────
 const KNOWN_MERCHANTS = [
@@ -18,7 +22,6 @@ const KNOWN_MERCHANTS = [
   "revolut", "wise", "coinbase", "robinhood",
 ];
 
-// ─── Category hints ─────────────────────────────────────────────────────────
 const CATEGORY_MAP: Record<string, string> = {
   netflix: "Streaming", hulu: "Streaming", disney: "Streaming",
   hbo: "Streaming", paramount: "Streaming", peacock: "Streaming",
@@ -45,14 +48,11 @@ const CATEGORY_MAP: Record<string, string> = {
   revolut: "Finance", wise: "Finance", coinbase: "Finance", robinhood: "Finance",
 };
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
 function normalize(name: string): string {
   return (name || "").toLowerCase().trim().replace(/[^a-z0-9 ]/g, "");
 }
 
 function cleanMerchantName(raw: string): string {
-  // Capitalize first letter of each word, strip noise
   return raw
     .replace(/[*#_\-]+/g, " ")
     .replace(/\s+/g, " ")
@@ -66,7 +66,6 @@ function inferBillingCycle(intervals: number[]): string {
   if (intervals.length === 0) return "monthly";
   const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
   if (avg <= 10) return "weekly";
-  if (avg <= 20) return "monthly"; // bi-weekly treated as monthly in context
   if (avg <= 45) return "monthly";
   if (avg <= 100) return "quarterly";
   if (avg <= 200) return "semi_annual";
@@ -86,11 +85,36 @@ function inferCategory(key: string): string | null {
   return null;
 }
 
+function jsonResponse(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+// ─── TrueLayer transaction shape ───────────────────────────────────────────
+interface TLTransaction {
+  transaction_id: string;
+  timestamp: string;
+  description: string | null;
+  merchant_name?: string | null;
+  amount: number;
+  currency: string;
+  transaction_type?: string;
+  transaction_category?: string;
+}
+
+interface TLAccount {
+  account_id: string;
+  display_name?: string;
+  currency: string;
+}
+
 /**
- * Syncs transactions from GoCardless and runs subscription detection.
+ * Sync transactions from TrueLayer and run subscription detection.
  *
- * Body: { requisition_id: string }
- * Auth: Bearer token from Supabase auth
+ * Body: { bank_id: string }
+ * Auth: Bearer token from Supabase auth (the app user)
  */
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -98,69 +122,114 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
-    // Extract user from auth header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return jsonResponse({ error: "Authorization required" }, 401);
     }
 
-    const { data: { user }, error: authError } = await createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    ).auth.getUser();
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+
+    const {
+      data: { user },
+      error: authError,
+    } = await createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    }).auth.getUser();
 
     if (authError || !user) {
       return jsonResponse({ error: "Unauthorized" }, 401);
     }
 
-    const { requisition_id } = await req.json();
-    if (!requisition_id) {
-      return jsonResponse({ error: "requisition_id required" }, 400);
+    const { bank_id } = await req.json();
+    if (!bank_id) {
+      return jsonResponse({ error: "bank_id required" }, 400);
     }
 
-    // Get bank row
-    const { data: bank } = await supabase
+    const admin = createClient(supabaseUrl, serviceKey);
+
+    const { data: bank, error: bankErr } = await admin
       .from("connected_banks")
       .select("*")
-      .eq("requisition_id", requisition_id)
+      .eq("id", bank_id)
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
-    if (!bank) {
+    if (bankErr || !bank) {
       return jsonResponse({ error: "Bank connection not found" }, 404);
     }
 
-    const token = await getGoCardlessToken();
+    // ─── Ensure we have a valid access token ──────────────────────────────
+    let accessToken: string | null = bank.access_token;
+    let tokenExpiresAt = bank.token_expires_at
+      ? new Date(bank.token_expires_at).getTime()
+      : 0;
 
-    // Fetch requisition to get account IDs
-    const reqRes = await fetch(`${GC_BASE}/requisitions/${requisition_id}/`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const needsRefresh =
+      !accessToken || Date.now() >= tokenExpiresAt - 60_000;
 
-    if (!reqRes.ok) {
-      const err = await reqRes.text();
-      console.error("Requisition fetch error:", err);
-      return jsonResponse({ error: "Failed to fetch requisition", detail: err }, 502);
+    if (needsRefresh) {
+      if (!bank.refresh_token) {
+        await admin
+          .from("connected_banks")
+          .update({ status: "expired" })
+          .eq("id", bank.id);
+        return jsonResponse(
+          { error: "Refresh token missing, please reconnect", bank_status: "expired" },
+          401
+        );
+      }
+      try {
+        const refreshed = await refreshAccessToken(bank.refresh_token);
+        accessToken = refreshed.access_token;
+        tokenExpiresAt = Date.now() + refreshed.expires_in * 1000;
+        await admin
+          .from("connected_banks")
+          .update({
+            access_token: refreshed.access_token,
+            refresh_token: refreshed.refresh_token ?? bank.refresh_token,
+            token_expires_at: new Date(tokenExpiresAt).toISOString(),
+          })
+          .eq("id", bank.id);
+      } catch (err) {
+        console.error("Refresh failed:", err);
+        await admin
+          .from("connected_banks")
+          .update({ status: "expired" })
+          .eq("id", bank.id);
+        return jsonResponse(
+          { error: "Authorization expired, please reconnect", bank_status: "expired" },
+          401
+        );
+      }
     }
 
-    const requisition = await reqRes.json();
-    const accountIds: string[] = requisition.accounts || [];
+    const authHeaders = { Authorization: `Bearer ${accessToken}` };
 
-    if (accountIds.length === 0) {
+    // ─── Fetch accounts ──────────────────────────────────────────────────
+    const accountsRes = await fetch(`${API_BASE}/data/v1/accounts`, {
+      headers: authHeaders,
+    });
+    if (!accountsRes.ok) {
+      const body = await accountsRes.text();
+      console.error("Accounts fetch failed:", body);
       return jsonResponse(
-        { error: "No accounts linked yet. The bank authorization may still be pending." },
+        { error: "Failed to fetch accounts", detail: body },
+        502
+      );
+    }
+    const accountsBody = await accountsRes.json();
+    const accounts: TLAccount[] = accountsBody.results ?? [];
+
+    if (accounts.length === 0) {
+      return jsonResponse(
+        { error: "No accounts available on this connection" },
         422
       );
     }
 
-    // Fetch transactions for each account
-    let totalFetched = 0;
+    // ─── Fetch transactions across all accounts ──────────────────────────
     const allTransactions: Array<{
       transaction_id: string;
       booking_date: string;
@@ -172,35 +241,35 @@ serve(async (req) => {
       raw_data: Record<string, unknown>;
     }> = [];
 
-    for (const accountId of accountIds) {
+    for (const account of accounts) {
       const txnRes = await fetch(
-        `${GC_BASE}/accounts/${accountId}/transactions/`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${API_BASE}/data/v1/accounts/${account.account_id}/transactions`,
+        { headers: authHeaders }
       );
-
       if (!txnRes.ok) {
-        console.error(`Failed to fetch transactions for account ${accountId}`);
+        console.error(
+          `Transactions fetch failed for account ${account.account_id}`
+        );
         continue;
       }
+      const txnBody = await txnRes.json();
+      const txns: TLTransaction[] = txnBody.results ?? [];
 
-      const txnData = await txnRes.json();
-      const booked = txnData?.transactions?.booked || [];
-
-      for (const txn of booked) {
+      for (const txn of txns) {
         allTransactions.push({
-          transaction_id: txn.transactionId || txn.internalTransactionId || crypto.randomUUID(),
-          booking_date: txn.bookingDate || txn.valueDate,
-          amount: parseFloat(txn.transactionAmount?.amount || "0"),
-          currency: txn.transactionAmount?.currency || "EUR",
-          creditor_name: txn.creditorName || null,
-          debtor_name: txn.debtorName || null,
-          description: txn.remittanceInformationUnstructured || txn.additionalInformation || null,
-          raw_data: txn,
+          transaction_id: txn.transaction_id,
+          booking_date: txn.timestamp.split("T")[0],
+          amount: txn.amount,
+          currency: txn.currency ?? account.currency ?? "GBP",
+          creditor_name: txn.merchant_name ?? null,
+          debtor_name: null,
+          description: txn.description,
+          raw_data: txn as unknown as Record<string, unknown>,
         });
       }
     }
 
-    // Upsert transactions into bank_transactions
+    // ─── Upsert into bank_transactions ───────────────────────────────────
     if (allTransactions.length > 0) {
       const rows = allTransactions.map((t) => ({
         user_id: user.id,
@@ -214,38 +283,30 @@ serve(async (req) => {
         description: t.description,
         raw_data: t.raw_data,
       }));
-
-      // Batch upsert in chunks of 500
       for (let i = 0; i < rows.length; i += 500) {
         const chunk = rows.slice(i, i + 500);
-        await supabase
+        await admin
           .from("bank_transactions")
           .upsert(chunk, { onConflict: "transaction_id" });
       }
-      totalFetched = allTransactions.length;
     }
 
-    // Update bank status
+    // ─── Refresh bank status ─────────────────────────────────────────────
     const now = new Date();
-    const expiresAt = new Date(now);
-    expiresAt.setDate(expiresAt.getDate() + 90);
-
-    await supabase
+    const expiresAt = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+    await admin
       .from("connected_banks")
       .update({
         status: "active",
-        connected_at: now.toISOString(),
+        connected_at: bank.connected_at ?? now.toISOString(),
         expires_at: expiresAt.toISOString(),
         last_synced_at: now.toISOString(),
       })
       .eq("id", bank.id);
 
-    // ─── Subscription Detection ───────────────────────────────────────────
-
-    // Group transactions by normalized creditor/description (debits only)
+    // ─── Subscription detection ──────────────────────────────────────────
     const debits = allTransactions.filter((t) => t.amount < 0);
     const grouped = new Map<string, typeof allTransactions>();
-
     for (const txn of debits) {
       const key = normalize(txn.creditor_name || txn.description || "");
       if (!key) continue;
@@ -264,44 +325,49 @@ serve(async (req) => {
     }> = [];
 
     for (const [key, txns] of grouped) {
-      // Sort by date descending
-      txns.sort((a, b) => new Date(b.booking_date).getTime() - new Date(a.booking_date).getTime());
+      txns.sort(
+        (a, b) =>
+          new Date(b.booking_date).getTime() -
+          new Date(a.booking_date).getTime()
+      );
 
       const isKnownMerchant = KNOWN_MERCHANTS.some((m) => key.includes(m));
 
-      // Check recurrence: at least 2 transactions with consistent intervals
-      let isRecurring = false;
       const intervals: number[] = [];
+      let isRecurring = false;
       if (txns.length >= 2) {
         for (let i = 0; i < txns.length - 1; i++) {
           const d1 = new Date(txns[i].booking_date).getTime();
           const d2 = new Date(txns[i + 1].booking_date).getTime();
           intervals.push(Math.abs(d1 - d2) / (1000 * 60 * 60 * 24));
         }
-        // Check if intervals are somewhat consistent (within 40% of avg)
-        const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+        const avgInterval =
+          intervals.reduce((a, b) => a + b, 0) / intervals.length;
         const isConsistentInterval = intervals.every(
           (i) => Math.abs(i - avgInterval) / avgInterval < 0.4
         );
         isRecurring = isConsistentInterval && avgInterval >= 5;
       }
 
-      // Check amount consistency
       const amounts = txns.map((t) => Math.abs(t.amount));
       const avgAmount = amounts.reduce((a, b) => a + b, 0) / amounts.length;
       const isConsistentAmount =
-        amounts.every((a) => Math.abs(a - avgAmount) / avgAmount < 0.05) || amounts.length === 1;
-
+        amounts.every((a) => Math.abs(a - avgAmount) / avgAmount < 0.05) ||
+        amounts.length === 1;
       const isSmallAmount = avgAmount < 150;
 
-      if (isKnownMerchant || (isRecurring && isConsistentAmount && isSmallAmount)) {
+      if (
+        isKnownMerchant ||
+        (isRecurring && isConsistentAmount && isSmallAmount)
+      ) {
         const avgInt =
           intervals.length > 0
             ? intervals.reduce((a, b) => a + b, 0) / intervals.length
             : 30;
-
         candidates.push({
-          name: cleanMerchantName(txns[0].creditor_name || txns[0].description || key),
+          name: cleanMerchantName(
+            txns[0].creditor_name || txns[0].description || key
+          ),
           amount: Math.round(avgAmount * 100) / 100,
           currency: txns[0].currency,
           billing_cycle: inferBillingCycle(intervals),
@@ -312,35 +378,30 @@ serve(async (req) => {
       }
     }
 
-    // Check existing subscriptions to avoid duplicates
-    const { data: existingSubs } = await supabase
+    const { data: existingSubs } = await admin
       .from("subscriptions")
       .select("name")
       .eq("user_id", user.id);
-
     const existingNames = new Set(
-      (existingSubs || []).map((s: { name: string }) => normalize(s.name))
+      (existingSubs ?? []).map((s: { name: string }) => normalize(s.name))
     );
 
-    // Also check existing detected_subscriptions to avoid duplicates
-    const { data: existingDetected } = await supabase
+    const { data: existingDetected } = await admin
       .from("detected_subscriptions")
       .select("name")
       .eq("user_id", user.id)
       .eq("status", "pending");
-
     const existingDetectedNames = new Set(
-      (existingDetected || []).map((s: { name: string }) => normalize(s.name))
+      (existingDetected ?? []).map((s: { name: string }) => normalize(s.name))
     );
 
-    // Insert new detected subscriptions
     const newCandidates = candidates.filter((c) => {
       const norm = normalize(c.name);
       return !existingNames.has(norm) && !existingDetectedNames.has(norm);
     });
 
     if (newCandidates.length > 0) {
-      await supabase.from("detected_subscriptions").insert(
+      await admin.from("detected_subscriptions").insert(
         newCandidates.map((c) => ({
           user_id: user.id,
           bank_id: bank.id,
@@ -357,14 +418,19 @@ serve(async (req) => {
     }
 
     return jsonResponse({
-      transactions_fetched: totalFetched,
+      transactions_fetched: allTransactions.length,
       subscriptions_detected: newCandidates.length,
       bank_status: "active",
     });
   } catch (error) {
     console.error("Sync error:", error);
     return jsonResponse(
-      { error: error instanceof Error ? error.message : "Internal server error" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Internal server error",
+      },
       500
     );
   }

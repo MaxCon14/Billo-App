@@ -21,7 +21,7 @@ import {
   useConnectedBanks,
   useSyncTransactions,
   useDisconnectBank,
-} from "@/hooks/useGoCardless";
+} from "@/hooks/useTrueLayer";
 import { useBankStore } from "@/stores/bankStore";
 import { useToast } from "@/components/ui/toast";
 import { colors, shadows, radius } from "@/lib/theme";
@@ -121,8 +121,8 @@ export default function SettingsScreen() {
     }
   }
 
-  function handleSync(requisitionId: string) {
-    syncMutation.mutate(requisitionId, {
+  function handleSync(bankId: string) {
+    syncMutation.mutate(bankId, {
       onSuccess: (data) => {
         toast(
           data.subscriptions_detected > 0

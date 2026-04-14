@@ -12,7 +12,7 @@ import { DashboardSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useInsights } from "@/hooks/useInsights";
 import { useAuth } from "@/hooks/useAuth";
-import { useAutoSync, useDetectedSubscriptions } from "@/hooks/useGoCardless";
+import { useAutoSync, useDetectedSubscriptions } from "@/hooks/useTrueLayer";
 import { useBankStore } from "@/stores/bankStore";
 import { colors, shadows, radius } from "@/lib/theme";
 import type { Subscription } from "@/types/subscription";

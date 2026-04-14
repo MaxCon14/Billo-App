@@ -10,8 +10,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { colors, darkColors } from "@/lib/theme";
 import { BiometricLockScreen } from "@/components/BiometricLockScreen";
 import { useBiometricStore } from "@/stores/biometricStore";
-import { useBankStore } from "@/stores/bankStore";
-import { useSyncTransactions } from "@/hooks/useGoCardless";
+import { useSyncTransactions } from "@/hooks/useTrueLayer";
 import * as LocalAuthentication from "expo-local-authentication";
 
 const queryClient = new QueryClient({
@@ -114,14 +113,13 @@ function BiometricGate({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * Listens for the GoCardless redirect deep link (subtracker://bank-connected)
- * and triggers the transaction sync, then navigates to the review screen.
+ * Listens for the TrueLayer redirect deep link
+ * (subtracker://bank-connected?bank_id=...) and triggers the transaction sync,
+ * then navigates to the review screen.
  */
 function BankDeepLinkHandler() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
-  const pendingRequisitionId = useBankStore((s) => s.pendingRequisitionId);
-  const setPendingRequisitionId = useBankStore((s) => s.setPendingRequisitionId);
   const syncMutation = useSyncTransactions();
 
   const handleUrl = useCallback(
@@ -130,22 +128,25 @@ function BankDeepLinkHandler() {
       const parsed = Linking.parse(url);
       if (parsed.hostname !== "bank-connected" && !url.includes("bank-connected")) return;
 
-      const reqId = pendingRequisitionId;
-      if (!reqId) return;
+      const bankId = parsed.queryParams?.bank_id;
+      const error = parsed.queryParams?.error;
+
+      if (error || typeof bankId !== "string" || !bankId) {
+        if (error) console.error("Bank connect error:", error);
+        return;
+      }
 
       // Sync transactions, then navigate to review
-      syncMutation.mutate(reqId, {
+      syncMutation.mutate(bankId, {
         onSuccess: () => {
-          setPendingRequisitionId(null);
           router.push("/bank/review");
         },
         onError: () => {
-          setPendingRequisitionId(null);
           router.push("/bank/review");
         },
       });
     },
-    [user, pendingRequisitionId, setPendingRequisitionId, router, syncMutation]
+    [user, router, syncMutation]
   );
 
   useEffect(() => {

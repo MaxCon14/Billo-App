@@ -40,19 +40,48 @@ export interface Database {
         Update: Partial<Omit<import('@/types/subscription').Transaction, 'id' | 'created_at'>>;
       };
       connected_banks: {
-        Row: import('@/types/gocardless').ConnectedBank;
-        Insert: Omit<import('@/types/gocardless').ConnectedBank, 'id' | 'created_at'>;
-        Update: Partial<Omit<import('@/types/gocardless').ConnectedBank, 'id' | 'created_at'>>;
+        Row: import('@/types/truelayer').ConnectedBank;
+        Insert: Omit<import('@/types/truelayer').ConnectedBank, 'id' | 'created_at'>;
+        Update: Partial<Omit<import('@/types/truelayer').ConnectedBank, 'id' | 'created_at'>>;
       };
       bank_transactions: {
-        Row: import('@/types/gocardless').BankTransaction;
-        Insert: Omit<import('@/types/gocardless').BankTransaction, 'id' | 'created_at'>;
-        Update: Partial<Omit<import('@/types/gocardless').BankTransaction, 'id' | 'created_at'>>;
+        Row: import('@/types/truelayer').BankTransaction;
+        Insert: Omit<import('@/types/truelayer').BankTransaction, 'id' | 'created_at'>;
+        Update: Partial<Omit<import('@/types/truelayer').BankTransaction, 'id' | 'created_at'>>;
       };
       detected_subscriptions: {
-        Row: import('@/types/gocardless').DetectedSubscription;
-        Insert: Omit<import('@/types/gocardless').DetectedSubscription, 'id' | 'created_at'>;
-        Update: Partial<Omit<import('@/types/gocardless').DetectedSubscription, 'id' | 'created_at'>>;
+        Row: import('@/types/truelayer').DetectedSubscription;
+        Insert: Omit<import('@/types/truelayer').DetectedSubscription, 'id' | 'created_at'>;
+        Update: Partial<Omit<import('@/types/truelayer').DetectedSubscription, 'id' | 'created_at'>>;
+      };
+      truelayer_pending_auths: {
+        Row: {
+          state: string;
+          user_id: string;
+          provider_id: string;
+          provider_name: string;
+          provider_logo: string | null;
+          provider_country: string | null;
+          created_at: string;
+        };
+        Insert: {
+          state?: string;
+          user_id: string;
+          provider_id: string;
+          provider_name: string;
+          provider_logo?: string | null;
+          provider_country?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<{
+          state: string;
+          user_id: string;
+          provider_id: string;
+          provider_name: string;
+          provider_logo: string | null;
+          provider_country: string | null;
+          created_at: string;
+        }>;
       };
     };
   };

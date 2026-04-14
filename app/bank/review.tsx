@@ -14,12 +14,12 @@ import {
   useDetectedSubscriptions,
   useAcceptDetected,
   useIgnoreDetected,
-} from "@/hooks/useGoCardless";
+} from "@/hooks/useTrueLayer";
 import { useBankStore } from "@/stores/bankStore";
 import { useToast } from "@/components/ui/toast";
 import { Logo } from "@/components/shared/Logo";
 import { colors, shadows, radius } from "@/lib/theme";
-import type { DetectedSubscription } from "@/types/gocardless";
+import type { DetectedSubscription } from "@/types/truelayer";
 
 function formatCurrency(amount: number, currency: string) {
   const symbol = currency === "USD" ? "$" : currency === "EUR" ? "\u20AC" : currency === "GBP" ? "\u00A3" : "";

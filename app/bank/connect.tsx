@@ -10,38 +10,39 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 import { Search, ChevronRight, Globe, Shield } from "lucide-react-native";
-import { useInstitutions, useCreateRequisition } from "@/hooks/useGoCardless";
-import { SUPPORTED_COUNTRIES, type Country, type Institution } from "@/types/gocardless";
+import { useProviders, useConnectBank } from "@/hooks/useTrueLayer";
+import {
+  SUPPORTED_COUNTRIES,
+  type Country,
+  type Provider,
+} from "@/types/truelayer";
 import { colors, shadows, radius } from "@/lib/theme";
 
 export default function BankConnectScreen() {
-  const router = useRouter();
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [search, setSearch] = useState("");
 
-  const { data: institutions, isLoading } = useInstitutions(
-    selectedCountry?.code ?? ""
+  const { data: providers, isLoading, error } = useProviders(
+    selectedCountry?.tlCode ?? ""
   );
 
-  const createRequisition = useCreateRequisition();
+  const connectBank = useConnectBank();
 
-  const filtered = (institutions ?? []).filter((inst) =>
-    inst.name.toLowerCase().includes(search.toLowerCase())
+  const filtered = (providers ?? []).filter((p) =>
+    p.display_name.toLowerCase().includes(search.toLowerCase())
   );
 
-  async function handleSelectInstitution(inst: Institution) {
+  async function handleSelectProvider(provider: Provider) {
     try {
-      await createRequisition.mutateAsync({
-        id: inst.id,
-        name: inst.name,
-        logo: inst.logo,
+      await connectBank.mutateAsync({
+        id: provider.provider_id,
+        name: provider.display_name,
+        logo: provider.logo_url ?? null,
+        country: provider.country ?? selectedCountry?.tlCode ?? null,
       });
-      // After opening the bank auth link, go back. The deep link handler
-      // will pick up the return and navigate to the review screen.
     } catch (err) {
-      console.error("Failed to create requisition:", err);
+      console.error("Failed to create auth link:", err);
     }
   }
 
@@ -55,9 +56,7 @@ export default function BankConnectScreen() {
               <Globe size={32} color={colors.primary[600]} />
             </View>
             <Text style={s.title}>Select Your Country</Text>
-            <Text style={s.subtitle}>
-              Choose where your bank is located
-            </Text>
+            <Text style={s.subtitle}>Choose where your bank is located</Text>
           </View>
 
           <FlatList
@@ -67,10 +66,7 @@ export default function BankConnectScreen() {
             renderItem={({ item }) => (
               <Pressable
                 onPress={() => setSelectedCountry(item)}
-                style={({ pressed }) => [
-                  s.countryRow,
-                  pressed && s.pressed,
-                ]}
+                style={({ pressed }) => [s.countryRow, pressed && s.pressed]}
               >
                 <Text style={s.countryFlag}>{item.flag}</Text>
                 <Text style={s.countryName}>{item.name}</Text>
@@ -84,7 +80,7 @@ export default function BankConnectScreen() {
     );
   }
 
-  // Institution Picker
+  // Provider Picker
   return (
     <SafeAreaView style={s.screen} edges={["bottom"]}>
       <View style={s.container}>
@@ -119,6 +115,13 @@ export default function BankConnectScreen() {
             <ActivityIndicator size="large" color={colors.primary[600]} />
             <Text style={s.loadingText}>Loading banks...</Text>
           </View>
+        ) : error ? (
+          <View style={s.emptyContainer}>
+            <Text style={s.emptyText}>Unable to load banks</Text>
+            <Text style={s.emptySubtext}>
+              Check your connection and try again
+            </Text>
+          </View>
         ) : filtered.length === 0 ? (
           <View style={s.emptyContainer}>
             <Text style={s.emptyText}>No banks found</Text>
@@ -129,39 +132,41 @@ export default function BankConnectScreen() {
         ) : (
           <FlatList
             data={filtered}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.provider_id}
             contentContainerStyle={s.listContent}
             renderItem={({ item }) => (
               <Pressable
-                onPress={() => handleSelectInstitution(item)}
-                disabled={createRequisition.isPending}
+                onPress={() => handleSelectProvider(item)}
+                disabled={connectBank.isPending}
                 style={({ pressed }) => [
                   s.institutionRow,
                   pressed && s.pressed,
                 ]}
               >
-                {item.logo ? (
+                {item.logo_url ? (
                   <Image
-                    source={{ uri: item.logo }}
+                    source={{ uri: item.logo_url }}
                     style={s.instLogo}
                     resizeMode="contain"
                   />
                 ) : (
                   <View style={[s.instLogo, s.instLogoPlaceholder]}>
                     <Text style={s.instLogoInitial}>
-                      {item.name.charAt(0)}
+                      {item.display_name.charAt(0)}
                     </Text>
                   </View>
                 )}
                 <View style={s.instInfo}>
                   <Text style={s.instName} numberOfLines={1}>
-                    {item.name}
+                    {item.display_name}
                   </Text>
                   <Text style={s.instDays}>
-                    {item.transaction_total_days} days of history
+                    {(item.scopes ?? []).includes("transactions")
+                      ? "Transaction history available"
+                      : "Account info only"}
                   </Text>
                 </View>
-                {createRequisition.isPending ? (
+                {connectBank.isPending ? (
                   <ActivityIndicator size="small" color={colors.primary[500]} />
                 ) : (
                   <ChevronRight size={18} color={colors.stone[300]} />
@@ -175,8 +180,8 @@ export default function BankConnectScreen() {
         <View style={s.disclaimer}>
           <Shield size={14} color={colors.stone[400]} />
           <Text style={s.disclaimerText}>
-            Secured by GoCardless with PSD2 open banking. We never store your
-            bank credentials.
+            Secured by TrueLayer with PSD2 open banking. We never see or store
+            your bank credentials.
           </Text>
         </View>
       </View>

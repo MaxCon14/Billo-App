@@ -2,11 +2,11 @@ import React from "react";
 import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { RefreshCw, Unlink, AlertTriangle } from "lucide-react-native";
 import { colors, shadows, radius } from "@/lib/theme";
-import type { ConnectedBank } from "@/types/gocardless";
+import type { ConnectedBank } from "@/types/truelayer";
 
 interface ConnectedBankCardProps {
   bank: ConnectedBank;
-  onSync: (requisitionId: string) => void;
+  onSync: (bankId: string) => void;
   onReconnect: () => void;
   onDisconnect: (bankId: string) => void;
   isSyncing: boolean;
@@ -105,8 +105,8 @@ export function ConnectedBankCard({
           </Pressable>
         ) : (
           <Pressable
-            onPress={() => bank.requisition_id && onSync(bank.requisition_id)}
-            disabled={isSyncing || !bank.requisition_id}
+            onPress={() => onSync(bank.id)}
+            disabled={isSyncing}
             style={({ pressed }) => [
               s.actionBtn,
               s.syncBtn,
