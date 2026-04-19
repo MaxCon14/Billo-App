@@ -129,14 +129,11 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 
-    const {
-      data: { user },
-      error: authError,
-    } = await createClient(supabaseUrl, anonKey, {
+    const admin = createClient(supabaseUrl, serviceKey, {
       global: { headers: { Authorization: authHeader } },
-    }).auth.getUser();
+    });
+    const { data: { user }, error: authError } = await admin.auth.getUser();
 
     if (authError || !user) {
       return jsonResponse({ error: "Unauthorized" }, 401);
@@ -146,8 +143,6 @@ serve(async (req) => {
     if (!bank_id) {
       return jsonResponse({ error: "bank_id required" }, 400);
     }
-
-    const admin = createClient(supabaseUrl, serviceKey);
 
     const { data: bank, error: bankErr } = await admin
       .from("connected_banks")

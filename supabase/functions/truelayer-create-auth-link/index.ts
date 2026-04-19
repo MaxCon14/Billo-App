@@ -34,15 +34,12 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 
-    // Verify the caller.
-    const {
-      data: { user },
-      error: authError,
-    } = await createClient(supabaseUrl, anonKey, {
+    // Use service role client to get the user from the already-verified JWT
+    const admin = createClient(supabaseUrl, serviceKey, {
       global: { headers: { Authorization: authHeader } },
-    }).auth.getUser();
+    });
+    const { data: { user }, error: authError } = await admin.auth.getUser();
 
     if (authError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
