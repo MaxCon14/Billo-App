@@ -121,31 +121,38 @@ export interface TrueLayerProvider {
   scopes?: string[];
 }
 
+// TrueLayer auth URLs use "uk" but the provider list uses ISO "gb".
+const COUNTRY_CODE_MAP: Record<string, string> = { uk: "gb" };
+
 export async function fetchProviders(
   country: string
 ): Promise<TrueLayerProvider[]> {
-  const res = await fetch(`${AUTH_BASE}/api/providers/v3`);
-  if (!res.ok) {
-    // Older endpoint name as a fallback
-    const fallback = await fetch(`${AUTH_BASE}/api/providers`);
-    if (!fallback.ok) {
-      throw new Error(`Providers fetch failed (${res.status})`);
+  // Try base endpoint first, then versioned as fallback
+  let raw: TrueLayerProvider[] | null = null;
+  for (const path of ["/api/providers", "/api/providers/v3"]) {
+    const res = await fetch(`${AUTH_BASE}${path}`);
+    if (res.ok) {
+      const json = await res.json();
+      if (Array.isArray(json)) { raw = json as TrueLayerProvider[]; break; }
     }
-    const raw = (await fallback.json()) as TrueLayerProvider[];
-    return filterByCountry(raw, country);
+    console.warn(`Providers fetch failed for ${path}: ${res.status}`);
   }
-  const raw = (await res.json()) as TrueLayerProvider[];
-  return filterByCountry(raw, country);
+  if (!raw) throw new Error("Failed to fetch providers from TrueLayer");
+  console.log(`Fetched ${raw.length} total providers`);
+  const filtered = filterByCountry(raw, country);
+  console.log(`Filtered to ${filtered.length} providers for country "${country}"`);
+  return filtered;
 }
 
 function filterByCountry(
   providers: TrueLayerProvider[],
   country: string
 ): TrueLayerProvider[] {
-  const needle = country.toLowerCase();
-  return providers
-    .filter((p) => p.country?.toLowerCase() === needle)
-    .filter((p) => (p.scopes ?? []).includes("accounts"));
+  const iso = (COUNTRY_CODE_MAP[country.toLowerCase()] ?? country).toLowerCase();
+  return providers.filter((p) => {
+    const pc = (p.country ?? "").toLowerCase();
+    return pc === iso || pc === country.toLowerCase();
+  });
 }
 
 export const corsHeaders = {
