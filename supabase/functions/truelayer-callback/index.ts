@@ -117,6 +117,7 @@ function htmlResponse(html: string): Response {
 
 function successPage(bankId: string): string {
   const deepLink = `subtracker://bank-connected?bank_id=${encodeURIComponent(bankId)}`;
+  const intentLink = `intent://bank-connected?bank_id=${encodeURIComponent(bankId)}#Intent;scheme=subtracker;package=com.subtracker.app;end`;
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -143,9 +144,12 @@ function successPage(bankId: string): string {
   <div class="spinner"></div>
   <h1>Bank connected</h1>
   <p>Returning you to SubTracker...</p>
-  <a class="btn" href="${deepLink}">Open SubTracker</a>
+  <a class="btn" id="openBtn" href="${deepLink}">Open SubTracker</a>
   <script>
-    setTimeout(function () { window.location.href = ${JSON.stringify(deepLink)}; }, 300);
+    var isAndroid = /Android/i.test(navigator.userAgent);
+    var link = isAndroid ? ${JSON.stringify(intentLink)} : ${JSON.stringify(deepLink)};
+    document.getElementById('openBtn').href = link;
+    setTimeout(function () { window.location.href = link; }, 300);
   </script>
 </body>
 </html>`;
