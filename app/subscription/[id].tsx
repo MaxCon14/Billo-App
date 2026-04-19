@@ -30,7 +30,7 @@ import {
   getMonthlyAmount,
   getYearlyAmount,
 } from "@/lib/utils";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 export default function SubscriptionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -43,7 +43,7 @@ export default function SubscriptionDetailScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={s.centered}>
-        <ActivityIndicator size="large" color={colors.primary[600]} />
+        <ActivityIndicator size="large" color={colors.accent.yellow} />
       </SafeAreaView>
     );
   }
@@ -51,7 +51,7 @@ export default function SubscriptionDetailScreen() {
   if (!subscription) {
     return (
       <SafeAreaView style={s.centered}>
-        <Text style={{ color: colors.stone[400], fontSize: 16 }}>Subscription not found</Text>
+        <Text style={{ color: colors.muted, fontSize: 14, fontFamily: "Syne_400Regular" }}>Subscription not found</Text>
       </SafeAreaView>
     );
   }
@@ -108,14 +108,14 @@ export default function SubscriptionDetailScreen() {
           <View style={s.badgeRow}>
             {subscription.category && (
               <Badge style={{ backgroundColor: subscription.category.color + "20" }}>
-                <Text style={{ color: subscription.category.color, fontSize: 12, fontWeight: "500" }}>
+                <Text style={{ color: subscription.category.color, fontSize: 12, fontFamily: "Syne_400Regular" }}>
                   {subscription.category.name}
                 </Text>
               </Badge>
             )}
             {isTrial ? (
-              <Badge style={{ backgroundColor: colors.amber[100] }}>
-                <Text style={{ fontSize: 12, fontWeight: "600", color: colors.amber[600] }}>
+              <Badge style={{ backgroundColor: colors.surfaceRaised }}>
+                <Text style={{ fontSize: 12, fontFamily: "Syne_600SemiBold", color: colors.accent.yellow }}>
                   {trialDaysLeft !== null && trialDaysLeft <= 0
                     ? "Trial Expired"
                     : trialDaysLeft === 1
@@ -125,7 +125,7 @@ export default function SubscriptionDetailScreen() {
               </Badge>
             ) : (
               <Badge variant={subscription.is_active ? "default" : "secondary"}>
-                <Text style={{ fontSize: 12, fontWeight: "500", color: subscription.is_active ? colors.primary[800] : colors.stone[500] }}>
+                <Text style={{ fontSize: 12, fontFamily: "Syne_400Regular", color: subscription.is_active ? colors.accent.green : colors.muted }}>
                   {subscription.is_active ? "Active" : "Paused"}
                 </Text>
               </Badge>
@@ -137,7 +137,7 @@ export default function SubscriptionDetailScreen() {
         <View style={s.priceRow}>
           <View style={s.priceCard}>
             <View style={s.priceIconCircle}>
-              <DollarSign size={18} color={colors.primary[600]} />
+              <DollarSign size={18} color={colors.accent.yellow} />
             </View>
             <Text style={s.priceLabel}>Per cycle</Text>
             <Text style={s.priceValue}>{formatCurrency(subscription.amount, subscription.currency)}</Text>
@@ -145,7 +145,7 @@ export default function SubscriptionDetailScreen() {
           </View>
           <View style={s.priceCard}>
             <View style={s.priceIconCircle}>
-              <Calendar size={18} color={colors.primary[600]} />
+              <Calendar size={18} color={colors.accent.yellow} />
             </View>
             <Text style={s.priceLabel}>Next billing</Text>
             <Text style={s.priceValue}>{daysUntil === 0 ? "Today" : `${daysUntil}d`}</Text>
@@ -200,12 +200,12 @@ export default function SubscriptionDetailScreen() {
                   onPress={() => Linking.openURL(cancelUrl)}
                   style={({ pressed }) => [s.cancelBtn, pressed && s.cancelBtnPressed]}
                 >
-                  <XCircle size={18} color={colors.red[500]} />
+                  <XCircle size={18} color={colors.destructive} />
                   <Text style={s.cancelBtnText}>Go to Cancellation Page</Text>
                 </Pressable>
               ) : (
                 <View style={s.cancelBtnDisabled}>
-                  <XCircle size={18} color={colors.stone[300]} />
+                  <XCircle size={18} color={colors.muted} />
                   <Text style={s.cancelBtnTextDisabled}>Cancellation page not available</Text>
                 </View>
               )}
@@ -219,8 +219,8 @@ export default function SubscriptionDetailScreen() {
             onPress={() => router.push(`/subscription/edit?id=${subscription.id}`)}
             style={({ pressed }) => [s.actionBtn, s.actionBtnPrimary, pressed && s.actionBtnPressed]}
           >
-            <Edit3 size={18} color={colors.primary[600]} />
-            <Text style={[s.actionBtnText, { color: colors.primary[600] }]}>Edit Subscription</Text>
+            <Edit3 size={18} color={colors.accent.yellow} />
+            <Text style={[s.actionBtnText, { color: colors.accent.yellow }]}>Edit Subscription</Text>
           </Pressable>
 
           <Pressable
@@ -230,13 +230,13 @@ export default function SubscriptionDetailScreen() {
           >
             {subscription.is_active ? (
               <>
-                <Pause size={18} color={colors.stone[500]} />
-                <Text style={[s.actionBtnText, { color: colors.stone[600] }]}>Pause Subscription</Text>
+                <Pause size={18} color={colors.muted} />
+                <Text style={[s.actionBtnText, { color: colors.muted }]}>Pause Subscription</Text>
               </>
             ) : (
               <>
-                <Play size={18} color={colors.primary[600]} />
-                <Text style={[s.actionBtnText, { color: colors.primary[600] }]}>Resume Subscription</Text>
+                <Play size={18} color={colors.accent.yellow} />
+                <Text style={[s.actionBtnText, { color: colors.accent.yellow }]}>Resume Subscription</Text>
               </>
             )}
           </Pressable>
@@ -246,8 +246,8 @@ export default function SubscriptionDetailScreen() {
               onPress={() => Linking.openURL(subscription.website_url!)}
               style={({ pressed }) => [s.actionBtn, s.actionBtnOutline, pressed && s.actionBtnPressed]}
             >
-              <ExternalLink size={18} color={colors.stone[500]} />
-              <Text style={[s.actionBtnText, { color: colors.stone[600] }]}>Visit Website</Text>
+              <ExternalLink size={18} color={colors.muted} />
+              <Text style={[s.actionBtnText, { color: colors.foreground }]}>Visit Website</Text>
             </Pressable>
           )}
 
@@ -256,8 +256,8 @@ export default function SubscriptionDetailScreen() {
             disabled={deleteMutation.isPending}
             style={({ pressed }) => [s.actionBtn, s.actionBtnDestructive, pressed && s.actionBtnDestructivePressed]}
           >
-            <Trash2 size={18} color={colors.white} />
-            <Text style={[s.actionBtnText, { color: colors.white, fontWeight: "600" }]}>Delete</Text>
+            <Trash2 size={18} color={colors.foreground} />
+            <Text style={[s.actionBtnText, { color: colors.foreground, fontFamily: "Syne_700Bold" }]}>Delete</Text>
           </Pressable>
         </View>
       </ScrollView>
@@ -266,8 +266,8 @@ export default function SubscriptionDetailScreen() {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.stone[50] },
-  centered: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.stone[50] },
+  screen: { flex: 1, backgroundColor: colors.background },
+  centered: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.background },
   flex1: { flex: 1 },
   scrollContent: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 32, gap: 20 },
 
@@ -278,14 +278,16 @@ const s = StyleSheet.create({
   },
   name: {
     marginTop: 16,
-    fontSize: 24,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontSize: 28,
+    fontFamily: "Syne_800ExtraBold",
+    letterSpacing: -0.56,
+    color: colors.foreground,
   },
   desc: {
     marginTop: 6,
-    fontSize: 15,
-    color: colors.stone[400],
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
     textAlign: "center",
   },
   badgeRow: {
@@ -304,50 +306,54 @@ const s = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 20,
     paddingHorizontal: 12,
-    backgroundColor: colors.white,
-    borderRadius: radius.xl,
-    ...shadows.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   priceIconCircle: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.primary[50],
+    backgroundColor: colors.surfaceRaised,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 8,
   },
   priceLabel: {
-    fontSize: 13,
-    color: colors.stone[400],
-    fontWeight: "500",
+    fontSize: 11,
+    fontFamily: "Syne_600SemiBold",
+    textTransform: "uppercase",
+    color: colors.muted,
     marginBottom: 4,
   },
   priceValue: {
     fontSize: 22,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontFamily: "Syne_700Bold",
+    color: colors.foreground,
   },
   priceSub: {
     fontSize: 12,
-    color: colors.stone[400],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
     marginTop: 2,
   },
 
   /* Cards */
   card: {
-    backgroundColor: colors.white,
-    borderRadius: radius.xl,
-    padding: 20,
-    ...shadows.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 16,
   },
   sectionTitle: {
     marginBottom: 16,
-    fontSize: 13,
-    fontWeight: "600",
+    fontSize: 11,
+    fontFamily: "Syne_600SemiBold",
     textTransform: "uppercase",
     letterSpacing: 1,
-    color: colors.stone[400],
+    color: colors.muted,
   },
   summaryGap: { gap: 0 },
   summaryRow: {
@@ -357,21 +363,23 @@ const s = StyleSheet.create({
   },
   summaryDivider: {
     height: 1,
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.border,
   },
   summaryLabel: {
-    fontSize: 15,
-    color: colors.stone[500],
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
   summaryValue: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: colors.stone[900],
+    fontSize: 14,
+    fontFamily: "Syne_600SemiBold",
+    color: colors.foreground,
   },
   notesText: {
-    fontSize: 15,
-    color: colors.stone[500],
-    lineHeight: 22,
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
+    lineHeight: 21,
   },
 
   /* Actions */
@@ -381,37 +389,38 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     height: 52,
-    borderRadius: radius.xl,
+    borderRadius: radius.full,
     gap: 10,
   },
   actionBtnPrimary: {
-    backgroundColor: colors.primary[50],
+    backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
-    borderColor: colors.primary[200],
+    borderColor: colors.border,
   },
   actionBtnOutline: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.transparent,
     borderWidth: 1,
-    borderColor: colors.stone[200],
+    borderColor: colors.border,
   },
   actionBtnDestructive: {
-    backgroundColor: colors.red[500],
+    backgroundColor: colors.destructive,
   },
   actionBtnPressed: {
-    opacity: 0.7,
+    opacity: 0.85,
   },
   actionBtnDestructivePressed: {
-    backgroundColor: colors.red[600],
+    opacity: 0.85,
   },
   actionBtnText: {
-    fontSize: 15,
-    fontWeight: "500",
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
   },
 
   /* Cancel */
   cancelNote: {
     fontSize: 13,
-    color: colors.stone[400],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
     marginBottom: 16,
     lineHeight: 18,
   },
@@ -421,18 +430,18 @@ const s = StyleSheet.create({
     justifyContent: "center",
     gap: 10,
     height: 48,
-    borderRadius: radius.lg,
-    backgroundColor: colors.red[50],
+    borderRadius: radius.full,
+    backgroundColor: colors.transparent,
     borderWidth: 1,
-    borderColor: colors.red[200],
+    borderColor: colors.destructive,
   },
   cancelBtnPressed: {
-    backgroundColor: colors.red[100],
+    opacity: 0.85,
   },
   cancelBtnText: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: colors.red[500],
+    fontSize: 14,
+    fontFamily: "Syne_600SemiBold",
+    color: colors.destructive,
   },
   cancelBtnDisabled: {
     flexDirection: "row",
@@ -440,12 +449,14 @@ const s = StyleSheet.create({
     justifyContent: "center",
     gap: 10,
     height: 48,
-    borderRadius: radius.lg,
-    backgroundColor: colors.stone[100],
+    borderRadius: radius.full,
+    backgroundColor: colors.surfaceRaised,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   cancelBtnTextDisabled: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: colors.stone[400],
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
 });

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { colors, radius, shadows } from "@/lib/theme";
+import { colors, radius, typography } from "@/lib/theme";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { BillingCycleSelector } from "./BillingCycleSelector";
@@ -197,6 +197,7 @@ export function SubscriptionForm({
 const styles = StyleSheet.create({
   scroll: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     padding: 16,
@@ -208,30 +209,33 @@ const styles = StyleSheet.create({
   trialRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.amber[50],
+    backgroundColor: colors.surfaceRaised,
     borderRadius: radius.lg,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.amber[200],
+    borderColor: colors.border,
   },
   trialInfo: {
     flex: 1,
   },
   trialLabel: {
+    fontFamily: typography.body.fontFamily,
     fontSize: 15,
     fontWeight: "600",
-    color: colors.stone[900],
+    color: colors.foreground,
   },
   trialHint: {
+    fontFamily: typography.body.fontFamily,
     fontSize: 13,
-    color: colors.stone[400],
+    color: colors.muted,
     marginTop: 2,
   },
   sectionLabel: {
     marginBottom: 10,
-    fontSize: 14,
+    fontFamily: typography.label.fontFamily,
+    fontSize: typography.body.fontSize,
     fontWeight: "600",
-    color: colors.stone[700],
+    color: colors.muted,
   },
   categoryWrap: {
     flexDirection: "row",
@@ -241,22 +245,21 @@ const styles = StyleSheet.create({
   submitButton: {
     marginTop: 8,
     borderRadius: radius.lg,
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.accent.yellow,
     paddingVertical: 16,
     alignItems: "center",
     justifyContent: "center",
-    ...shadows.sm,
   },
   submitPressed: {
     opacity: 0.85,
-    transform: [{ scale: 0.99 }],
   },
   submitDisabled: {
     opacity: 0.5,
   },
   submitText: {
+    fontFamily: "Syne_700Bold",
     fontSize: 16,
     fontWeight: "700",
-    color: colors.white,
+    color: colors.background,
   },
 });

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { formatCurrency, getMonthlyAmount } from "@/lib/utils";
 import type { Subscription } from "@/types/subscription";
 import { Logo } from "@/components/shared/Logo";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 interface MostExpensiveProps {
   subscriptions: Subscription[];
@@ -33,7 +33,7 @@ export function MostExpensive({ subscriptions }: MostExpensiveProps) {
                     {
                       backgroundColor: isMedal
                         ? MEDAL_COLORS[index] + "25"
-                        : colors.stone[100],
+                        : colors.surfaceRaised,
                     },
                   ]}
                 >
@@ -43,7 +43,7 @@ export function MostExpensive({ subscriptions }: MostExpensiveProps) {
                       {
                         color: isMedal
                           ? MEDAL_COLORS[index]
-                          : colors.stone[500],
+                          : colors.muted,
                       },
                     ]}
                   >
@@ -71,22 +71,24 @@ export function MostExpensive({ subscriptions }: MostExpensiveProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.xl,
-    backgroundColor: colors.white,
+    borderRadius: 16,
+    backgroundColor: colors.surface,
     padding: 20,
-    ...shadows.md,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   title: {
+    fontFamily: 'Syne_700Bold',
     fontSize: 18,
-    fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
     marginBottom: 16,
   },
   emptyText: {
     paddingVertical: 20,
     textAlign: "center",
+    fontFamily: 'Syne_400Regular',
     fontSize: 14,
-    color: colors.stone[400],
+    color: colors.muted,
   },
   list: {
     gap: 14,
@@ -105,7 +107,7 @@ const styles = StyleSheet.create({
   },
   rankText: {
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: 'Syne_800ExtraBold',
   },
   info: {
     marginLeft: 14,
@@ -113,19 +115,19 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 15,
-    fontWeight: "600",
-    color: colors.stone[900],
+    fontFamily: 'Syne_700Bold',
+    color: colors.foreground,
     marginBottom: 2,
   },
   cycle: {
     fontSize: 12,
-    fontWeight: "400",
-    color: colors.stone[400],
+    fontFamily: 'Syne_400Regular',
+    color: colors.muted,
   },
   amount: {
     fontSize: 15,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontFamily: 'Syne_700Bold',
+    color: colors.foreground,
     letterSpacing: -0.2,
   },
 });

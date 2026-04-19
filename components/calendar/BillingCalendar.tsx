@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius, typography } from "@/lib/theme";
 import type { Subscription } from "@/types/subscription";
 
 interface BillingCalendarProps {
@@ -50,7 +50,7 @@ export function BillingCalendar({
     if (d.getFullYear() === year && d.getMonth() === month) {
       const day = d.getDate();
       if (!billingDays.has(day)) billingDays.set(day, []);
-      billingDays.get(day)!.push(sub.category?.color ?? colors.primary[500]);
+      billingDays.get(day)!.push(sub.category?.color ?? colors.accent.yellow);
     }
   });
 
@@ -71,11 +71,11 @@ export function BillingCalendar({
     <View style={styles.card}>
       <View style={styles.headerRow}>
         <Pressable onPress={prevMonth} style={styles.navButton}>
-          <ChevronLeft size={20} color={colors.stone[500]} />
+          <ChevronLeft size={20} color={colors.muted} />
         </Pressable>
         <Text style={styles.monthLabel}>{monthLabel}</Text>
         <Pressable onPress={nextMonth} style={styles.navButton}>
-          <ChevronRight size={20} color={colors.stone[500]} />
+          <ChevronRight size={20} color={colors.muted} />
         </Pressable>
       </View>
 
@@ -141,10 +141,11 @@ export function BillingCalendar({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.xl,
-    backgroundColor: colors.white,
-    padding: 20,
-    ...shadows.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   headerRow: {
     marginBottom: 20,
@@ -156,14 +157,15 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: colors.stone[50],
+    backgroundColor: colors.surfaceRaised,
     alignItems: "center",
     justifyContent: "center",
   },
   monthLabel: {
+    fontFamily: "Syne_700Bold",
     fontSize: 17,
     fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
   },
   weekdayRow: {
     flexDirection: "row",
@@ -175,9 +177,10 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   weekdayText: {
-    fontSize: 12,
+    fontFamily: typography.label.fontFamily,
+    fontSize: typography.label.fontSize,
     fontWeight: "600",
-    color: colors.stone[400],
+    color: colors.muted,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
@@ -199,24 +202,25 @@ const styles = StyleSheet.create({
     borderRadius: 22,
   },
   dayCircleSelected: {
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.accent.yellow,
   },
   dayCircleToday: {
     borderWidth: 2,
-    borderColor: colors.primary[200],
+    borderColor: colors.accent.yellow,
   },
   dayText: {
+    fontFamily: typography.body.fontFamily,
     fontSize: 15,
     fontWeight: "500",
-    color: colors.stone[900],
+    color: colors.foreground,
   },
   dayTextSelected: {
     fontWeight: "700",
-    color: colors.white,
+    color: colors.background,
   },
   dayTextToday: {
     fontWeight: "700",
-    color: colors.primary[600],
+    color: colors.accent.yellow,
   },
   dotsRow: {
     position: "absolute",

@@ -23,7 +23,7 @@ export function EmptyState({
   return (
     <View style={[styles.container, styleProp]}>
       <View style={styles.iconWrapper}>
-        {icon || <Inbox size={28} color={colors.stone[400]} />}
+        {icon || <Inbox size={28} color={colors.muted} />}
       </View>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
@@ -55,27 +55,28 @@ const styles = StyleSheet.create({
     height: 64,
     marginBottom: 20,
     borderRadius: 32,
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.surfaceRaised,
     alignItems: "center",
     justifyContent: "center",
   },
   title: {
     marginBottom: 8,
     textAlign: "center",
+    fontFamily: 'Syne_700Bold',
     fontSize: 18,
-    fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
   },
   description: {
     marginBottom: 24,
     textAlign: "center",
+    fontFamily: 'Syne_400Regular',
     fontSize: 14,
-    lineHeight: 20,
-    color: colors.stone[400],
+    lineHeight: 21,
+    color: colors.muted,
   },
   actionButton: {
     borderRadius: radius.full,
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.accent.yellow,
     paddingHorizontal: 24,
     paddingVertical: 12,
   },
@@ -83,8 +84,8 @@ const styles = StyleSheet.create({
     opacity: 0.85,
   },
   actionText: {
+    fontFamily: 'Syne_700Bold',
     fontSize: 15,
-    fontWeight: "600",
-    color: colors.white,
+    color: colors.black,
   },
 });

@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { CreditCard, Fingerprint } from "lucide-react-native";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 interface BiometricLockScreenProps {
   onUnlock: () => void;
@@ -12,7 +12,7 @@ export function BiometricLockScreen({ onUnlock }: BiometricLockScreenProps) {
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoCircle}>
-          <CreditCard size={40} color={colors.white} />
+          <CreditCard size={40} color={colors.black} />
         </View>
         <Text style={styles.appName}>SubTracker</Text>
         <Text style={styles.subtitle}>App is locked</Text>
@@ -24,7 +24,7 @@ export function BiometricLockScreen({ onUnlock }: BiometricLockScreenProps) {
             pressed && styles.unlockBtnPressed,
           ]}
         >
-          <Fingerprint size={24} color={colors.white} />
+          <Fingerprint size={24} color={colors.black} />
           <Text style={styles.unlockText}>Unlock</Text>
         </Pressable>
       </View>
@@ -35,7 +35,7 @@ export function BiometricLockScreen({ onUnlock }: BiometricLockScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.stone[50],
+    backgroundColor: colors.background,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -47,39 +47,38 @@ const styles = StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.accent.yellow,
     alignItems: "center",
     justifyContent: "center",
-    ...shadows.lg,
   },
   appName: {
+    fontFamily: 'Syne_800ExtraBold',
     fontSize: 28,
-    fontWeight: "700",
-    color: colors.stone[900],
+    letterSpacing: -0.56,
+    color: colors.foreground,
     marginTop: 8,
   },
   subtitle: {
+    fontFamily: 'Syne_400Regular',
     fontSize: 16,
-    color: colors.stone[400],
-    fontWeight: "500",
+    color: colors.muted,
     marginBottom: 24,
   },
   unlockBtn: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.accent.yellow,
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: radius.xl,
-    ...shadows.md,
   },
   unlockBtnPressed: {
-    backgroundColor: colors.primary[700],
+    opacity: 0.85,
   },
   unlockText: {
+    fontFamily: 'Syne_700Bold',
     fontSize: 18,
-    fontWeight: "600",
-    color: colors.white,
+    color: colors.black,
   },
 });

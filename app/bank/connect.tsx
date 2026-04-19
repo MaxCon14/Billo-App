@@ -17,7 +17,7 @@ import {
   type Country,
   type Provider,
 } from "@/types/truelayer";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 export default function BankConnectScreen() {
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
@@ -53,7 +53,7 @@ export default function BankConnectScreen() {
         <View style={s.container}>
           <View style={s.header}>
             <View style={s.iconCircle}>
-              <Globe size={32} color={colors.primary[600]} />
+              <Globe size={32} color={colors.accent.yellow} />
             </View>
             <Text style={s.title}>Select Your Country</Text>
             <Text style={s.subtitle}>Choose where your bank is located</Text>
@@ -70,7 +70,7 @@ export default function BankConnectScreen() {
               >
                 <Text style={s.countryFlag}>{item.flag}</Text>
                 <Text style={s.countryName}>{item.name}</Text>
-                <ChevronRight size={18} color={colors.stone[300]} />
+                <ChevronRight size={18} color={colors.muted} />
               </Pressable>
             )}
             ItemSeparatorComponent={() => <View style={s.separator} />}
@@ -98,11 +98,11 @@ export default function BankConnectScreen() {
         </Pressable>
 
         <View style={s.searchBox}>
-          <Search size={18} color={colors.stone[400]} />
+          <Search size={18} color={colors.muted} />
           <TextInput
             style={s.searchInput}
             placeholder="Search banks..."
-            placeholderTextColor={colors.stone[400]}
+            placeholderTextColor={colors.muted}
             value={search}
             onChangeText={setSearch}
             autoCapitalize="none"
@@ -112,7 +112,7 @@ export default function BankConnectScreen() {
 
         {isLoading ? (
           <View style={s.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.primary[600]} />
+            <ActivityIndicator size="large" color={colors.accent.yellow} />
             <Text style={s.loadingText}>Loading banks...</Text>
           </View>
         ) : error ? (
@@ -167,9 +167,9 @@ export default function BankConnectScreen() {
                   </Text>
                 </View>
                 {connectBank.isPending ? (
-                  <ActivityIndicator size="small" color={colors.primary[500]} />
+                  <ActivityIndicator size="small" color={colors.accent.yellow} />
                 ) : (
-                  <ChevronRight size={18} color={colors.stone[300]} />
+                  <ChevronRight size={18} color={colors.muted} />
                 )}
               </Pressable>
             )}
@@ -178,7 +178,7 @@ export default function BankConnectScreen() {
         )}
 
         <View style={s.disclaimer}>
-          <Shield size={14} color={colors.stone[400]} />
+          <Shield size={14} color={colors.muted} />
           <Text style={s.disclaimerText}>
             Secured by TrueLayer with PSD2 open banking. We never see or store
             your bank credentials.
@@ -190,27 +190,30 @@ export default function BankConnectScreen() {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.stone[50] },
+  screen: { flex: 1, backgroundColor: colors.background },
   container: { flex: 1, paddingHorizontal: 20 },
   header: { alignItems: "center", paddingTop: 16, paddingBottom: 24 },
   iconCircle: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: colors.primary[50],
+    backgroundColor: colors.surfaceRaised,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
   },
   title: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontSize: 28,
+    fontFamily: "Syne_800ExtraBold",
+    letterSpacing: -0.56,
+    color: colors.foreground,
   },
   subtitle: {
     marginTop: 6,
-    fontSize: 15,
-    color: colors.stone[400],
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    lineHeight: 21,
+    color: colors.muted,
   },
   listContent: {
     paddingBottom: 16,
@@ -218,10 +221,12 @@ const s = StyleSheet.create({
   countryRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   countryFlag: {
     fontSize: 24,
@@ -230,46 +235,50 @@ const s = StyleSheet.create({
   countryName: {
     flex: 1,
     fontSize: 16,
-    fontWeight: "500",
-    color: colors.stone[900],
+    fontFamily: "Syne_400Regular",
+    color: colors.foreground,
   },
-  pressed: { opacity: 0.7 },
+  pressed: { opacity: 0.85 },
   separator: { height: 2 },
   backBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: colors.primary[50],
+    backgroundColor: colors.surfaceRaised,
     borderRadius: radius.lg,
     paddingVertical: 12,
     paddingHorizontal: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   backText: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: colors.primary[600],
+    fontSize: 14,
+    fontFamily: "Syne_600SemiBold",
+    color: colors.accent.yellow,
   },
   changeText: {
     fontSize: 13,
-    fontWeight: "500",
-    color: colors.primary[500],
+    fontFamily: "Syne_400Regular",
+    color: colors.accent.yellow,
   },
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingHorizontal: 14,
     paddingVertical: 10,
     marginBottom: 12,
     gap: 10,
-    ...shadows.sm,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
-    color: colors.stone[900],
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    color: colors.foreground,
   },
   loadingContainer: {
     flex: 1,
@@ -279,7 +288,8 @@ const s = StyleSheet.create({
   },
   loadingText: {
     fontSize: 14,
-    color: colors.stone[400],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
   emptyContainer: {
     flex: 1,
@@ -289,21 +299,24 @@ const s = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: colors.stone[500],
+    fontFamily: "Syne_600SemiBold",
+    color: colors.muted,
   },
   emptySubtext: {
     marginTop: 4,
     fontSize: 14,
-    color: colors.stone[400],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
   institutionRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     paddingVertical: 14,
     paddingHorizontal: 14,
     borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   instLogo: {
     width: 40,
@@ -312,25 +325,26 @@ const s = StyleSheet.create({
     marginRight: 14,
   },
   instLogoPlaceholder: {
-    backgroundColor: colors.stone[200],
+    backgroundColor: colors.surfaceRaised,
     alignItems: "center",
     justifyContent: "center",
   },
   instLogoInitial: {
     fontSize: 18,
-    fontWeight: "700",
-    color: colors.stone[500],
+    fontFamily: "Syne_700Bold",
+    color: colors.muted,
   },
   instInfo: { flex: 1 },
   instName: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: colors.stone[900],
+    fontSize: 14,
+    fontFamily: "Syne_600SemiBold",
+    color: colors.foreground,
   },
   instDays: {
     marginTop: 2,
     fontSize: 12,
-    color: colors.stone[400],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
   disclaimer: {
     flexDirection: "row",
@@ -342,7 +356,8 @@ const s = StyleSheet.create({
   disclaimerText: {
     flex: 1,
     fontSize: 12,
-    color: colors.stone[400],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
     lineHeight: 16,
   },
 });

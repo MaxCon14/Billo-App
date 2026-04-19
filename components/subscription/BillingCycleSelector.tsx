@@ -1,6 +1,6 @@
 import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { colors, radius } from "@/lib/theme";
+import { colors, radius, typography } from "@/lib/theme";
 import { BILLING_CYCLES } from "@/lib/constants";
 import type { BillingCycle } from "@/types/subscription";
 
@@ -51,13 +51,14 @@ export function BillingCycleSelector({ value, onChange }: BillingCycleSelectorPr
 
 const styles = StyleSheet.create({
   pressed: {
-    opacity: 0.7,
+    opacity: 0.85,
   },
   label: {
     marginBottom: 10,
-    fontSize: 14,
+    fontFamily: typography.label.fontFamily,
+    fontSize: typography.body.fontSize,
     fontWeight: "600",
-    color: colors.stone[700],
+    color: colors.muted,
   },
   row: {
     flexDirection: "row",
@@ -69,19 +70,20 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   chipSelected: {
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.accent.yellow,
   },
   chipUnselected: {
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.surfaceRaised,
   },
   chipText: {
-    fontSize: 14,
+    fontFamily: typography.label.fontFamily,
+    fontSize: typography.body.fontSize,
     fontWeight: "600",
   },
   chipTextSelected: {
-    color: colors.white,
+    color: colors.background,
   },
   chipTextUnselected: {
-    color: colors.stone[600],
+    color: colors.muted,
   },
 });

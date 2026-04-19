@@ -39,7 +39,7 @@ export default function EditSubscriptionScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.centered}>
-        <ActivityIndicator size="large" color={colors.primary[600]} />
+        <ActivityIndicator size="large" color={colors.accent.yellow} />
       </SafeAreaView>
     );
   }
@@ -47,7 +47,7 @@ export default function EditSubscriptionScreen() {
   if (!subscription) {
     return (
       <SafeAreaView style={styles.centered}>
-        <ActivityIndicator size="large" color={colors.primary[600]} />
+        <ActivityIndicator size="large" color={colors.accent.yellow} />
       </SafeAreaView>
     );
   }
@@ -84,12 +84,12 @@ export default function EditSubscriptionScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.stone[50],
+    backgroundColor: colors.background,
   },
   centered: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.stone[50],
+    backgroundColor: colors.background,
   },
 });

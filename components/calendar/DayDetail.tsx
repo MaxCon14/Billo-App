@@ -5,7 +5,7 @@ import type { Subscription } from "@/types/subscription";
 import { Logo } from "@/components/shared/Logo";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CalendarOff } from "lucide-react-native";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius, typography } from "@/lib/theme";
 
 interface DayDetailProps {
   date: Date;
@@ -24,7 +24,7 @@ export function DayDetail({ date, subscriptions, onSubscriptionPress }: DayDetai
         <EmptyState
           title="No bills due"
           description="Nothing scheduled for this day."
-          icon={<CalendarOff size={24} color={colors.stone[400]} />}
+          icon={<CalendarOff size={24} color={colors.muted} />}
           style={{ paddingVertical: 24 }}
         />
       ) : (
@@ -68,49 +68,53 @@ export function DayDetail({ date, subscriptions, onSubscriptionPress }: DayDetai
 const styles = StyleSheet.create({
   card: {
     marginTop: 16,
-    borderRadius: radius.xl,
-    backgroundColor: colors.white,
-    padding: 20,
-    ...shadows.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   dateLabel: {
     marginBottom: 16,
+    fontFamily: "Syne_700Bold",
     fontSize: 16,
     fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
   },
   list: {
     gap: 0,
   },
   pressed: {
-    opacity: 0.7,
+    opacity: 0.85,
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
+    height: 56,
   },
   rowSeparator: {
     height: 1,
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.border,
     marginLeft: 54,
   },
   subName: {
     marginLeft: 14,
     flex: 1,
+    fontFamily: typography.body.fontFamily,
     fontSize: 15,
     fontWeight: "600",
-    color: colors.stone[900],
+    color: colors.foreground,
   },
   subAmount: {
+    fontFamily: "Syne_700Bold",
     fontSize: 15,
     fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
   },
   totalBar: {
     marginTop: 16,
     borderTopWidth: 1,
-    borderTopColor: colors.stone[200],
+    borderTopColor: colors.border,
     paddingTop: 16,
   },
   totalRow: {
@@ -119,14 +123,16 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   totalLabel: {
+    fontFamily: typography.body.fontFamily,
     fontSize: 15,
     fontWeight: "600",
-    color: colors.stone[400],
+    color: colors.muted,
   },
   totalAmount: {
+    fontFamily: typography.heading.fontFamily,
     fontSize: 18,
     fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.accent.yellow,
     letterSpacing: -0.3,
   },
 });

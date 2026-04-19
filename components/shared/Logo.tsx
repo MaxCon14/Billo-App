@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Image, type ImageStyle, StyleSheet, Text, View, type ViewStyle } from "react-native";
-import { colors, shadows } from "@/lib/theme";
+import { colors } from "@/lib/theme";
 import { getLogoUrl, getFallbackLogoUrl } from "@/lib/logoService";
 
 interface LogoProps {
@@ -13,13 +13,13 @@ interface LogoProps {
 
 function hashToColor(str: string): string {
   const palette = [
-    colors.primary[500],
-    colors.red[500],
-    colors.green[500],
-    colors.amber[500],
+    colors.accent.yellow,
+    colors.destructive,
+    colors.accent.green,
+    colors.accent.yellow,
     "#0D9488",
     "#8B5CF6",
-    "#EC4899",
+    colors.accent.pink,
     "#F97316",
     "#06B6D4",
     "#6366F1",
@@ -56,7 +56,6 @@ export function Logo({ name, logoUrl, websiteUrl, size = 40, style: styleProp }:
             borderRadius: size / 2,
             overflow: "hidden",
           },
-          shadows.sm,
           styleProp,
         ]}
       >
@@ -67,7 +66,7 @@ export function Logo({ name, logoUrl, websiteUrl, size = 40, style: styleProp }:
               width: size,
               height: size,
               borderRadius: size / 2,
-              backgroundColor: colors.stone[100],
+              backgroundColor: colors.surfaceRaised,
             } as ImageStyle
           }
           onError={() => setImgError(true)}
@@ -86,7 +85,6 @@ export function Logo({ name, logoUrl, websiteUrl, size = 40, style: styleProp }:
             borderRadius: size / 2,
             overflow: "hidden",
           },
-          shadows.sm,
           styleProp,
         ]}
       >
@@ -97,7 +95,7 @@ export function Logo({ name, logoUrl, websiteUrl, size = 40, style: styleProp }:
               width: size,
               height: size,
               borderRadius: size / 2,
-              backgroundColor: colors.stone[100],
+              backgroundColor: colors.surfaceRaised,
             } as ImageStyle
           }
           onError={() => setFallbackError(true)}
@@ -116,7 +114,6 @@ export function Logo({ name, logoUrl, websiteUrl, size = 40, style: styleProp }:
           borderRadius: size / 2,
           backgroundColor: bgColor,
         },
-        shadows.sm,
         styleProp,
       ]}
     >
@@ -133,7 +130,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   initial: {
-    fontWeight: "700",
+    fontFamily: 'Syne_700Bold',
     color: colors.white,
     textAlign: "center",
   },

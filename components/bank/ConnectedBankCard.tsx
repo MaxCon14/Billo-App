@@ -1,7 +1,7 @@
 import React from "react";
 import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { RefreshCw, Unlink, AlertTriangle } from "lucide-react-native";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 import type { ConnectedBank } from "@/types/truelayer";
 
 interface ConnectedBankCardProps {
@@ -14,10 +14,10 @@ interface ConnectedBankCardProps {
 
 function getStatusInfo(bank: ConnectedBank) {
   if (bank.status === "expired") {
-    return { label: "Expired", color: colors.red[500], bgColor: colors.red[50] };
+    return { label: "Expired", color: colors.destructive, bgColor: colors.surfaceRaised };
   }
   if (bank.status === "pending") {
-    return { label: "Pending", color: colors.amber[500], bgColor: colors.amber[50] };
+    return { label: "Pending", color: colors.accent.yellow, bgColor: colors.surfaceRaised };
   }
   // Check if expiring within 14 days
   if (bank.expires_at) {
@@ -25,17 +25,17 @@ function getStatusInfo(bank: ConnectedBank) {
       (new Date(bank.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
     );
     if (daysUntilExpiry <= 0) {
-      return { label: "Expired", color: colors.red[500], bgColor: colors.red[50] };
+      return { label: "Expired", color: colors.destructive, bgColor: colors.surfaceRaised };
     }
     if (daysUntilExpiry <= 14) {
       return {
         label: `Expires in ${daysUntilExpiry}d`,
-        color: colors.amber[500],
-        bgColor: colors.amber[50],
+        color: colors.accent.yellow,
+        bgColor: colors.surfaceRaised,
       };
     }
   }
-  return { label: "Connected", color: colors.green[500], bgColor: colors.green[50] };
+  return { label: "Connected", color: colors.accent.green, bgColor: colors.surfaceRaised };
 }
 
 export function ConnectedBankCard({
@@ -100,7 +100,7 @@ export function ConnectedBankCard({
             onPress={onReconnect}
             style={({ pressed }) => [s.actionBtn, s.reconnectBtn, pressed && s.pressed]}
           >
-            <AlertTriangle size={14} color={colors.amber[600]} />
+            <AlertTriangle size={14} color={colors.accent.yellow} />
             <Text style={s.reconnectText}>Reconnect</Text>
           </Pressable>
         ) : (
@@ -114,7 +114,7 @@ export function ConnectedBankCard({
               isSyncing && s.disabled,
             ]}
           >
-            <RefreshCw size={14} color={colors.primary[600]} />
+            <RefreshCw size={14} color={colors.accent.yellow} />
             <Text style={s.syncBtnText}>
               {isSyncing ? "Syncing..." : "Sync Now"}
             </Text>
@@ -124,7 +124,7 @@ export function ConnectedBankCard({
           onPress={handleDisconnect}
           style={({ pressed }) => [s.actionBtn, s.disconnectBtn, pressed && s.pressed]}
         >
-          <Unlink size={14} color={colors.red[500]} />
+          <Unlink size={14} color={colors.destructive} />
           <Text style={s.disconnectText}>Disconnect</Text>
         </Pressable>
       </View>
@@ -134,10 +134,11 @@ export function ConnectedBankCard({
 
 const s = StyleSheet.create({
   card: {
-    backgroundColor: colors.white,
-    borderRadius: radius.xl,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
     padding: 16,
-    ...shadows.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   row: {
     flexDirection: "row",
@@ -150,25 +151,26 @@ const s = StyleSheet.create({
     marginRight: 12,
   },
   logoPlaceholder: {
-    backgroundColor: colors.stone[200],
+    backgroundColor: colors.surfaceRaised,
     alignItems: "center",
     justifyContent: "center",
   },
   logoInitial: {
     fontSize: 18,
-    fontWeight: "700",
-    color: colors.stone[500],
+    fontFamily: 'Syne_700Bold',
+    color: colors.muted,
   },
   info: { flex: 1 },
   name: {
     fontSize: 15,
-    fontWeight: "600",
-    color: colors.stone[900],
+    fontFamily: 'Syne_700Bold',
+    color: colors.foreground,
   },
   syncText: {
     marginTop: 2,
     fontSize: 12,
-    color: colors.stone[400],
+    fontFamily: 'Syne_400Regular',
+    color: colors.muted,
   },
   badge: {
     paddingHorizontal: 8,
@@ -176,8 +178,9 @@ const s = StyleSheet.create({
     borderRadius: 8,
   },
   badgeText: {
+    fontFamily: 'Syne_600SemiBold',
     fontSize: 11,
-    fontWeight: "600",
+    textTransform: 'uppercase',
   },
   actions: {
     flexDirection: "row",
@@ -185,7 +188,7 @@ const s = StyleSheet.create({
     marginTop: 14,
     paddingTop: 14,
     borderTopWidth: 1,
-    borderTopColor: colors.stone[100],
+    borderTopColor: colors.border,
   },
   actionBtn: {
     flexDirection: "row",
@@ -198,31 +201,31 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   syncBtn: {
-    backgroundColor: colors.primary[50],
+    backgroundColor: colors.surfaceRaised,
   },
   syncBtnText: {
     fontSize: 13,
-    fontWeight: "500",
-    color: colors.primary[600],
+    fontFamily: 'Syne_600SemiBold',
+    color: colors.accent.yellow,
   },
   reconnectBtn: {
-    backgroundColor: colors.amber[50],
+    backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
-    borderColor: colors.amber[200],
+    borderColor: colors.border,
   },
   reconnectText: {
     fontSize: 13,
-    fontWeight: "500",
-    color: colors.amber[600],
+    fontFamily: 'Syne_600SemiBold',
+    color: colors.accent.yellow,
   },
   disconnectBtn: {
-    backgroundColor: colors.red[50],
+    backgroundColor: colors.surfaceRaised,
   },
   disconnectText: {
     fontSize: 13,
-    fontWeight: "500",
-    color: colors.red[500],
+    fontFamily: 'Syne_600SemiBold',
+    color: colors.destructive,
   },
-  pressed: { opacity: 0.7 },
+  pressed: { opacity: 0.85 },
   disabled: { opacity: 0.5 },
 });

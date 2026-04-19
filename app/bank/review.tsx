@@ -18,7 +18,7 @@ import {
 import { useBankStore } from "@/stores/bankStore";
 import { useToast } from "@/components/ui/toast";
 import { Logo } from "@/components/shared/Logo";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 import type { DetectedSubscription } from "@/types/truelayer";
 
 function formatCurrency(amount: number, currency: string) {
@@ -81,7 +81,7 @@ export default function ReviewDetectedScreen() {
     return (
       <SafeAreaView style={s.screen} edges={["bottom"]}>
         <View style={s.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary[600]} />
+          <ActivityIndicator size="large" color={colors.accent.yellow} />
           <Text style={s.loadingText}>Scanning transactions...</Text>
         </View>
       </SafeAreaView>
@@ -93,7 +93,7 @@ export default function ReviewDetectedScreen() {
       <SafeAreaView style={s.screen} edges={["bottom"]}>
         <View style={s.emptyContainer}>
           <View style={s.emptyIcon}>
-            <Sparkles size={40} color={colors.primary[500]} />
+            <Sparkles size={40} color={colors.accent.yellow} />
           </View>
           <Text style={s.emptyTitle}>All caught up!</Text>
           <Text style={s.emptySubtitle}>
@@ -115,7 +115,7 @@ export default function ReviewDetectedScreen() {
       <View style={s.container}>
         <View style={s.header}>
           <View style={s.headerIcon}>
-            <Sparkles size={24} color={colors.primary[600]} />
+            <Sparkles size={24} color={colors.accent.yellow} />
           </View>
           <Text style={s.headerTitle}>
             We found {pending.length} subscription{pending.length !== 1 ? "s" : ""}
@@ -130,7 +130,7 @@ export default function ReviewDetectedScreen() {
             onPress={handleAddAll}
             style={({ pressed }) => [s.addAllBtn, pressed && s.pressed]}
           >
-            <Plus size={16} color={colors.white} />
+            <Plus size={16} color={colors.background} />
             <Text style={s.addAllText}>Add All ({pending.length})</Text>
           </Pressable>
         )}
@@ -164,7 +164,7 @@ export default function ReviewDetectedScreen() {
                     pressed && s.pressed,
                   ]}
                 >
-                  <Check size={18} color={colors.white} strokeWidth={3} />
+                  <Check size={18} color={colors.background} strokeWidth={3} />
                 </Pressable>
                 <Pressable
                   onPress={() => handleIgnore(item)}
@@ -174,7 +174,7 @@ export default function ReviewDetectedScreen() {
                     pressed && s.pressed,
                   ]}
                 >
-                  <X size={18} color={colors.stone[500]} strokeWidth={2.5} />
+                  <X size={18} color={colors.muted} strokeWidth={2.5} />
                 </Pressable>
               </View>
             </View>
@@ -194,7 +194,7 @@ export default function ReviewDetectedScreen() {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.stone[50] },
+  screen: { flex: 1, backgroundColor: colors.background },
   container: { flex: 1, paddingHorizontal: 20 },
   loadingContainer: {
     flex: 1,
@@ -203,8 +203,9 @@ const s = StyleSheet.create({
     gap: 12,
   },
   loadingText: {
-    fontSize: 15,
-    color: colors.stone[400],
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
   emptyContainer: {
     flex: 1,
@@ -216,22 +217,24 @@ const s = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: colors.primary[50],
+    backgroundColor: colors.surfaceRaised,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 20,
   },
   emptyTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontSize: 28,
+    fontFamily: "Syne_800ExtraBold",
+    letterSpacing: -0.56,
+    color: colors.foreground,
     marginBottom: 8,
   },
   emptySubtitle: {
-    fontSize: 15,
-    color: colors.stone[400],
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
     textAlign: "center",
-    lineHeight: 22,
+    lineHeight: 21,
     marginBottom: 32,
   },
   header: {
@@ -243,36 +246,36 @@ const s = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: colors.primary[50],
+    backgroundColor: colors.surfaceRaised,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 12,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontFamily: "Syne_700Bold",
+    color: colors.foreground,
   },
   headerSubtitle: {
     marginTop: 4,
     fontSize: 14,
-    color: colors.stone[400],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
   addAllBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    backgroundColor: colors.primary[600],
-    borderRadius: radius.lg,
+    backgroundColor: colors.accent.yellow,
+    borderRadius: radius.full,
     paddingVertical: 12,
     marginBottom: 16,
-    ...shadows.sm,
   },
   addAllText: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: colors.white,
+    fontSize: 14,
+    fontFamily: "Syne_700Bold",
+    color: colors.background,
   },
   listContent: {
     paddingBottom: 16,
@@ -280,30 +283,33 @@ const s = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.white,
-    borderRadius: radius.xl,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: 16,
-    ...shadows.sm,
   },
   cardInfo: {
     flex: 1,
     marginLeft: 14,
   },
   cardName: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: colors.stone[900],
+    fontSize: 14,
+    fontFamily: "Syne_600SemiBold",
+    color: colors.foreground,
   },
   cardMeta: {
     marginTop: 3,
     fontSize: 13,
-    color: colors.stone[500],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
   cardCategory: {
     marginTop: 2,
     fontSize: 11,
-    color: colors.primary[500],
-    fontWeight: "500",
+    fontFamily: "Syne_600SemiBold",
+    textTransform: "uppercase",
+    color: colors.accent.yellow,
   },
   cardActions: {
     flexDirection: "row",
@@ -318,23 +324,24 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   acceptBtn: {
-    backgroundColor: colors.green[500],
+    backgroundColor: colors.accent.green,
   },
   ignoreBtn: {
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.surfaceRaised,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  pressed: { opacity: 0.7 },
+  pressed: { opacity: 0.85 },
   doneBtn: {
-    backgroundColor: colors.primary[600],
-    borderRadius: radius.lg,
+    backgroundColor: colors.accent.yellow,
+    borderRadius: radius.full,
     paddingVertical: 16,
     alignItems: "center",
     marginBottom: 16,
-    ...shadows.sm,
   },
   doneBtnText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: colors.white,
+    fontFamily: "Syne_700Bold",
+    color: colors.background,
   },
 });

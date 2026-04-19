@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { formatCurrency } from "@/lib/utils";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 interface TrendData {
   month: string;
@@ -38,8 +38,8 @@ export function SpendingTrend({ data }: SpendingTrendProps) {
                     {
                       height: Math.max(barHeight, 4),
                       backgroundColor: isLast
-                        ? colors.primary[500]
-                        : colors.primary[200],
+                        ? colors.accent.yellow
+                        : colors.surfaceRaised,
                     },
                   ]}
                 />
@@ -57,22 +57,24 @@ export function SpendingTrend({ data }: SpendingTrendProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.xl,
-    backgroundColor: colors.white,
+    borderRadius: 16,
+    backgroundColor: colors.surface,
     padding: 20,
-    ...shadows.md,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   title: {
+    fontFamily: 'Syne_700Bold',
     fontSize: 18,
-    fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
     marginBottom: 16,
   },
   emptyText: {
     paddingVertical: 20,
     textAlign: "center",
+    fontFamily: 'Syne_400Regular',
     fontSize: 14,
-    color: colors.stone[400],
+    color: colors.muted,
   },
   barsRow: {
     flexDirection: "row",
@@ -85,13 +87,13 @@ const styles = StyleSheet.create({
   },
   barLabel: {
     marginBottom: 6,
+    fontFamily: 'Syne_600SemiBold',
     fontSize: 11,
-    fontWeight: "600",
-    color: colors.stone[400],
+    color: colors.muted,
   },
   barLabelCurrent: {
-    color: colors.primary[600],
-    fontWeight: "700",
+    color: colors.accent.yellow,
+    fontFamily: 'Syne_700Bold',
   },
   bar: {
     width: 28,
@@ -100,12 +102,12 @@ const styles = StyleSheet.create({
   },
   monthLabel: {
     marginTop: 10,
+    fontFamily: 'Syne_400Regular',
     fontSize: 12,
-    fontWeight: "500",
-    color: colors.stone[400],
+    color: colors.muted,
   },
   monthLabelCurrent: {
-    color: colors.primary[600],
-    fontWeight: "700",
+    color: colors.accent.yellow,
+    fontFamily: 'Syne_700Bold',
   },
 });

@@ -40,6 +40,6 @@ export default function AddSubscriptionScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.stone[50],
+    backgroundColor: colors.background,
   },
 });

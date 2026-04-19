@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Skeleton } from "@/components/ui/skeleton";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 export function SubscriptionCardSkeleton() {
   return (
@@ -49,10 +49,11 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: radius.xl,
-    backgroundColor: colors.white,
+    borderRadius: 16,
+    backgroundColor: colors.surface,
     padding: 16,
-    ...shadows.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   cardMiddle: {
     marginLeft: 14,

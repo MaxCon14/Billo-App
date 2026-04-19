@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { formatCurrency } from "@/lib/utils";
 import type { Category } from "@/types/subscription";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 interface CategoryData {
   category: Category;
@@ -67,22 +67,24 @@ export function SpendingByCategory({ data }: SpendingByCategoryProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.xl,
-    backgroundColor: colors.white,
+    borderRadius: 16,
+    backgroundColor: colors.surface,
     padding: 20,
-    ...shadows.md,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   title: {
+    fontFamily: 'Syne_700Bold',
     fontSize: 18,
-    fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
     marginBottom: 16,
   },
   emptyText: {
     paddingVertical: 20,
     textAlign: "center",
+    fontFamily: 'Syne_400Regular',
     fontSize: 14,
-    color: colors.stone[400],
+    color: colors.muted,
   },
   list: {
     gap: 16,
@@ -106,9 +108,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   categoryName: {
+    fontFamily: 'Syne_700Bold',
     fontSize: 14,
-    fontWeight: "600",
-    color: colors.stone[700],
+    color: colors.foreground,
   },
   valueRow: {
     flexDirection: "row",
@@ -116,20 +118,20 @@ const styles = StyleSheet.create({
   },
   percentage: {
     marginRight: 10,
+    fontFamily: 'Syne_400Regular',
     fontSize: 13,
-    fontWeight: "500",
-    color: colors.stone[400],
+    color: colors.muted,
   },
   amount: {
+    fontFamily: 'Syne_700Bold',
     fontSize: 14,
-    fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
   },
   barTrack: {
     height: 6,
     overflow: "hidden",
     borderRadius: radius.full,
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.surfaceRaised,
   },
   barFill: {
     height: "100%",

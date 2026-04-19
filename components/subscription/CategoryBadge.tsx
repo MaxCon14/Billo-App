@@ -1,6 +1,6 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, radius } from "@/lib/theme";
+import { colors, radius, typography } from "@/lib/theme";
 import type { Category } from "@/types/subscription";
 
 interface CategoryBadgeProps {
@@ -20,8 +20,8 @@ export function CategoryBadge({ category, selected, onPress }: CategoryBadgeProp
           styles.badge,
           selected
             ? {
-                backgroundColor: colors.primary[50],
-                borderColor: colors.primary[600],
+                backgroundColor: colors.accent.yellow,
+                borderColor: colors.accent.yellow,
               }
             : styles.badgeUnselected,
         ]}
@@ -42,7 +42,7 @@ export function CategoryBadge({ category, selected, onPress }: CategoryBadgeProp
 
 const styles = StyleSheet.create({
   pressed: {
-    opacity: 0.7,
+    opacity: 0.85,
   },
   badge: {
     flexDirection: "row",
@@ -53,8 +53,8 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
   badgeUnselected: {
-    borderColor: colors.stone[200],
-    backgroundColor: colors.stone[50],
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceRaised,
   },
   dot: {
     marginRight: 8,
@@ -63,13 +63,14 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   label: {
+    fontFamily: typography.body.fontFamily,
     fontSize: 13,
     fontWeight: "500",
   },
   labelSelected: {
-    color: colors.primary[600],
+    color: colors.background,
   },
   labelUnselected: {
-    color: colors.stone[600],
+    color: colors.muted,
   },
 });
