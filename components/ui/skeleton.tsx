@@ -44,7 +44,7 @@ Skeleton.displayName = "Skeleton";
 
 const styles = StyleSheet.create({
   base: {
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.surface,
   },
 });
 

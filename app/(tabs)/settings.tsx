@@ -24,7 +24,7 @@ import {
 } from "@/hooks/useTrueLayer";
 import { useBankStore } from "@/stores/bankStore";
 import { useToast } from "@/components/ui/toast";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 import * as LocalAuthentication from "expo-local-authentication";
 
 interface SettingsItemProps {
@@ -44,7 +44,7 @@ function SettingsItem({ icon, title, subtitle, onPress, trailing }: SettingsItem
           <Text style={s.itemTitle}>{title}</Text>
           {subtitle && <Text style={s.itemSubtitle}>{subtitle}</Text>}
         </View>
-        {trailing || <ChevronRight size={18} color={colors.stone[300]} />}
+        {trailing || <ChevronRight size={18} color={colors.muted} />}
       </View>
     </Pressable>
   );
@@ -182,15 +182,15 @@ export default function SettingsScreen() {
               <Text style={s.profileName}>{profile?.full_name ?? "User"}</Text>
               <Text style={s.profileEmail}>{user?.email ?? ""}</Text>
             </View>
-            <ChevronRight size={18} color={colors.stone[300]} />
+            <ChevronRight size={18} color={colors.muted} />
           </View>
         </View>
 
         <View style={s.card}>
           <Text style={s.sectionLabel}>ACCOUNT</Text>
-          <SettingsItem icon={<User size={18} color={colors.primary[500]} />} title="Edit Profile" subtitle="Name, email, avatar" />
+          <SettingsItem icon={<User size={18} color={colors.accent.yellow} />} title="Edit Profile" subtitle="Name, email, avatar" />
           <View style={s.divider} />
-          <SettingsItem icon={<CircleDollarSign size={18} color={colors.primary[500]} />} title="Currency" subtitle={profile?.currency ?? "USD"} />
+          <SettingsItem icon={<CircleDollarSign size={18} color={colors.accent.yellow} />} title="Currency" subtitle={profile?.currency ?? "USD"} />
         </View>
 
         {/* Connected Banks Section */}
@@ -214,7 +214,7 @@ export default function SettingsScreen() {
             </View>
           ) : (
             <View style={s.noBanks}>
-              <Building2 size={24} color={colors.stone[300]} />
+              <Building2 size={24} color={colors.muted} />
               <Text style={s.noBanksText}>No banks connected</Text>
             </View>
           )}
@@ -223,7 +223,7 @@ export default function SettingsScreen() {
             onPress={() => router.push("/bank/connect")}
             style={({ pressed }) => [s.addBankBtn, pressed && s.pressed]}
           >
-            <Plus size={16} color={colors.primary[600]} />
+            <Plus size={16} color={colors.accent.yellow} />
             <Text style={s.addBankText}>
               {connectedBanks && connectedBanks.length > 0 ? "Add Another Bank" : "Connect a Bank"}
             </Text>
@@ -233,7 +233,7 @@ export default function SettingsScreen() {
         <View style={s.card}>
           <Text style={s.sectionLabel}>SECURITY</Text>
           <SettingsItem
-            icon={<Fingerprint size={18} color={colors.primary[500]} />}
+            icon={<Fingerprint size={18} color={colors.accent.yellow} />}
             title={biometricLabel}
             subtitle={biometricAvailable ? "Require authentication to open app" : "Not available on this device"}
             trailing={
@@ -249,14 +249,14 @@ export default function SettingsScreen() {
         <View style={s.card}>
           <Text style={s.sectionLabel}>NOTIFICATIONS</Text>
           <SettingsItem
-            icon={<Bell size={18} color={colors.primary[500]} />}
+            icon={<Bell size={18} color={colors.accent.yellow} />}
             title="Push Notifications"
             subtitle="Renewal reminders on your device"
             trailing={<Switch checked={pushEnabled} onCheckedChange={handleTogglePush} />}
           />
           <View style={s.divider} />
           <SettingsItem
-            icon={<Bell size={18} color={colors.primary[500]} />}
+            icon={<Bell size={18} color={colors.accent.yellow} />}
             title="Email Notifications"
             subtitle="Renewal reminders via email"
             trailing={<Switch checked={emailEnabled} onCheckedChange={handleToggleEmail} />}
@@ -265,14 +265,14 @@ export default function SettingsScreen() {
 
         <View style={s.card}>
           <Text style={s.sectionLabel}>ABOUT</Text>
-          <SettingsItem icon={<Shield size={18} color={colors.primary[500]} />} title="Privacy Policy" />
+          <SettingsItem icon={<Shield size={18} color={colors.accent.yellow} />} title="Privacy Policy" />
           <View style={s.divider} />
-          <SettingsItem icon={<Shield size={18} color={colors.primary[500]} />} title="Terms of Service" />
+          <SettingsItem icon={<Shield size={18} color={colors.accent.yellow} />} title="Terms of Service" />
         </View>
 
         <Pressable onPress={handleSignOut}>
           <View style={s.signOutBtn}>
-            <LogOut size={18} color={colors.red[500]} />
+            <LogOut size={18} color={colors.destructive} />
             <Text style={s.signOutText}>Sign Out</Text>
           </View>
         </Pressable>
@@ -282,20 +282,22 @@ export default function SettingsScreen() {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.stone[50] },
+  screen: { flex: 1, backgroundColor: colors.background },
   flex1: { flex: 1 },
   scrollContent: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32, gap: 20 },
   title: {
     fontSize: 28,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontFamily: "Syne_800ExtraBold",
+    letterSpacing: -0.56,
+    color: colors.foreground,
     paddingTop: 8,
   },
   card: {
-    backgroundColor: colors.white,
-    borderRadius: radius.xl,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
     padding: 16,
-    ...shadows.md,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   profileRow: {
     flexDirection: "row",
@@ -305,21 +307,22 @@ const s = StyleSheet.create({
   profileInfo: { marginLeft: 16, flex: 1 },
   profileName: {
     fontSize: 18,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontFamily: "Syne_800ExtraBold",
+    color: colors.foreground,
   },
   profileEmail: {
     fontSize: 14,
-    color: colors.stone[400],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
     marginTop: 2,
   },
   sectionLabel: {
     marginBottom: 12,
-    fontSize: 13,
-    fontWeight: "600",
+    fontSize: 11,
+    fontFamily: "Syne_600SemiBold",
     textTransform: "uppercase",
     letterSpacing: 1,
-    color: colors.stone[400],
+    color: colors.muted,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -328,7 +331,7 @@ const s = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.border,
     marginLeft: 52,
   },
   itemRow: {
@@ -341,20 +344,21 @@ const s = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: colors.primary[50],
+    backgroundColor: colors.surfaceRaised,
     alignItems: "center",
     justifyContent: "center",
   },
   itemContent: { flex: 1 },
   itemTitle: {
     fontSize: 15,
-    fontWeight: "500",
-    color: colors.stone[900],
+    fontFamily: "Syne_600SemiBold",
+    color: colors.foreground,
   },
   itemSubtitle: {
     marginTop: 2,
     fontSize: 13,
-    color: colors.stone[400],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
   banksList: {
     gap: 10,
@@ -367,7 +371,8 @@ const s = StyleSheet.create({
   },
   noBanksText: {
     fontSize: 14,
-    color: colors.stone[400],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
   addBankBtn: {
     flexDirection: "row",
@@ -375,31 +380,31 @@ const s = StyleSheet.create({
     justifyContent: "center",
     gap: 6,
     paddingVertical: 12,
-    borderRadius: radius.lg,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.primary[200],
+    borderColor: colors.border,
     borderStyle: "dashed",
   },
   addBankText: {
     fontSize: 14,
-    fontWeight: "600",
-    color: colors.primary[600],
+    fontFamily: "Syne_600SemiBold",
+    color: colors.accent.yellow,
   },
   pressed: { opacity: 0.7 },
   signOutBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: radius.xl,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.red[200],
-    backgroundColor: colors.red[50],
+    borderColor: colors.destructive,
+    backgroundColor: colors.transparent,
     paddingVertical: 16,
   },
   signOutText: {
     marginLeft: 10,
     fontSize: 15,
-    fontWeight: "600",
-    color: colors.red[500],
+    fontFamily: "Syne_600SemiBold",
+    color: colors.destructive,
   },
 });

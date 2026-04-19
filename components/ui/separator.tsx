@@ -28,11 +28,11 @@ const styles = StyleSheet.create({
   horizontal: {
     height: 1,
     width: "100%",
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.border,
   },
   vertical: {
     width: 1,
     height: "100%",
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.border,
   },
 });

@@ -25,7 +25,7 @@ export function Progress({ value, color }: ProgressProps) {
         style={[
           styles.fill,
           {
-            backgroundColor: color || colors.primary[500],
+            backgroundColor: color || colors.accent.yellow,
             width: width.interpolate({
               inputRange: [0, 100],
               outputRange: ["0%", "100%"],
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     width: "100%",
     overflow: "hidden",
     borderRadius: radius.full,
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.border,
   },
   fill: {
     height: "100%",

@@ -4,7 +4,7 @@ import { ChevronRight } from "lucide-react-native";
 import { formatCurrency, getDaysUntil } from "@/lib/utils";
 import type { Subscription } from "@/types/subscription";
 import { Logo } from "@/components/shared/Logo";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius, typography } from "@/lib/theme";
 
 interface UpcomingRenewalsProps {
   subscriptions: Subscription[];
@@ -13,9 +13,9 @@ interface UpcomingRenewalsProps {
 }
 
 function getDaysColor(days: number): string {
-  if (days < 3) return colors.red[500];
-  if (days < 7) return colors.amber[500];
-  return colors.stone[400];
+  if (days < 3) return colors.destructive;
+  if (days < 7) return colors.accent.yellow;
+  return colors.muted;
 }
 
 function getDaysLabel(days: number): string {
@@ -38,7 +38,7 @@ export function UpcomingRenewals({
         {onViewAll && (
           <Pressable onPress={onViewAll} style={styles.viewAllBtn}>
             <Text style={styles.viewAllText}>View all</Text>
-            <ChevronRight size={14} color={colors.primary[600]} />
+            <ChevronRight size={14} color={colors.accent.yellow} />
           </Pressable>
         )}
       </View>
@@ -85,10 +85,11 @@ export function UpcomingRenewals({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.xl,
-    backgroundColor: colors.white,
-    padding: 20,
-    ...shadows.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   headerRow: {
     flexDirection: "row",
@@ -97,9 +98,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
+    fontFamily: "Syne_700Bold",
     fontSize: 18,
     fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
   },
   viewAllBtn: {
     flexDirection: "row",
@@ -107,49 +109,54 @@ const styles = StyleSheet.create({
   },
   viewAllText: {
     marginRight: 2,
-    fontSize: 14,
+    fontFamily: typography.body.fontFamily,
+    fontSize: typography.body.fontSize,
     fontWeight: "500",
-    color: colors.primary[600],
+    color: colors.accent.yellow,
   },
   emptyText: {
     paddingVertical: 20,
     textAlign: "center",
-    fontSize: 14,
-    color: colors.stone[400],
+    fontFamily: typography.body.fontFamily,
+    fontSize: typography.body.fontSize,
+    color: colors.muted,
   },
   list: {
     gap: 0,
   },
   pressed: {
-    opacity: 0.7,
+    opacity: 0.85,
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
+    height: 56,
   },
   nameCol: {
     marginLeft: 14,
     flex: 1,
   },
   name: {
+    fontFamily: typography.body.fontFamily,
     fontSize: 15,
     fontWeight: "600",
-    color: colors.stone[900],
+    color: colors.foreground,
     marginBottom: 2,
   },
   daysText: {
+    fontFamily: typography.body.fontFamily,
     fontSize: 13,
     fontWeight: "500",
   },
   amount: {
+    fontFamily: "Syne_700Bold",
     fontSize: 15,
     fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
   },
   separator: {
     height: 1,
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.border,
     marginLeft: 54,
   },
 });

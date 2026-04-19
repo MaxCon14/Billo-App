@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/toast";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -53,7 +53,7 @@ export default function RegisterScreen() {
         <View style={styles.container}>
           <View style={styles.header}>
             <View style={styles.iconWrapper}>
-              <CreditCard size={32} color="#fff" />
+              <CreditCard size={32} color={colors.background} />
             </View>
             <Text style={styles.title}>Create Account</Text>
             <Text style={styles.subtitle}>
@@ -121,7 +121,7 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.stone[50],
+    backgroundColor: colors.background,
   },
   scrollContent: {
     flexGrow: 1,
@@ -140,20 +140,22 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.accent.yellow,
     alignItems: "center",
     justifyContent: "center",
-    ...shadows.lg,
   },
   title: {
     fontSize: 28,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontFamily: "Syne_800ExtraBold",
+    letterSpacing: -0.56,
+    color: colors.foreground,
   },
   subtitle: {
     marginTop: 8,
-    fontSize: 15,
-    color: colors.stone[400],
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    lineHeight: 21,
+    color: colors.muted,
   },
   form: {
     gap: 16,
@@ -161,22 +163,21 @@ const styles = StyleSheet.create({
   primaryBtn: {
     marginTop: 8,
     height: 52,
-    borderRadius: radius.lg,
-    backgroundColor: colors.primary[600],
+    borderRadius: radius.full,
+    backgroundColor: colors.accent.yellow,
     alignItems: "center",
     justifyContent: "center",
-    ...shadows.md,
   },
   primaryBtnPressed: {
-    backgroundColor: colors.primary[700],
+    opacity: 0.85,
   },
   primaryBtnDisabled: {
     opacity: 0.6,
   },
   primaryBtnText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: colors.white,
+    fontFamily: "Syne_700Bold",
+    color: colors.background,
   },
   footerRow: {
     marginTop: 20,
@@ -186,11 +187,12 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: colors.stone[400],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
   footerLink: {
     fontSize: 14,
-    fontWeight: "600",
-    color: colors.primary[600],
+    fontFamily: "Syne_600SemiBold",
+    color: colors.accent.yellow,
   },
 });

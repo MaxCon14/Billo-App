@@ -9,7 +9,7 @@ import {
   type ViewProps,
   type ViewStyle,
 } from "react-native";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 export interface SelectOption {
   label: string;
@@ -129,9 +129,10 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   label: {
+    fontFamily: "Syne_700Bold",
     fontSize: 13,
     fontWeight: "600",
-    color: colors.stone[600],
+    color: colors.muted,
     marginBottom: 8,
     letterSpacing: 0.1,
   },
@@ -140,31 +141,32 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderRadius: radius.lg,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.stone[200],
-    backgroundColor: colors.stone[50],
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
     paddingHorizontal: 16,
   },
   triggerPressed: {
-    backgroundColor: colors.stone[100],
+    opacity: 0.85,
   },
   disabled: {
     opacity: 0.4,
   },
   triggerText: {
+    fontFamily: "Syne_400Regular",
     fontSize: 15,
     flex: 1,
   },
   triggerTextSelected: {
-    color: colors.stone[900],
+    color: colors.foreground,
     fontWeight: "500",
   },
   triggerTextPlaceholder: {
-    color: colors.stone[400],
+    color: colors.muted,
   },
   chevron: {
-    color: colors.stone[400],
+    color: colors.muted,
     fontSize: 14,
     marginLeft: 8,
   },
@@ -172,27 +174,29 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.6)",
   },
   dropdown: {
     width: "85%",
     maxHeight: "60%",
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius["2xl"],
+    borderWidth: 1,
+    borderColor: colors.border,
     overflow: "hidden",
-    ...shadows.lg,
   },
   dropdownHeader: {
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: colors.stone[100],
+    borderBottomColor: colors.border,
   },
   dropdownHeaderText: {
+    fontFamily: "Syne_700Bold",
     fontSize: 17,
     fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
     letterSpacing: -0.2,
   },
   option: {
@@ -202,30 +206,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   optionSelected: {
-    backgroundColor: colors.primary[50],
+    backgroundColor: colors.surfaceRaised,
   },
   optionPressed: {
-    backgroundColor: colors.stone[50],
+    opacity: 0.85,
   },
   optionText: {
+    fontFamily: "Syne_400Regular",
     fontSize: 15,
     flex: 1,
   },
   optionTextDefault: {
-    color: colors.stone[800],
+    color: colors.foreground,
   },
   optionTextSelected: {
-    color: colors.primary[600],
+    color: colors.accent.yellow,
     fontWeight: "600",
   },
   checkmark: {
-    color: colors.primary[600],
+    color: colors.accent.yellow,
     fontSize: 16,
     fontWeight: "600",
   },
   separator: {
     height: 1,
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.border,
     marginHorizontal: 20,
   },
 });

@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { formatCurrency, getDaysUntil } from "@/lib/utils";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius, typography } from "@/lib/theme";
 import type { Subscription } from "@/types/subscription";
 import { Logo } from "@/components/shared/Logo";
 
@@ -41,7 +41,7 @@ export function SubscriptionCard({ subscription, onPress }: SubscriptionCardProp
             </Text>
             {isTrial && (
               <View style={[styles.trialBadge, trialDays !== null && trialDays < 3 && styles.trialBadgeUrgent]}>
-                <Text style={[styles.trialBadgeText, trialDays !== null && trialDays < 3 && styles.trialBadgeTextUrgent]}>TRIAL</Text>
+                <Text style={styles.trialBadgeText}>TRIAL</Text>
               </View>
             )}
           </View>
@@ -80,16 +80,16 @@ export function SubscriptionCard({ subscription, onPress }: SubscriptionCardProp
 
 const styles = StyleSheet.create({
   pressed: {
-    opacity: 0.7,
-    transform: [{ scale: 0.99 }],
+    opacity: 0.85,
   },
   card: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: radius.xl,
-    backgroundColor: colors.white,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
     padding: 16,
-    ...shadows.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   info: {
     marginLeft: 14,
@@ -102,53 +102,56 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   name: {
+    fontFamily: typography.body.fontFamily,
     fontSize: 15,
     fontWeight: "600",
-    color: colors.stone[900],
+    color: colors.foreground,
     flexShrink: 1,
   },
   trialBadge: {
-    paddingHorizontal: 6,
+    paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 6,
-    backgroundColor: colors.amber[100],
+    borderRadius: radius.full,
+    backgroundColor: colors.accent.pink,
   },
   trialBadgeUrgent: {
-    backgroundColor: colors.red[100],
+    backgroundColor: colors.destructive,
   },
   trialBadgeText: {
+    fontFamily: typography.label.fontFamily,
     fontSize: 10,
     fontWeight: "700",
-    color: colors.amber[600],
+    color: colors.background,
     letterSpacing: 0.5,
   },
-  trialBadgeTextUrgent: {
-    color: colors.red[600],
-  },
   category: {
+    fontFamily: typography.body.fontFamily,
     fontSize: 12,
     fontWeight: "400",
-    color: colors.stone[400],
+    color: colors.muted,
   },
   amountContainer: {
     alignItems: "flex-end",
   },
   amount: {
+    fontFamily: "Syne_700Bold",
     fontSize: 16,
     fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
     marginBottom: 3,
     letterSpacing: -0.2,
   },
   trialFreeText: {
+    fontFamily: "Syne_700Bold",
     fontSize: 16,
     fontWeight: "700",
-    color: colors.green[500],
+    color: colors.accent.green,
     marginBottom: 3,
   },
   cycle: {
+    fontFamily: typography.body.fontFamily,
     fontSize: 12,
     fontWeight: "400",
-    color: colors.stone[400],
+    color: colors.muted,
   },
 });

@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 type ToastType = "success" | "error" | "info";
 
@@ -28,28 +28,16 @@ const TOAST_ICON: Record<ToastType, string> = {
   info: "\u2139",
 };
 
-const TOAST_BG: Record<ToastType, string> = {
-  success: colors.white,
-  error: colors.white,
-  info: colors.white,
-};
-
 const TOAST_ICON_BG: Record<ToastType, string> = {
-  success: colors.green[50],
-  error: colors.red[50],
-  info: colors.primary[50],
+  success: colors.accent.green,
+  error: colors.destructive,
+  info: colors.accent.yellow,
 };
 
 const TOAST_ICON_COLOR: Record<ToastType, string> = {
-  success: colors.green[600],
-  error: colors.red[500],
-  info: colors.primary[600],
-};
-
-const TOAST_TEXT: Record<ToastType, string> = {
-  success: colors.stone[800],
-  error: colors.stone[800],
-  info: colors.stone[800],
+  success: colors.background,
+  error: colors.foreground,
+  info: colors.background,
 };
 
 function ToastItem({ toast: t, onDismiss }: { toast: Toast; onDismiss: () => void }) {
@@ -106,7 +94,7 @@ function ToastItem({ toast: t, onDismiss }: { toast: Toast; onDismiss: () => voi
             </Text>
           </View>
           <Text
-            style={[styles.toastText, { color: TOAST_TEXT[t.type] }]}
+            style={styles.toastText}
             numberOfLines={2}
           >
             {t.message}
@@ -164,11 +152,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginBottom: 8,
     borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     minWidth: 280,
-    ...shadows.lg,
   },
   toastIconContainer: {
     width: 32,
@@ -183,8 +172,10 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   toastText: {
+    fontFamily: "Syne_400Regular",
     fontSize: 14,
     fontWeight: "600",
+    color: colors.foreground,
     flex: 1,
     letterSpacing: 0.1,
   },

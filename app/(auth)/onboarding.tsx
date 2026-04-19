@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { CreditCard, Plus, Building2, Bell, ArrowRight } from "lucide-react-native";
 import { Button } from "@/components/ui/button";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 const STEPS = [
   {
@@ -51,7 +51,7 @@ export default function OnboardingScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.content}>
         <View style={styles.iconCircle}>
-          <Icon size={40} color={colors.primary[600]} />
+          <Icon size={40} color={colors.accent.yellow} />
         </View>
 
         <Text style={styles.title}>{currentStep.title}</Text>
@@ -82,7 +82,7 @@ export default function OnboardingScreen() {
             <Text style={styles.buttonText}>
               {step === STEPS.length - 1 ? "Get Started" : "Next"}
             </Text>
-            <ArrowRight size={18} color="#fff" />
+            <ArrowRight size={18} color={colors.background} />
           </View>
         </Pressable>
 
@@ -102,7 +102,7 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.stone[50],
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: colors.primary[50],
+    backgroundColor: colors.surfaceRaised,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -123,15 +123,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     textAlign: "center",
     fontSize: 28,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontFamily: "Syne_800ExtraBold",
+    letterSpacing: -0.56,
+    color: colors.foreground,
   },
   description: {
     marginBottom: 40,
     textAlign: "center",
-    fontSize: 16,
-    lineHeight: 24,
-    color: colors.stone[400],
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    lineHeight: 21,
+    color: colors.muted,
   },
   dotsRow: {
     flexDirection: "row",
@@ -143,11 +145,11 @@ const styles = StyleSheet.create({
   },
   dotActive: {
     width: 24,
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.accent.yellow,
   },
   dotInactive: {
     width: 8,
-    backgroundColor: colors.stone[200],
+    backgroundColor: colors.border,
   },
   footer: {
     paddingHorizontal: 24,
@@ -155,14 +157,13 @@ const styles = StyleSheet.create({
   },
   primaryBtn: {
     height: 52,
-    borderRadius: radius.lg,
-    backgroundColor: colors.primary[600],
+    borderRadius: radius.full,
+    backgroundColor: colors.accent.yellow,
     alignItems: "center",
     justifyContent: "center",
-    ...shadows.md,
   },
   primaryBtnPressed: {
-    backgroundColor: colors.primary[700],
+    opacity: 0.85,
   },
   buttonRow: {
     flexDirection: "row",
@@ -171,8 +172,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: colors.white,
+    fontFamily: "Syne_700Bold",
+    color: colors.background,
   },
   skipButton: {
     marginTop: 20,
@@ -180,8 +181,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   skipText: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: colors.stone[400],
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
 });

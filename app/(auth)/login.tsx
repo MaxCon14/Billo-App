@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/toast";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -41,7 +41,7 @@ export default function LoginScreen() {
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.iconWrapper}>
-            <CreditCard size={32} color="#fff" />
+            <CreditCard size={32} color={colors.background} />
           </View>
           <Text style={styles.title}>SubTracker</Text>
           <Text style={styles.subtitle}>
@@ -95,7 +95,7 @@ export default function LoginScreen() {
             ]}
           >
             <View style={styles.googleRow}>
-              <Mail size={18} color={colors.stone[500]} />
+              <Mail size={18} color={colors.muted} />
               <Text style={styles.googleText}>Continue with Google</Text>
             </View>
           </Pressable>
@@ -115,7 +115,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.stone[50],
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
@@ -131,22 +131,23 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.accent.yellow,
     alignItems: "center",
     justifyContent: "center",
-    ...shadows.lg,
   },
   title: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontSize: 28,
+    fontFamily: "Syne_800ExtraBold",
+    letterSpacing: -0.56,
+    color: colors.foreground,
   },
   subtitle: {
     marginTop: 8,
     textAlign: "center",
-    fontSize: 15,
-    color: colors.stone[400],
-    lineHeight: 22,
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    lineHeight: 21,
+    color: colors.muted,
     paddingHorizontal: 16,
   },
   form: {
@@ -155,22 +156,21 @@ const styles = StyleSheet.create({
   primaryBtn: {
     marginTop: 8,
     height: 52,
-    borderRadius: radius.lg,
-    backgroundColor: colors.primary[600],
+    borderRadius: radius.full,
+    backgroundColor: colors.accent.yellow,
     alignItems: "center",
     justifyContent: "center",
-    ...shadows.md,
   },
   primaryBtnPressed: {
-    backgroundColor: colors.primary[700],
+    opacity: 0.85,
   },
   primaryBtnDisabled: {
     opacity: 0.6,
   },
   primaryBtnText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: colors.white,
+    fontFamily: "Syne_700Bold",
+    color: colors.background,
   },
   dividerRow: {
     marginVertical: 8,
@@ -180,25 +180,26 @@ const styles = StyleSheet.create({
   dividerLine: {
     height: 1,
     flex: 1,
-    backgroundColor: colors.stone[200],
+    backgroundColor: colors.border,
   },
   dividerText: {
     marginHorizontal: 16,
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.stone[400],
+    fontSize: 11,
+    fontFamily: "Syne_600SemiBold",
+    textTransform: "uppercase",
+    color: colors.muted,
   },
   googleBtn: {
     height: 52,
-    borderRadius: radius.lg,
+    borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: colors.stone[200],
-    backgroundColor: colors.white,
+    borderColor: colors.border,
+    backgroundColor: colors.transparent,
     alignItems: "center",
     justifyContent: "center",
   },
   googleBtnPressed: {
-    backgroundColor: colors.stone[50],
+    opacity: 0.85,
   },
   googleRow: {
     flexDirection: "row",
@@ -206,9 +207,9 @@ const styles = StyleSheet.create({
   },
   googleText: {
     marginLeft: 10,
-    fontSize: 15,
-    fontWeight: "600",
-    color: colors.stone[700],
+    fontSize: 14,
+    fontFamily: "Syne_600SemiBold",
+    color: colors.foreground,
   },
   footerRow: {
     marginTop: 20,
@@ -218,11 +219,12 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: colors.stone[400],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
   footerLink: {
     fontSize: 14,
-    fontWeight: "600",
-    color: colors.primary[600],
+    fontFamily: "Syne_600SemiBold",
+    color: colors.accent.yellow,
   },
 });

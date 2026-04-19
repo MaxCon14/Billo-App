@@ -38,7 +38,7 @@ export function SubscriptionList({
       <EmptyState
         title="No subscriptions yet"
         description="Add your first subscription to start tracking your spending."
-        icon={<CreditCard size={28} color={colors.stone[400]} />}
+        icon={<CreditCard size={28} color={colors.muted} />}
       />
     );
   }
@@ -56,7 +56,7 @@ export function SubscriptionList({
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={onRefresh}
-            tintColor={colors.primary[500]}
+            tintColor={colors.accent.yellow}
           />
         ) : undefined
       }

@@ -4,7 +4,7 @@ import { AlertTriangle } from "lucide-react-native";
 import { getDaysUntil } from "@/lib/utils";
 import type { Subscription } from "@/types/subscription";
 import { Logo } from "@/components/shared/Logo";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius, typography } from "@/lib/theme";
 
 interface TrialsEndingSoonProps {
   subscriptions: Subscription[];
@@ -12,9 +12,8 @@ interface TrialsEndingSoonProps {
 }
 
 function getDaysColor(days: number): string {
-  if (days < 3) return colors.red[500];
-  if (days < 5) return colors.amber[600];
-  return colors.amber[500];
+  if (days < 3) return colors.destructive;
+  return colors.accent.pink;
 }
 
 function getDaysLabel(days: number): string {
@@ -39,7 +38,7 @@ export function TrialsEndingSoon({
   return (
     <View style={styles.card}>
       <View style={styles.headerRow}>
-        <AlertTriangle size={18} color={colors.amber[500]} />
+        <AlertTriangle size={18} color={colors.accent.pink} />
         <Text style={styles.title}>Trials Ending Soon</Text>
       </View>
 
@@ -60,8 +59,8 @@ export function TrialsEndingSoon({
                   {getDaysLabel(days)}
                 </Text>
               </View>
-              <View style={[styles.urgencyBadge, { backgroundColor: days < 3 ? colors.red[100] : colors.amber[100] }]}>
-                <Text style={[styles.urgencyText, { color: days < 3 ? colors.red[600] : colors.amber[600] }]}>
+              <View style={[styles.urgencyBadge, { backgroundColor: days < 3 ? colors.destructive : colors.accent.pink }]}>
+                <Text style={styles.urgencyText}>
                   {days === 0 ? "NOW" : `${days}d`}
                 </Text>
               </View>
@@ -76,11 +75,11 @@ export function TrialsEndingSoon({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.xl,
-    backgroundColor: colors.amber[50],
-    padding: 20,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    padding: 16,
     borderWidth: 1,
-    borderColor: colors.amber[200],
+    borderColor: colors.border,
   },
   headerRow: {
     flexDirection: "row",
@@ -89,43 +88,48 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
+    fontFamily: "Syne_700Bold",
     fontSize: 18,
     fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
   },
   list: { gap: 0 },
-  pressed: { opacity: 0.7 },
+  pressed: { opacity: 0.85 },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
+    height: 56,
   },
   nameCol: {
     marginLeft: 14,
     flex: 1,
   },
   name: {
+    fontFamily: typography.body.fontFamily,
     fontSize: 15,
     fontWeight: "600",
-    color: colors.stone[900],
+    color: colors.foreground,
     marginBottom: 2,
   },
   daysText: {
+    fontFamily: typography.body.fontFamily,
     fontSize: 13,
     fontWeight: "500",
   },
   urgencyBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: radius.full,
   },
   urgencyText: {
+    fontFamily: typography.label.fontFamily,
     fontSize: 13,
     fontWeight: "700",
+    color: colors.background,
   },
   separator: {
     height: 1,
-    backgroundColor: colors.amber[200],
+    backgroundColor: colors.border,
     marginLeft: 54,
   },
 });
