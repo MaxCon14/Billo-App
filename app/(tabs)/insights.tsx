@@ -54,7 +54,7 @@ export default function InsightsScreen() {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.stone[50] },
+  screen: { flex: 1, backgroundColor: colors.background },
   flex1: { flex: 1 },
   scrollContent: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 24, gap: 24 },
   headerSection: {
@@ -62,13 +62,15 @@ const s = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontFamily: "Syne_800ExtraBold",
+    letterSpacing: -0.56,
+    color: colors.foreground,
   },
   subtitle: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: colors.stone[400],
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    lineHeight: 21,
+    color: colors.muted,
     marginTop: 4,
   },
 });

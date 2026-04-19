@@ -14,7 +14,7 @@ import { useInsights } from "@/hooks/useInsights";
 import { useAuth } from "@/hooks/useAuth";
 import { useAutoSync, useDetectedSubscriptions } from "@/hooks/useTrueLayer";
 import { useBankStore } from "@/stores/bankStore";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 import type { Subscription } from "@/types/subscription";
 
 function getGreeting(): string {
@@ -85,7 +85,7 @@ export default function DashboardScreen() {
             style={({ pressed }) => [s.detectedBanner, pressed && s.pressed]}
           >
             <View style={s.detectedIcon}>
-              <Sparkles size={18} color={colors.primary[600]} />
+              <Sparkles size={18} color={colors.accent.yellow} />
             </View>
             <View style={s.detectedInfo}>
               <Text style={s.detectedTitle}>
@@ -128,7 +128,7 @@ export default function DashboardScreen() {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.stone[50] },
+  screen: { flex: 1, backgroundColor: colors.background },
   flex1: { flex: 1 },
   scrollContent: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 24, gap: 24 },
   headerRow: {
@@ -138,31 +138,33 @@ const s = StyleSheet.create({
     paddingTop: 8,
   },
   greeting: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: colors.stone[400],
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    lineHeight: 21,
+    color: colors.muted,
     letterSpacing: 0.2,
   },
   name: {
     fontSize: 28,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontFamily: "Syne_800ExtraBold",
+    letterSpacing: -0.56,
+    color: colors.foreground,
     marginTop: 2,
   },
   detectedBanner: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.primary[50],
-    borderRadius: radius.xl,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.primary[200],
+    borderColor: colors.border,
   },
   detectedIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surfaceRaised,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -170,13 +172,14 @@ const s = StyleSheet.create({
   detectedInfo: { flex: 1 },
   detectedTitle: {
     fontSize: 15,
-    fontWeight: "600",
-    color: colors.primary[600],
+    fontFamily: "Syne_600SemiBold",
+    color: colors.accent.yellow,
   },
   detectedSubtitle: {
     marginTop: 2,
     fontSize: 13,
-    color: colors.stone[500],
+    fontFamily: "Syne_400Regular",
+    color: colors.muted,
   },
   pressed: { opacity: 0.7 },
 });

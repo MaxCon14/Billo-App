@@ -31,7 +31,7 @@ const Input = React.forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
             editable === false ? styles.disabled : undefined,
             style,
           ]}
-          placeholderTextColor={colors.stone[400]}
+          placeholderTextColor={colors.muted}
           editable={editable}
           onFocus={(e) => {
             setIsFocused(true);
@@ -58,37 +58,38 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   label: {
+    fontFamily: "Syne_700Bold",
     fontSize: 13,
     fontWeight: "600",
-    color: colors.stone[600],
+    color: colors.muted,
     marginBottom: 8,
     letterSpacing: 0.1,
   },
   input: {
     height: 52,
-    borderRadius: radius.lg,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.stone[200],
-    backgroundColor: colors.stone[50],
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
     paddingHorizontal: 16,
+    fontFamily: "Syne_400Regular",
     fontSize: 15,
-    color: colors.stone[900],
+    color: colors.foreground,
   },
   inputFocused: {
-    borderColor: colors.primary[500],
-    backgroundColor: colors.white,
+    borderColor: colors.accent.yellow,
   },
   inputError: {
-    borderColor: colors.red[400],
-    backgroundColor: colors.red[50],
+    borderColor: colors.destructive,
   },
   disabled: {
     opacity: 0.5,
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.surfaceRaised,
   },
   errorText: {
+    fontFamily: "Syne_400Regular",
     fontSize: 13,
-    color: colors.red[500],
+    color: colors.destructive,
     marginTop: 6,
     fontWeight: "500",
   },

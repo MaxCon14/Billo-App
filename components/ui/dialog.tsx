@@ -11,7 +11,7 @@ import {
   type ViewStyle,
   type TextStyle,
 } from "react-native";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 // Dialog (root wrapper)
 export interface DialogProps extends Omit<ModalProps, "children"> {
@@ -116,27 +116,30 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.6)",
   },
   dialogContent: {
     width: "85%",
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius["2xl"],
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: 24,
-    ...shadows.lg,
   },
   dialogHeader: {
     marginBottom: 20,
   },
   dialogTitle: {
+    fontFamily: "Syne_800ExtraBold",
     fontSize: 20,
     fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
     letterSpacing: -0.3,
   },
   dialogDescription: {
+    fontFamily: "Syne_400Regular",
     fontSize: 14,
-    color: colors.stone[500],
+    color: colors.muted,
     marginTop: 6,
     lineHeight: 20,
   },

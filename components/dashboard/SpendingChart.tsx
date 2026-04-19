@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { formatCurrency } from "@/lib/utils";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius, typography } from "@/lib/theme";
 
 interface ChartData {
   category: string;
@@ -58,22 +58,25 @@ export function SpendingChart({ data }: SpendingChartProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.xl,
-    backgroundColor: colors.white,
-    padding: 20,
-    ...shadows.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   title: {
+    fontFamily: "Syne_700Bold",
     fontSize: 18,
     fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
     marginBottom: 16,
   },
   emptyText: {
     paddingVertical: 20,
     textAlign: "center",
-    fontSize: 14,
-    color: colors.stone[400],
+    fontFamily: typography.body.fontFamily,
+    fontSize: typography.body.fontSize,
+    color: colors.muted,
   },
   list: {
     gap: 16,
@@ -97,20 +100,22 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   categoryLabel: {
-    fontSize: 14,
+    fontFamily: typography.body.fontFamily,
+    fontSize: typography.body.fontSize,
     fontWeight: "500",
-    color: colors.stone[700],
+    color: colors.foreground,
   },
   amountLabel: {
-    fontSize: 14,
+    fontFamily: "Syne_700Bold",
+    fontSize: typography.body.fontSize,
     fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
   },
   barTrack: {
     height: 6,
     overflow: "hidden",
     borderRadius: radius.full,
-    backgroundColor: colors.stone[100],
+    backgroundColor: colors.surfaceRaised,
   },
   barFill: {
     height: "100%",

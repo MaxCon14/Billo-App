@@ -1,115 +1,90 @@
 import { Platform } from 'react-native';
 
-// ─── Color Palette ─────────────────────────────────────────────────
-// Primary: Indigo (premium, modern)
-// Neutral: Slate (clean, cool)
-// Semantic: Emerald (success), Amber (warning), Rose (danger)
+// ─── Billo Dark Design System ─────────────────────────────────────
+// Dark-mode only. No light mode.
 
 export const colors = {
-  primary: {
-    50: '#EEF2FF',
-    100: '#E0E7FF',
-    200: '#C7D2FE',
-    300: '#A5B4FC',
-    400: '#818CF8',
-    500: '#6366F1',
-    600: '#4F46E5',
-    700: '#4338CA',
-    800: '#3730A3',
-    900: '#312E81',
+  background: '#0A0A0A',
+  surface: '#161616',
+  surfaceRaised: '#1E1E1E',
+  border: '#2A2A2A',
+  foreground: '#FFFFFF',
+  muted: '#787878',
+
+  accent: {
+    yellow: '#F5E642',
+    green: '#4ADE80',
+    pink: '#F472B6',
   },
 
-  stone: {
-    50: '#F8FAFC',
-    100: '#F1F5F9',
-    200: '#E2E8F0',
-    300: '#CBD5E1',
-    400: '#94A3B8',
-    500: '#64748B',
-    600: '#475569',
-    700: '#334155',
-    800: '#1E293B',
-    900: '#0F172A',
-  },
+  destructive: '#EF4444',
 
-  red: {
-    50: '#FFF1F2',
-    100: '#FFE4E6',
-    200: '#FECDD3',
-    300: '#FDA4AF',
-    400: '#FB7185',
-    500: '#F43F5E',
-    600: '#E11D48',
-    700: '#BE123C',
-    800: '#9F1239',
-    900: '#881337',
-  },
-
-  green: {
-    50: '#ECFDF5',
-    100: '#D1FAE5',
-    200: '#A7F3D0',
-    300: '#6EE7B7',
-    400: '#34D399',
-    500: '#10B981',
-    600: '#059669',
-  },
-
-  amber: {
-    50: '#FFFBEB',
-    100: '#FEF3C7',
-    200: '#FDE68A',
-    300: '#FCD34D',
-    400: '#FBBF24',
-    500: '#F59E0B',
-    600: '#D97706',
-  },
-
+  // Kept for backward compat in components being migrated
   white: '#FFFFFF',
   black: '#000000',
   transparent: 'transparent',
-};
 
-export const darkColors = {
-  bg: '#0F172A',
-  card: '#1E293B',
-  border: '#334155',
-  surface: '#1E293B',
-  text: '#F8FAFC',
-  textSecondary: '#94A3B8',
+  // Legacy palette aliases — components reference these during migration
+  primary: {
+    50: '#1A1A00',
+    100: '#2A2A00',
+    200: '#3D3D00',
+    300: '#6B6B00',
+    400: '#C4C400',
+    500: '#DDD530',
+    600: '#F5E642',
+    700: '#F5E642',
+    800: '#C4B800',
+    900: '#8A8200',
+  },
+  stone: {
+    50: '#0A0A0A',
+    100: '#161616',
+    200: '#1E1E1E',
+    300: '#2A2A2A',
+    400: '#787878',
+    500: '#787878',
+    600: '#787878',
+    700: '#2A2A2A',
+    800: '#161616',
+    900: '#FFFFFF',
+  },
+  red: {
+    50: '#1A0A0A',
+    100: '#2A1010',
+    200: '#3A1515',
+    300: '#EF4444',
+    400: '#EF4444',
+    500: '#EF4444',
+    600: '#DC2626',
+    700: '#B91C1C',
+    800: '#991B1B',
+    900: '#7F1D1D',
+  },
+  green: {
+    50: '#0A1A0F',
+    100: '#102A18',
+    200: '#153A22',
+    300: '#4ADE80',
+    400: '#4ADE80',
+    500: '#4ADE80',
+    600: '#22C55E',
+  },
+  amber: {
+    50: '#1A1800',
+    100: '#2A2700',
+    200: '#F5E642',
+    300: '#F5E642',
+    400: '#F5E642',
+    500: '#F5E642',
+    600: '#DDD530',
+  },
 };
 
 export const shadows = {
-  sm: Platform.select({
-    ios: {
-      shadowColor: '#0F172A',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.04,
-      shadowRadius: 3,
-    },
-    android: { elevation: 1 },
-    default: {},
-  }) as Record<string, any>,
-  md: Platform.select({
-    ios: {
-      shadowColor: '#0F172A',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.06,
-      shadowRadius: 12,
-    },
-    android: { elevation: 3 },
-    default: {},
-  }) as Record<string, any>,
-  lg: Platform.select({
-    ios: {
-      shadowColor: '#0F172A',
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.1,
-      shadowRadius: 24,
-    },
-    android: { elevation: 6 },
-    default: {},
-  }) as Record<string, any>,
+  sm: {} as Record<string, any>,
+  md: {} as Record<string, any>,
+  lg: {} as Record<string, any>,
 };
 
 export const radius = {
@@ -130,4 +105,23 @@ export const spacing = {
   '2xl': 24,
   '3xl': 32,
   '4xl': 40,
+};
+
+export const typography = {
+  heading: {
+    fontFamily: 'Syne_800ExtraBold',
+    fontSize: 28,
+    letterSpacing: -0.56,
+  },
+  body: {
+    fontFamily: 'Syne_400Regular',
+    fontSize: 14,
+    lineHeight: 21,
+  },
+  label: {
+    fontFamily: 'Syne_600SemiBold',
+    fontSize: 11,
+    textTransform: 'uppercase' as const,
+    fontWeight: '600' as const,
+  },
 };

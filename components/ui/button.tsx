@@ -7,7 +7,7 @@ import {
   type ViewStyle,
   type TextStyle,
 } from "react-native";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 export type ButtonVariant =
   | "default"
@@ -29,18 +29,19 @@ function getVariantStyle(variant: ButtonVariant): ViewStyle {
   switch (variant) {
     case "destructive":
       return {
-        backgroundColor: colors.red[500],
-        ...shadows.sm,
+        backgroundColor: colors.destructive,
       };
     case "outline":
       return {
-        borderWidth: 1.5,
-        borderColor: colors.stone[200],
-        backgroundColor: colors.white,
+        borderWidth: 1,
+        borderColor: colors.border,
+        backgroundColor: colors.transparent,
       };
     case "secondary":
       return {
-        backgroundColor: colors.stone[100],
+        borderWidth: 1,
+        borderColor: colors.border,
+        backgroundColor: colors.transparent,
       };
     case "ghost":
       return {
@@ -49,8 +50,7 @@ function getVariantStyle(variant: ButtonVariant): ViewStyle {
     case "default":
     default:
       return {
-        backgroundColor: colors.primary[600],
-        ...shadows.sm,
+        backgroundColor: colors.accent.yellow,
       };
   }
 }
@@ -58,17 +58,17 @@ function getVariantStyle(variant: ButtonVariant): ViewStyle {
 function getTextVariantStyle(variant: ButtonVariant): TextStyle {
   switch (variant) {
     case "default":
-      return { color: colors.white };
+      return { color: colors.background };
     case "destructive":
-      return { color: colors.white };
+      return { color: colors.foreground };
     case "outline":
-      return { color: colors.stone[800] };
+      return { color: colors.foreground };
     case "secondary":
-      return { color: colors.stone[800] };
+      return { color: colors.foreground };
     case "ghost":
-      return { color: colors.primary[600] };
+      return { color: colors.accent.yellow };
     default:
-      return { color: colors.white };
+      return { color: colors.background };
   }
 }
 
@@ -155,9 +155,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: radius.lg,
+    borderRadius: radius.full,
   },
   buttonText: {
+    fontFamily: "Syne_700Bold",
     fontWeight: "700",
     letterSpacing: 0.2,
   },
@@ -165,8 +166,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   pressed: {
-    opacity: 0.75,
-    transform: [{ scale: 0.98 }],
+    opacity: 0.85,
   },
 });
 

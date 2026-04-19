@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Pressable, Animated, StyleSheet } from "react-native";
-import { colors, shadows } from "@/lib/theme";
+import { colors } from "@/lib/theme";
 
 export interface SwitchProps {
   checked: boolean;
@@ -42,7 +42,7 @@ const Switch: React.FC<SwitchProps> = ({
 
   const interpolatedBg = trackColor.interpolate({
     inputRange: [0, 1],
-    outputRange: [colors.stone[200], colors.primary[600]],
+    outputRange: [colors.border, colors.accent.yellow],
   });
 
   return (
@@ -90,8 +90,7 @@ const styles = StyleSheet.create({
     width: THUMB_SIZE,
     height: THUMB_SIZE,
     borderRadius: THUMB_SIZE / 2,
-    backgroundColor: colors.white,
-    ...shadows.sm,
+    backgroundColor: colors.foreground,
   },
 });
 

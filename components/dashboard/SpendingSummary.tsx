@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { formatCurrency } from "@/lib/utils";
 import { TrendingUp } from "lucide-react-native";
-import { colors, radius, shadows } from "@/lib/theme";
+import { colors, radius, typography } from "@/lib/theme";
 
 interface SpendingSummaryProps {
   totalMonthly: number;
@@ -22,7 +22,7 @@ export function SpendingSummary({
       <View style={styles.headerRow}>
         <Text style={styles.headerLabel}>Monthly Spending</Text>
         <View style={styles.iconCircle}>
-          <TrendingUp size={18} color={colors.white} />
+          <TrendingUp size={18} color={colors.background} />
         </View>
       </View>
 
@@ -52,10 +52,11 @@ export function SpendingSummary({
 const styles = StyleSheet.create({
   container: {
     overflow: "hidden",
-    borderRadius: radius.xl,
-    backgroundColor: colors.primary[600],
-    padding: 20,
-    ...shadows.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   headerRow: {
     flexDirection: "row",
@@ -63,30 +64,33 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   headerLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: colors.primary[200],
+    fontFamily: typography.label.fontFamily,
+    fontSize: typography.label.fontSize,
+    textTransform: typography.label.textTransform,
+    fontWeight: typography.label.fontWeight,
+    color: colors.muted,
   },
   iconCircle: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "rgba(255,255,255,0.18)",
+    backgroundColor: colors.accent.yellow,
     alignItems: "center",
     justifyContent: "center",
   },
   totalAmount: {
     marginTop: 12,
+    fontFamily: typography.heading.fontFamily,
     fontSize: 32,
     fontWeight: "700",
-    color: colors.white,
-    letterSpacing: -0.5,
+    color: colors.accent.yellow,
+    letterSpacing: typography.heading.letterSpacing,
   },
   divider: {
     marginTop: 20,
     marginBottom: 16,
     height: 1,
-    backgroundColor: "rgba(255,255,255,0.15)",
+    backgroundColor: colors.border,
   },
   footerRow: {
     flexDirection: "row",
@@ -102,17 +106,19 @@ const styles = StyleSheet.create({
   footerSeparator: {
     width: 1,
     height: 32,
-    backgroundColor: "rgba(255,255,255,0.15)",
+    backgroundColor: colors.border,
   },
   footerLabel: {
+    fontFamily: typography.body.fontFamily,
     fontSize: 12,
     fontWeight: "400",
-    color: colors.primary[200],
+    color: colors.muted,
     marginBottom: 4,
   },
   footerValue: {
+    fontFamily: "Syne_700Bold",
     fontSize: 16,
     fontWeight: "700",
-    color: colors.white,
+    color: colors.foreground,
   },
 });

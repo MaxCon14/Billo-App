@@ -7,7 +7,7 @@ import { SubscriptionList } from "@/components/subscription/SubscriptionList";
 import { CategoryBadge } from "@/components/subscription/CategoryBadge";
 import { useSubscriptions, useCategories } from "@/hooks/useSubscriptions";
 import { useFilterStore } from "@/stores/filterStore";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 export default function SubscriptionsScreen() {
   const router = useRouter();
@@ -25,17 +25,17 @@ export default function SubscriptionsScreen() {
             onPress={() => router.push("/subscription/add")}
             style={s.addBtn}
           >
-            <Plus size={24} color="#fff" />
+            <Plus size={24} color={colors.background} />
           </Pressable>
         </View>
 
         <View style={s.searchRow}>
           <View style={s.searchBox}>
-            <Search size={18} color={colors.stone[400]} />
+            <Search size={18} color={colors.muted} />
             <TextInput
               style={s.searchInput}
               placeholder="Search subscriptions..."
-              placeholderTextColor={colors.stone[400]}
+              placeholderTextColor={colors.muted}
               value={search}
               onChangeText={setSearch}
             />
@@ -44,7 +44,7 @@ export default function SubscriptionsScreen() {
             onPress={() => setShowFilters(!showFilters)}
             style={[s.filterBtn, showFilters && s.filterBtnActive]}
           >
-            <SlidersHorizontal size={20} color={showFilters ? colors.primary[600] : colors.stone[500]} />
+            <SlidersHorizontal size={20} color={showFilters ? colors.accent.yellow : colors.muted} />
           </Pressable>
         </View>
 
@@ -98,7 +98,7 @@ export default function SubscriptionsScreen() {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.stone[50] },
+  screen: { flex: 1, backgroundColor: colors.background },
   header: { paddingHorizontal: 20, paddingBottom: 12, paddingTop: 16 },
   titleRow: {
     flexDirection: "row",
@@ -107,17 +107,17 @@ const s = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "700",
-    color: colors.stone[900],
+    fontFamily: "Syne_800ExtraBold",
+    letterSpacing: -0.56,
+    color: colors.foreground,
   },
   addBtn: {
     width: 56,
     height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.primary[600],
+    borderRadius: 9999,
+    backgroundColor: colors.accent.yellow,
     alignItems: "center",
     justifyContent: "center",
-    ...shadows.lg,
   },
   searchRow: {
     marginTop: 16,
@@ -129,32 +129,33 @@ const s = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: radius.full,
+    borderRadius: 9999,
     borderWidth: 1,
-    borderColor: colors.stone[200],
-    backgroundColor: colors.stone[50],
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
     paddingHorizontal: 16,
     height: 44,
   },
   searchInput: {
     marginLeft: 10,
     flex: 1,
-    fontSize: 15,
-    color: colors.stone[900],
+    fontSize: 14,
+    fontFamily: "Syne_400Regular",
+    color: colors.foreground,
   },
   filterBtn: {
     width: 44,
     height: 44,
-    borderRadius: radius.full,
+    borderRadius: 9999,
     borderWidth: 1,
-    borderColor: colors.stone[200],
-    backgroundColor: colors.white,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
   },
   filterBtnActive: {
-    borderColor: colors.primary[200],
-    backgroundColor: colors.primary[50],
+    borderColor: colors.accent.yellow,
+    backgroundColor: colors.surfaceRaised,
   },
   filterScroll: {
     marginTop: 14,
@@ -165,26 +166,26 @@ const s = StyleSheet.create({
     paddingRight: 8,
   },
   filterChip: {
-    borderRadius: radius.full,
+    borderRadius: 9999,
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
   filterChipActive: {
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.accent.yellow,
   },
   filterChipInactive: {
     borderWidth: 1,
-    borderColor: colors.stone[200],
-    backgroundColor: colors.white,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
   },
   filterChipText: {
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: "Syne_600SemiBold",
   },
   filterChipTextActive: {
-    color: colors.white,
+    color: colors.background,
   },
   filterChipTextInactive: {
-    color: colors.stone[600],
+    color: colors.muted,
   },
 });

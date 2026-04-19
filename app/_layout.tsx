@@ -1,17 +1,21 @@
 import React, { useEffect, useCallback, useRef } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, AppState, View, useColorScheme } from "react-native";
+import { ActivityIndicator, AppState, View } from "react-native";
 import * as Linking from "expo-linking";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useFonts, Syne_400Regular, Syne_600SemiBold, Syne_700Bold, Syne_800ExtraBold } from "@expo-google-fonts/syne";
+import * as SplashScreen from "expo-splash-screen";
 import { ToastProvider } from "@/components/ui/toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthStore } from "@/stores/authStore";
-import { colors, darkColors } from "@/lib/theme";
+import { colors } from "@/lib/theme";
 import { BiometricLockScreen } from "@/components/BiometricLockScreen";
 import { useBiometricStore } from "@/stores/biometricStore";
 import { useSyncTransactions } from "@/hooks/useTrueLayer";
 import * as LocalAuthentication from "expo-local-authentication";
+
+SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,10 +26,9 @@ const queryClient = new QueryClient({
   },
 });
 
-const GRACE_PERIOD_MS = 30_000; // 30 seconds
+const GRACE_PERIOD_MS = 30_000;
 
 function BiometricGate({ children }: { children: React.ReactNode }) {
-  // Use store directly to avoid creating a second useAuth() instance
   const profile = useAuthStore((s) => s.profile);
   const user = useAuthStore((s) => s.user);
   const { isLocked, setLocked, setLastBackgroundTime } = useBiometricStore();
@@ -45,7 +48,7 @@ function BiometricGate({ children }: { children: React.ReactNode }) {
       }
 
       const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: "Unlock SubTracker",
+        promptMessage: "Unlock Billo",
         cancelLabel: "Cancel",
         disableDeviceFallback: false,
       });
@@ -58,14 +61,12 @@ function BiometricGate({ children }: { children: React.ReactNode }) {
     }
   }, [setLocked]);
 
-  // Prompt on cold launch
   useEffect(() => {
     if (!user || !biometricEnabled || hasPromptedOnMount.current) return;
     hasPromptedOnMount.current = true;
     authenticate();
   }, [user, biometricEnabled, authenticate]);
 
-  // Reset lock state when biometric is disabled
   useEffect(() => {
     if (!biometricEnabled) {
       setLocked(false);
@@ -75,18 +76,15 @@ function BiometricGate({ children }: { children: React.ReactNode }) {
     }
   }, [biometricEnabled, user, setLocked]);
 
-  // AppState listener: lock on background, unlock check on foreground
   useEffect(() => {
     if (!biometricEnabled || !user) return;
 
     const subscription = AppState.addEventListener("change", (nextState) => {
       if (appState.current === "active" && nextState.match(/inactive|background/)) {
-        // Going to background - record timestamp
         setLastBackgroundTime(Date.now());
       }
 
       if (appState.current.match(/inactive|background/) && nextState === "active") {
-        // Coming back to foreground - check grace period
         const bg = useBiometricStore.getState().lastBackgroundTime;
         if (bg && Date.now() - bg > GRACE_PERIOD_MS) {
           setLocked(true);
@@ -100,7 +98,6 @@ function BiometricGate({ children }: { children: React.ReactNode }) {
     return () => subscription.remove();
   }, [biometricEnabled, user, authenticate, setLastBackgroundTime, setLocked]);
 
-  // If biometric is not enabled or user is not logged in, don't gate
   if (!biometricEnabled || !user) {
     return <>{children}</>;
   }
@@ -112,11 +109,6 @@ function BiometricGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-/**
- * Listens for the TrueLayer redirect deep link
- * (subtracker://bank-connected?bank_id=...) and triggers the transaction sync,
- * then navigates to the review screen.
- */
 function BankDeepLinkHandler() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
@@ -136,7 +128,6 @@ function BankDeepLinkHandler() {
         return;
       }
 
-      // Sync transactions, then navigate to review
       syncMutation.mutate(bankId, {
         onSuccess: () => {
           router.push("/bank/review");
@@ -150,10 +141,8 @@ function BankDeepLinkHandler() {
   );
 
   useEffect(() => {
-    // Handle URL when app is opened via deep link from background
     const subscription = Linking.addEventListener("url", ({ url }) => handleUrl(url));
 
-    // Handle URL when app is opened from cold start via deep link
     Linking.getInitialURL().then((url) => {
       if (url) handleUrl(url);
     });
@@ -183,8 +172,8 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.stone[50] }}>
-        <ActivityIndicator size="large" color={colors.primary[600]} />
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.background }}>
+        <ActivityIndicator size="large" color={colors.accent.yellow} />
       </View>
     );
   }
@@ -192,22 +181,46 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+const headerStyle = {
+  backgroundColor: colors.background,
+};
+
+const headerTitleStyle = {
+  fontFamily: "Syne_700Bold",
+  fontWeight: "600" as const,
+  fontSize: 17,
+  color: colors.foreground,
+};
+
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const [fontsLoaded] = useFonts({
+    Syne_400Regular,
+    Syne_600SemiBold,
+    Syne_700Bold,
+    Syne_800ExtraBold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
-        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+        <StatusBar style="light" />
         <AuthGuard>
           <BiometricGate>
             <BankDeepLinkHandler />
             <Stack
               screenOptions={{
                 headerShown: false,
-                contentStyle: {
-                  backgroundColor: colorScheme === "dark" ? darkColors.bg : colors.stone[50],
-                },
+                contentStyle: { backgroundColor: colors.background },
                 animation: "slide_from_right",
               }}
             >
@@ -218,14 +231,9 @@ export default function RootLayout() {
                 options={{
                   headerShown: true,
                   title: "Subscription Details",
-                  headerTintColor: colors.primary[600],
-                  headerStyle: {
-                    backgroundColor: colorScheme === "dark" ? darkColors.bg : colors.stone[50],
-                  },
-                  headerTitleStyle: {
-                    fontWeight: "600",
-                    fontSize: 17,
-                  },
+                  headerTintColor: colors.foreground,
+                  headerStyle,
+                  headerTitleStyle,
                   headerShadowVisible: false,
                 }}
               />
@@ -234,15 +242,10 @@ export default function RootLayout() {
                 options={{
                   headerShown: true,
                   title: "Add Subscription",
-                  headerTintColor: colors.primary[600],
+                  headerTintColor: colors.foreground,
                   presentation: "modal",
-                  headerStyle: {
-                    backgroundColor: colorScheme === "dark" ? darkColors.bg : colors.stone[50],
-                  },
-                  headerTitleStyle: {
-                    fontWeight: "600",
-                    fontSize: 17,
-                  },
+                  headerStyle,
+                  headerTitleStyle,
                   headerShadowVisible: false,
                 }}
               />
@@ -251,15 +254,10 @@ export default function RootLayout() {
                 options={{
                   headerShown: true,
                   title: "Edit Subscription",
-                  headerTintColor: colors.primary[600],
+                  headerTintColor: colors.foreground,
                   presentation: "modal",
-                  headerStyle: {
-                    backgroundColor: colorScheme === "dark" ? darkColors.bg : colors.stone[50],
-                  },
-                  headerTitleStyle: {
-                    fontWeight: "600",
-                    fontSize: 17,
-                  },
+                  headerStyle,
+                  headerTitleStyle,
                   headerShadowVisible: false,
                 }}
               />
@@ -268,15 +266,10 @@ export default function RootLayout() {
                 options={{
                   headerShown: true,
                   title: "Connect Bank",
-                  headerTintColor: colors.primary[600],
+                  headerTintColor: colors.foreground,
                   presentation: "modal",
-                  headerStyle: {
-                    backgroundColor: colorScheme === "dark" ? darkColors.bg : colors.stone[50],
-                  },
-                  headerTitleStyle: {
-                    fontWeight: "600",
-                    fontSize: 17,
-                  },
+                  headerStyle,
+                  headerTitleStyle,
                   headerShadowVisible: false,
                 }}
               />
@@ -285,15 +278,10 @@ export default function RootLayout() {
                 options={{
                   headerShown: true,
                   title: "Review Subscriptions",
-                  headerTintColor: colors.primary[600],
+                  headerTintColor: colors.foreground,
                   presentation: "modal",
-                  headerStyle: {
-                    backgroundColor: colorScheme === "dark" ? darkColors.bg : colors.stone[50],
-                  },
-                  headerTitleStyle: {
-                    fontWeight: "600",
-                    fontSize: 17,
-                  },
+                  headerStyle,
+                  headerTitleStyle,
                   headerShadowVisible: false,
                 }}
               />

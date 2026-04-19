@@ -8,7 +8,7 @@ import {
   type ViewStyle,
   type TextStyle,
 } from "react-native";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 // Card
 export interface CardProps extends ViewProps {
@@ -89,23 +89,26 @@ CardFooter.displayName = "CardFooter";
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.white,
-    borderRadius: radius.xl,
-    padding: 20,
-    ...shadows.md,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 16,
   },
   cardHeader: {
     paddingBottom: 16,
   },
   cardTitle: {
+    fontFamily: "Syne_700Bold",
     fontSize: 18,
     fontWeight: "700",
-    color: colors.stone[900],
+    color: colors.foreground,
     letterSpacing: -0.3,
   },
   cardDescription: {
+    fontFamily: "Syne_400Regular",
     fontSize: 14,
-    color: colors.stone[500],
+    color: colors.muted,
     marginTop: 4,
     lineHeight: 20,
   },

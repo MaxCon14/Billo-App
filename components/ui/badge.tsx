@@ -21,32 +21,32 @@ export interface BadgeProps extends ViewProps {
 function getVariantStyle(variant: BadgeVariant): ViewStyle {
   switch (variant) {
     case "secondary":
-      return { backgroundColor: colors.stone[100] };
+      return { backgroundColor: colors.accent.green };
     case "destructive":
-      return { backgroundColor: colors.red[50] };
+      return { backgroundColor: colors.destructive };
     case "outline":
       return {
-        borderWidth: 1.5,
-        borderColor: colors.stone[200],
+        borderWidth: 1,
+        borderColor: colors.border,
         backgroundColor: colors.transparent,
       };
     case "default":
     default:
-      return { backgroundColor: colors.primary[50] };
+      return { backgroundColor: colors.accent.yellow };
   }
 }
 
 function getTextVariantStyle(variant: BadgeVariant): TextStyle {
   switch (variant) {
     case "secondary":
-      return { color: colors.stone[600] };
+      return { color: colors.background };
     case "destructive":
-      return { color: colors.red[600] };
+      return { color: colors.background };
     case "outline":
-      return { color: colors.stone[600] };
+      return { color: colors.foreground };
     case "default":
     default:
-      return { color: colors.primary[700] };
+      return { color: colors.background };
   }
 }
 
@@ -82,8 +82,10 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   badgeText: {
-    fontSize: 12,
-    fontWeight: "600",
+    fontFamily: "Syne_700Bold",
+    fontSize: 11,
+    fontWeight: "700",
+    textTransform: "uppercase",
     letterSpacing: 0.2,
   },
 });

@@ -7,7 +7,7 @@ import {
   type ViewProps,
   type ViewStyle,
 } from "react-native";
-import { colors, shadows, radius } from "@/lib/theme";
+import { colors, radius } from "@/lib/theme";
 
 export type AvatarSize = "sm" | "md" | "lg";
 
@@ -83,8 +83,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: radius.full,
     overflow: "hidden",
-    backgroundColor: colors.primary[100],
-    ...shadows.sm,
+    backgroundColor: colors.surfaceRaised,
   },
   image: {
     height: "100%",
@@ -96,11 +95,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: "100%",
     height: "100%",
-    backgroundColor: colors.primary[100],
+    backgroundColor: colors.surfaceRaised,
   },
   fallbackText: {
+    fontFamily: "Syne_700Bold",
     fontWeight: "700",
-    color: colors.primary[600],
+    color: colors.foreground,
     letterSpacing: 0.5,
   },
 });
