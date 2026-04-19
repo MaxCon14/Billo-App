@@ -23,7 +23,6 @@ export function useProviders(tlCode: string) {
   return useQuery<Provider[]>({
     queryKey: ['tl-providers', tlCode],
     queryFn: async () => {
-      const session = (await supabase.auth.getSession()).data.session;
       const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
       const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
@@ -31,7 +30,7 @@ export function useProviders(tlCode: string) {
         `${supabaseUrl}/functions/v1/truelayer-get-providers?country=${tlCode}`,
         {
           headers: {
-            Authorization: `Bearer ${session?.access_token ?? anonKey}`,
+            Authorization: `Bearer ${anonKey}`,
             apikey: anonKey,
           },
         }
