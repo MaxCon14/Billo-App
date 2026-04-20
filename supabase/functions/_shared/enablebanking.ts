@@ -133,14 +133,12 @@ export async function createAuthSession(opts: {
   state: string;
 }): Promise<{ url: string }> {
   const headers = await apiHeaders();
-  const validUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split("T")[0];
+  const validUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
 
   const body = {
     access: {
-      balances: {},
-      transactions: {},
+      balances: true,
+      transactions: true,
       valid_until: validUntil,
     },
     aspsp: {
