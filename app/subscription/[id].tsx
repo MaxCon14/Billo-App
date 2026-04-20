@@ -74,6 +74,33 @@ export default function SubscriptionDetailScreen() {
     );
   }
 
+  function handleCancelTrial() {
+    const cancelUrl = findCancellationUrl(subscription!.name);
+    Alert.alert(
+      "Cancel Trial",
+      `Cancel your ${subscription!.name} trial? Billo will mark it as cancelled${cancelUrl ? " and open the cancellation page" : ""}.`,
+      [
+        { text: "Not now", style: "cancel" },
+        {
+          text: "Cancel Trial",
+          style: "destructive",
+          onPress: () => {
+            toggleMutation.mutate(
+              { id: subscription!.id, is_active: false },
+              {
+                onSuccess: () => {
+                  toast(`${subscription!.name} trial cancelled`, "success");
+                  if (cancelUrl) Linking.openURL(cancelUrl);
+                },
+                onError: () => toast("Failed to cancel trial", "error"),
+              }
+            );
+          },
+        },
+      ]
+    );
+  }
+
   function handleDelete() {
     Alert.alert(
       "Delete Subscription",
@@ -186,32 +213,54 @@ export default function SubscriptionDetailScreen() {
           </View>
         )}
 
-        {/* Cancellation Assistant */}
-        {(() => {
-          const cancelUrl = findCancellationUrl(subscription.name);
-          return (
-            <View style={s.card}>
-              <Text style={s.sectionTitle}>Cancel Subscription</Text>
-              <Text style={s.cancelNote}>
-                This opens the provider's website to cancel your plan.
-              </Text>
-              {cancelUrl ? (
-                <Pressable
-                  onPress={() => Linking.openURL(cancelUrl)}
-                  style={({ pressed }) => [s.cancelBtn, pressed && s.cancelBtnPressed]}
-                >
-                  <XCircle size={18} color={colors.destructive} />
-                  <Text style={s.cancelBtnText}>Go to Cancellation Page</Text>
-                </Pressable>
-              ) : (
-                <View style={s.cancelBtnDisabled}>
-                  <XCircle size={18} color={colors.muted} />
-                  <Text style={s.cancelBtnTextDisabled}>Cancellation page not available</Text>
-                </View>
-              )}
+        {/* Trial cancellation — prominent card */}
+        {isTrial ? (
+          <View style={[s.card, s.trialCancelCard]}>
+            <View style={s.trialCancelHeader}>
+              <XCircle size={20} color={colors.destructive} />
+              <Text style={s.trialCancelTitle}>Cancel Trial</Text>
             </View>
-          );
-        })()}
+            <Text style={s.cancelNote}>
+              Billo will mark this trial as cancelled
+              {findCancellationUrl(subscription.name) ? " and open the cancellation page so you won't be charged." : ". You'll need to cancel directly with the provider."}
+            </Text>
+            <Pressable
+              onPress={handleCancelTrial}
+              disabled={toggleMutation.isPending}
+              style={({ pressed }) => [s.cancelBtn, pressed && s.cancelBtnPressed]}
+            >
+              <XCircle size={18} color={colors.destructive} />
+              <Text style={s.cancelBtnText}>Cancel Trial Now</Text>
+            </Pressable>
+          </View>
+        ) : (
+          /* Regular cancellation link */
+          (() => {
+            const cancelUrl = findCancellationUrl(subscription.name);
+            return (
+              <View style={s.card}>
+                <Text style={s.sectionTitle}>Cancel Subscription</Text>
+                <Text style={s.cancelNote}>
+                  This opens the provider's website to cancel your plan.
+                </Text>
+                {cancelUrl ? (
+                  <Pressable
+                    onPress={() => Linking.openURL(cancelUrl)}
+                    style={({ pressed }) => [s.cancelBtn, pressed && s.cancelBtnPressed]}
+                  >
+                    <XCircle size={18} color={colors.destructive} />
+                    <Text style={s.cancelBtnText}>Go to Cancellation Page</Text>
+                  </Pressable>
+                ) : (
+                  <View style={s.cancelBtnDisabled}>
+                    <XCircle size={18} color={colors.muted} />
+                    <Text style={s.cancelBtnTextDisabled}>Cancellation page not available</Text>
+                  </View>
+                )}
+              </View>
+            );
+          })()
+        )}
 
         {/* Action Buttons */}
         <View style={s.actionsGap}>
@@ -414,6 +463,22 @@ const s = StyleSheet.create({
   actionBtnText: {
     fontSize: 14,
     fontFamily: "Syne_400Regular",
+  },
+
+  /* Trial cancel card */
+  trialCancelCard: {
+    borderColor: colors.destructive,
+  },
+  trialCancelHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 10,
+  },
+  trialCancelTitle: {
+    fontSize: 15,
+    fontFamily: "Syne_700Bold",
+    color: colors.destructive,
   },
 
   /* Cancel */

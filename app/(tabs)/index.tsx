@@ -9,7 +9,7 @@ import { UpcomingRenewals } from "@/components/dashboard/UpcomingRenewals";
 import { SpendingChart } from "@/components/dashboard/SpendingChart";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { DashboardSkeleton } from "@/components/shared/LoadingSkeleton";
-import { useSubscriptions } from "@/hooks/useSubscriptions";
+import { useSubscriptions, useToggleSubscription } from "@/hooks/useSubscriptions";
 import { useInsights } from "@/hooks/useInsights";
 import { useAuth } from "@/hooks/useAuth";
 import { useAutoSync, useDetectedSubscriptions } from "@/hooks/useTrueLayer";
@@ -28,6 +28,7 @@ export default function DashboardScreen() {
   const router = useRouter();
   const { profile } = useAuth();
   const { data: subscriptions, isLoading } = useSubscriptions();
+  const toggleSubscription = useToggleSubscription();
   const insights = useInsights(subscriptions);
   const { data: detected } = useDetectedSubscriptions();
   const newDetectedCount = useBankStore((s) => s.newDetectedCount);
@@ -56,6 +57,10 @@ export default function DashboardScreen() {
 
   function handleSubscriptionPress(sub: Subscription) {
     router.push(`/subscription/${sub.id}`);
+  }
+
+  function handleCancelTrial(sub: Subscription) {
+    toggleSubscription.mutate({ id: sub.id, is_active: false });
   }
 
   if (isLoading) {
@@ -113,6 +118,7 @@ export default function DashboardScreen() {
         <TrialsEndingSoon
           subscriptions={subscriptions ?? []}
           onSubscriptionPress={handleSubscriptionPress}
+          onCancelTrial={handleCancelTrial}
         />
 
         <UpcomingRenewals

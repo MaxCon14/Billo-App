@@ -1,6 +1,7 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { AlertTriangle } from "lucide-react-native";
+import { Alert, Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { AlertTriangle, XCircle } from "lucide-react-native";
+import { findCancellationUrl } from "@/lib/cancellationLinks";
 import { getDaysUntil } from "@/lib/utils";
 import type { Subscription } from "@/types/subscription";
 import { Logo } from "@/components/shared/Logo";
@@ -9,6 +10,7 @@ import { colors, radius, typography } from "@/lib/theme";
 interface TrialsEndingSoonProps {
   subscriptions: Subscription[];
   onSubscriptionPress: (subscription: Subscription) => void;
+  onCancelTrial?: (subscription: Subscription) => void;
 }
 
 function getDaysColor(days: number): string {
@@ -25,7 +27,26 @@ function getDaysLabel(days: number): string {
 export function TrialsEndingSoon({
   subscriptions,
   onSubscriptionPress,
+  onCancelTrial,
 }: TrialsEndingSoonProps) {
+  function handleCancelTrial(sub: Subscription) {
+    const cancelUrl = findCancellationUrl(sub.name);
+    Alert.alert(
+      "Cancel Trial",
+      `Cancel your ${sub.name} trial?${cancelUrl ? " Billo will open the cancellation page." : ""}`,
+      [
+        { text: "Not now", style: "cancel" },
+        {
+          text: "Cancel Trial",
+          style: "destructive",
+          onPress: () => {
+            onCancelTrial?.(sub);
+            if (cancelUrl) Linking.openURL(cancelUrl);
+          },
+        },
+      ]
+    );
+  }
   // Filter trials ending within 7 days, sorted by urgency
   const trials = subscriptions
     .filter((sub) => sub.is_trial && sub.trial_ends_at)
@@ -59,10 +80,19 @@ export function TrialsEndingSoon({
                   {getDaysLabel(days)}
                 </Text>
               </View>
-              <View style={[styles.urgencyBadge, { backgroundColor: days < 3 ? colors.destructive : colors.accent.pink }]}>
-                <Text style={styles.urgencyText}>
-                  {days === 0 ? "NOW" : `${days}d`}
-                </Text>
+              <View style={styles.rightCol}>
+                <View style={[styles.urgencyBadge, { backgroundColor: days < 3 ? colors.destructive : colors.accent.pink }]}>
+                  <Text style={styles.urgencyText}>
+                    {days === 0 ? "NOW" : `${days}d`}
+                  </Text>
+                </View>
+                <Pressable
+                  onPress={(e) => { e.stopPropagation?.(); handleCancelTrial(sub); }}
+                  style={({ pressed }) => [styles.cancelBtn, pressed && styles.pressed]}
+                >
+                  <XCircle size={14} color={colors.destructive} />
+                  <Text style={styles.cancelText}>Cancel</Text>
+                </Pressable>
               </View>
             </View>
             {index < trials.length - 1 && <View style={styles.separator} />}
@@ -131,5 +161,20 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.border,
     marginLeft: 54,
+  },
+  rightCol: {
+    alignItems: "flex-end",
+    gap: 4,
+  },
+  cancelBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+  },
+  cancelText: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: 12,
+    fontWeight: "500",
+    color: colors.destructive,
   },
 });
