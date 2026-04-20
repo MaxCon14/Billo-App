@@ -99,8 +99,8 @@ function htmlResponse(html: string): Response {
 }
 
 function successPage(bankId: string): string {
-  const deepLink = `billo://bank-connected?bank_id=${encodeURIComponent(bankId)}`;
-  const intentLink = `intent://bank-connected?bank_id=${encodeURIComponent(bankId)}#Intent;scheme=billo;package=com.billo.app;end`;
+  const deepLink = `subtracker://bank-connected?bank_id=${encodeURIComponent(bankId)}`;
+  const intentLink = `intent://bank-connected?bank_id=${encodeURIComponent(bankId)}#Intent;scheme=subtracker;package=com.subtracker.app;end`;
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -139,7 +139,7 @@ function successPage(bankId: string): string {
 }
 
 function errorPage(code: string, message: string | null): string {
-  const deepLink = `billo://bank-connected?error=${encodeURIComponent(code)}`;
+  const deepLink = `subtracker://bank-connected?error=${encodeURIComponent(code)}`;
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -163,7 +163,7 @@ function errorPage(code: string, message: string | null): string {
   <h1>Connection failed</h1>
   <p>${(message ?? "Please try again.").replace(/</g, "&lt;")}</p>
   <p><code>${code}</code></p>
-  <a class="btn" href="${deepLink}">Back to Billo</a>
+  <a class="btn" href="${deepLink}">Back to App</a>
 </body>
 </html>`;
 }
