@@ -59,6 +59,7 @@ export interface SubscriptionFormData {
 
 export type NotificationType =
   | 'renewal_reminder'
+  | 'trial_ending'
   | 'price_change'
   | 'new_detected'
   | 'payment_failed';
