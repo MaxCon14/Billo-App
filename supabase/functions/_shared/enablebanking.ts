@@ -103,9 +103,11 @@ export interface EBTransaction {
   booking_date: string;
   value_date?: string;
   transaction_amount: { amount: string; currency: string };
+  credit_debit_indicator?: string;  // "CRDT" or "DBIT"
   creditor_name?: string;
   debtor_name?: string;
   remittance_information_unstructured?: string;
+  remittance_information?: string[];
   additional_information?: string;
 }
 

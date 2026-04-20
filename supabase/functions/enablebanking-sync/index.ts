@@ -163,10 +163,13 @@ serve(async (req) => {
       try {
         const txns = await fetchTransactions({ accountUid: uid, dateFrom, dateTo });
         for (const t of txns) {
-          const amount = parseFloat(t.transaction_amount?.amount ?? "0");
+          const rawAmount = parseFloat(t.transaction_amount?.amount ?? "0");
+          // Enable Banking returns positive amounts; DBIT = debit (expense) = negative
+          const isDebit = (t.credit_debit_indicator ?? "DBIT") === "DBIT";
+          const amount = isDebit ? -Math.abs(rawAmount) : Math.abs(rawAmount);
           allTransactions.push({
             transaction_id:
-              t.transaction_id ?? t.entry_reference ?? `${uid}-${t.booking_date}-${amount}`,
+              t.transaction_id ?? t.entry_reference ?? `${uid}-${t.booking_date}-${rawAmount}`,
             booking_date: t.booking_date,
             amount,
             currency: t.transaction_amount?.currency ?? "EUR",
@@ -174,6 +177,7 @@ serve(async (req) => {
             debtor_name: t.debtor_name ?? null,
             description:
               t.remittance_information_unstructured ??
+              (t.remittance_information ?? [])[0] ??
               t.additional_information ??
               null,
             raw_data: t as unknown as Record<string, unknown>,
