@@ -91,6 +91,7 @@ export const SUPPORTED_COUNTRIES: Country[] = [
   { code: 'LT', name: 'Lithuania', flag: '🇱🇹' },
   { code: 'LV', name: 'Latvia', flag: '🇱🇻' },
   { code: 'EE', name: 'Estonia', flag: '🇪🇪' },
+  { code: 'CY', name: 'Cyprus', flag: '🇨🇾' },
   { code: 'CZ', name: 'Czech Republic', flag: '🇨🇿' },
   { code: 'RO', name: 'Romania', flag: '🇷🇴' },
 ];
