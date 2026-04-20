@@ -118,7 +118,7 @@ function BankDeepLinkHandler() {
     (url: string) => {
       if (!user) return;
       const parsed = Linking.parse(url);
-      if (parsed.hostname !== "bank-connected" && !url.includes("bank-connected")) return;
+      if (!url.includes("bank-connected")) return;
 
       const bankId = parsed.queryParams?.bank_id;
       const error = parsed.queryParams?.error;

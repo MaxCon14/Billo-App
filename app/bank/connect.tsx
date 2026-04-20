@@ -24,7 +24,7 @@ export default function BankConnectScreen() {
   const [search, setSearch] = useState("");
 
   const { data: providers, isLoading, error } = useProviders(
-    selectedCountry?.tlCode ?? ""
+    selectedCountry?.code ?? ""
   );
 
   const connectBank = useConnectBank();
@@ -39,7 +39,9 @@ export default function BankConnectScreen() {
         id: provider.provider_id,
         name: provider.display_name,
         logo: provider.logo_url ?? null,
-        country: provider.country ?? selectedCountry?.tlCode ?? null,
+        country: provider.country ?? selectedCountry?.code ?? null,
+        aspsp_name: provider.aspsp_name ?? provider.display_name,
+        aspsp_country: provider.aspsp_country ?? selectedCountry?.code ?? 'GB',
       });
     } catch (err) {
       console.error("Failed to create auth link:", err);
@@ -180,8 +182,8 @@ export default function BankConnectScreen() {
         <View style={s.disclaimer}>
           <Shield size={14} color={colors.muted} />
           <Text style={s.disclaimerText}>
-            Secured by TrueLayer with PSD2 open banking. We never see or store
-            your bank credentials.
+            Secured by Enable Banking with PSD2 open banking. We never see or
+            store your bank credentials.
           </Text>
         </View>
       </View>

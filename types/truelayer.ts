@@ -1,10 +1,13 @@
-// ─── TrueLayer API Types ────────────────────────────────────────────────────
+// ─── Bank Provider (Enable Banking ASPSP) ───────────────────────────────────
 
 export interface Provider {
-  provider_id: string;
+  provider_id: string;     // synthetic: "{country}-{name-slug}"
   display_name: string;
-  logo_url?: string;
+  logo_url?: string | null;
   country?: string;
+  aspsp_name: string;      // Enable Banking canonical name
+  aspsp_country: string;   // ISO alpha-2 uppercase
+  sandbox?: boolean;
   scopes?: string[];
 }
 
@@ -61,29 +64,35 @@ export interface DetectedSubscription {
 }
 
 // ─── Country definitions ────────────────────────────────────────────────────
-// TrueLayer's Data API primarily covers UK + the EU open banking corridor.
+// Enable Banking covers 29 European countries via PSD2.
 
 export interface Country {
-  code: string; // ISO 3166-1 alpha-2 UPPERCASE (app-facing)
-  tlCode: string; // TrueLayer lowercase code (api-facing)
+  code: string; // ISO 3166-1 alpha-2 UPPERCASE
   name: string;
   flag: string;
 }
 
 export const SUPPORTED_COUNTRIES: Country[] = [
-  { code: 'GB', tlCode: 'uk', name: 'United Kingdom', flag: '🇬🇧' },
-  { code: 'DE', tlCode: 'de', name: 'Germany', flag: '🇩🇪' },
-  { code: 'FR', tlCode: 'fr', name: 'France', flag: '🇫🇷' },
-  { code: 'ES', tlCode: 'es', name: 'Spain', flag: '🇪🇸' },
-  { code: 'IT', tlCode: 'it', name: 'Italy', flag: '🇮🇹' },
-  { code: 'NL', tlCode: 'nl', name: 'Netherlands', flag: '🇳🇱' },
-  { code: 'IE', tlCode: 'ie', name: 'Ireland', flag: '🇮🇪' },
-  { code: 'PT', tlCode: 'pt', name: 'Portugal', flag: '🇵🇹' },
-  { code: 'BE', tlCode: 'be', name: 'Belgium', flag: '🇧🇪' },
-  { code: 'AT', tlCode: 'at', name: 'Austria', flag: '🇦🇹' },
-  { code: 'PL', tlCode: 'pl', name: 'Poland', flag: '🇵🇱' },
-  { code: 'FI', tlCode: 'fi', name: 'Finland', flag: '🇫🇮' },
-  { code: 'LT', tlCode: 'lt', name: 'Lithuania', flag: '🇱🇹' },
+  { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' },
+  { code: 'DE', name: 'Germany', flag: '🇩🇪' },
+  { code: 'FR', name: 'France', flag: '🇫🇷' },
+  { code: 'ES', name: 'Spain', flag: '🇪🇸' },
+  { code: 'IT', name: 'Italy', flag: '🇮🇹' },
+  { code: 'NL', name: 'Netherlands', flag: '🇳🇱' },
+  { code: 'IE', name: 'Ireland', flag: '🇮🇪' },
+  { code: 'PT', name: 'Portugal', flag: '🇵🇹' },
+  { code: 'BE', name: 'Belgium', flag: '🇧🇪' },
+  { code: 'AT', name: 'Austria', flag: '🇦🇹' },
+  { code: 'PL', name: 'Poland', flag: '🇵🇱' },
+  { code: 'FI', name: 'Finland', flag: '🇫🇮' },
+  { code: 'SE', name: 'Sweden', flag: '🇸🇪' },
+  { code: 'DK', name: 'Denmark', flag: '🇩🇰' },
+  { code: 'NO', name: 'Norway', flag: '🇳🇴' },
+  { code: 'LT', name: 'Lithuania', flag: '🇱🇹' },
+  { code: 'LV', name: 'Latvia', flag: '🇱🇻' },
+  { code: 'EE', name: 'Estonia', flag: '🇪🇪' },
+  { code: 'CZ', name: 'Czech Republic', flag: '🇨🇿' },
+  { code: 'RO', name: 'Romania', flag: '🇷🇴' },
 ];
 
 // ─── Sync Result ────────────────────────────────────────────────────────────

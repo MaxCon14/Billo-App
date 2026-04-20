@@ -14,20 +14,17 @@ import type {
 // ─── Providers Query ────────────────────────────────────────────────────────
 
 /**
- * Fetches the TrueLayer provider catalogue for a given country.
- *
- * `tlCode` is the TrueLayer lowercase country code (e.g. "uk", "fr"),
- * *not* the ISO alpha-2. The SUPPORTED_COUNTRIES list holds both.
+ * Fetches Enable Banking ASPSPs for a given ISO country code (e.g. "GB").
  */
-export function useProviders(tlCode: string) {
+export function useProviders(countryCode: string) {
   return useQuery<Provider[]>({
-    queryKey: ['tl-providers', tlCode],
+    queryKey: ['eb-aspsps', countryCode],
     queryFn: async () => {
       const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
       const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
       const res = await fetch(
-        `${supabaseUrl}/functions/v1/truelayer-get-providers?country=${tlCode}`,
+        `${supabaseUrl}/functions/v1/enablebanking-get-aspsps?country=${countryCode}`,
         {
           headers: {
             Authorization: `Bearer ${anonKey}`,
@@ -39,7 +36,7 @@ export function useProviders(tlCode: string) {
       if (!res.ok) {
         const text = await res.text();
         console.error('useProviders error:', res.status, text);
-        throw new Error(`Failed to fetch providers (${res.status})`);
+        throw new Error(`Failed to fetch banks (${res.status})`);
       }
       const data = await res.json();
       if (!Array.isArray(data)) {
@@ -48,7 +45,7 @@ export function useProviders(tlCode: string) {
       }
       return data as Provider[];
     },
-    enabled: !!tlCode,
+    enabled: !!countryCode,
     staleTime: 1000 * 60 * 30,
   });
 }
@@ -91,15 +88,16 @@ export function useConnectBank() {
       name: string;
       logo?: string | null;
       country?: string | null;
+      aspsp_name?: string;
+      aspsp_country?: string;
     }) => {
       const { data, error } = await supabase.functions.invoke(
-        'truelayer-create-auth-link',
+        'enablebanking-create-auth',
         {
           body: {
-            provider_id: provider.id,
-            provider_name: provider.name,
-            provider_logo: provider.logo ?? null,
-            provider_country: provider.country ?? null,
+            aspsp_name: provider.aspsp_name ?? provider.name,
+            aspsp_country: provider.aspsp_country ?? provider.country ?? 'GB',
+            aspsp_logo: provider.logo ?? null,
           },
         }
       );
@@ -124,7 +122,7 @@ export function useSyncTransactions() {
     mutationFn: async (bankId: string) => {
       setIsSyncing(true);
       const { data, error } = await supabase.functions.invoke(
-        'truelayer-sync-transactions',
+        'enablebanking-sync',
         { body: { bank_id: bankId } }
       );
       if (error) throw error;
