@@ -52,7 +52,7 @@ export async function generateJWT(): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
 
   const header = base64url(JSON.stringify({ alg: "RS256", typ: "JWT", kid: APP_ID }));
-  const payload = base64url(JSON.stringify({ iss: APP_ID, aud: "https://api.enablebanking.com", iat: now, exp: now + 3600 }));
+  const payload = base64url(JSON.stringify({ iss: APP_ID, aud: "api.enablebanking.com", iat: now, exp: now + 3600 }));
 
   const sigInput = `${header}.${payload}`;
   const data = new TextEncoder().encode(sigInput);
